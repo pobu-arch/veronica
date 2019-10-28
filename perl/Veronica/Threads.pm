@@ -32,14 +32,16 @@ sub join_n_thread_with_log
         {
             if($thread->is_joinable())
             {
-                my $result = $thread->join();
+                $thread->join();
 
-                $error   = $THREAD_POOL{$thread->tid()}{'status'} if $error ne 0;
-                $logfile = $THREAD_POOL{$thread->tid()}{'logfile'};
+                $error         = $THREAD_POOL{$thread->tid()}{'status'} if $error ne 0;
+                my $run_cmd    = $THREAD_POOL{$thread->tid()}{'run_cmd'};
+                my $result     = $THREAD_POOL{$thread->tid()}{'result'};
+                my $logfile    = $THREAD_POOL{$thread->tid()}{'logfile'};
                 my $log_handle = Veronica::Common::open_or_die($logfile);
                 print $log_handle "\n\n";
-                print $log_handle $THREAD_POOL{$thread->tid()}{'run_cmd'};
-                print $log_handle $THREAD_POOL{$thread->tid()}{'result'};
+                print $log_handle $run_cmd;
+                print $log_handle $result if defined $result;
                 close $log_handle;
 
                 $freed_slot++;
@@ -54,7 +56,7 @@ sub join_n_thread_with_log
     return $error;
 }
 
-# $logfile should be appended with open pattern ! 
+# $logfile should be appended with open pattern !
 sub thread_start
 {
     my ($run_cmd, $logfile) = @_;
