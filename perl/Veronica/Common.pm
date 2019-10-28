@@ -32,6 +32,7 @@ sub mkdir_or_die
     if !-e $dirpath;
 }
 
+# $file_to_open should be appended with open pattern !
 sub open_or_die
 {
     my ($file_to_open, $die_msg) = @_;
