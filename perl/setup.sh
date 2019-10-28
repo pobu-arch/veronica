@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-basepath=$(cd "$(dirname "$0")";pwd)
-export VERONICA_PERL=$basepath
-echo $VERONICA_PERL
+DIR=$(cd $(dirname "${BASH_SOURCE[0]}") >/dev/null && pwd)
+echo "export VERONICA_PERL=$DIR"
+export VERONICA_PERL=$DIR
