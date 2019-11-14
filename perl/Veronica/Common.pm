@@ -7,6 +7,7 @@ use strict;
 use warnings;
 use Cwd 'abs_path';
 use File::Basename;
+use File::Copy qw(move);
 my @EXPORT = qw(get_script_path mkdir_or_die open_or_die say_level);
 
 our $MSG_LEVEL = 5;
@@ -20,6 +21,27 @@ our $MSG_LEVEL = 5;
 sub get_script_path
 {
     return dirname(abs_path($0));
+}
+
+sub filter_path
+{
+    my ($new_path) = @_;
+
+    $new_path =~ s/(?<s>\s)/\\$+{s}/xg;
+    $new_path =~ s/\\$//xg;
+    $new_path =~ s/\</\\\</xg;
+    $new_path =~ s/\>/\\\>/xg;
+    $new_path =~ s/\(/\\\(/xg;
+    $new_path =~ s/\)/\\\)/xg;
+    $new_path =~ s/\@/\\\@/xg;
+    $new_path =~ s/\&/\\\&/xg;
+    $new_path =~ s/\'/\\\'/xg;
+    $new_path =~ s/\,/\\\,/xg;
+    $new_path =~ s/\./\\\./xg;
+    $new_path =~ s/\-/\\\-/xg;
+    $new_path =~ s/^\\(?<rest>.+)/$+{rest}/;
+    chomp $new_path;
+    return $new_path;
 }
 
 sub mkdir_or_die
