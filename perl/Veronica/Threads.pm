@@ -45,7 +45,7 @@ sub join_n_thread_with_log
                 close $log_handle;
 
                 $freed_slot++;
-                Veronica::Common::say_level(5, 'Thread '.$thread->tid().' joined');
+                Veronica::Common::say_level('Thread '.$thread->tid().' joined', 5);
                 delete $THREAD_POOL{$thread->tid()};
             }
         }
@@ -68,7 +68,7 @@ sub thread_start
     }
     
     my $thread = threads->new(\&thread_main, "$run_cmd");
-    Veronica::Common::say_level(5, 'Thread '.$thread->tid().' launched');
+    Veronica::Common::say_level('Thread '.$thread->tid().' launched', 5);
 
     $THREAD_POOL{$thread->tid()}{'run_cmd'} = $run_cmd;
     $THREAD_POOL{$thread->tid()}{'logfile'} = $logfile;
