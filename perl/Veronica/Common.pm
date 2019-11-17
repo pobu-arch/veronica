@@ -8,7 +8,7 @@ use warnings;
 use Cwd 'abs_path';
 use File::Basename;
 use File::Copy qw(move);
-my @EXPORT = qw(get_script_path mkdir_or_die open_or_die say_level);
+my @EXPORT = qw(get_script_path filter_path mkdir_or_die open_or_die say_level);
 
 our $MSG_LEVEL = 5;
 
@@ -73,7 +73,7 @@ sub set_msg_level
 
 sub say_level
 {
-    my ($level, $string) = @_;
+    my ($string, $level) = @_;
     if($level <= $MSG_LEVEL && $string ne '')
     {
         my $prefix = '';
@@ -101,8 +101,9 @@ sub say_level
         {
             $prefix = '';
         }
-
-        say "${prefix}${string}";
+        
+        chomp $string;
+        say "${prefix}"."${string}";
     }
 }
 1;

@@ -15,5 +15,5 @@ case $OSTYPE in
         ;;
 esac
 
-echo "export VERONICA_PERL=$DIR"
-export VERONICA_PERL=$DIR
+echo "export VERONICA=$DIR"
+export VERONICA=$DIR
