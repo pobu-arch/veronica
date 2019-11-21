@@ -6,7 +6,7 @@ use v5.10;
 use strict;
 use warnings;
 use threads;
-use lib $ENV{'VERONICA_PERL'};
+use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
 my @EXPORT = qw(set_num_core make_at_least_n_thread_slots thread_start thread_main);
 
