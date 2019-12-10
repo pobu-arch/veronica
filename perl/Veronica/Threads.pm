@@ -8,7 +8,7 @@ use warnings;
 use threads;
 use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
-my @EXPORT = qw(set_num_core make_at_least_n_thread_slots thread_start thread_main);
+my @EXPORT = qw(set_num_core make_at_least_n_thread_slots thread_start);
 
 our $NUM_CORE    = 8;
 our %THREAD_POOL = ();
@@ -35,14 +35,18 @@ sub join_n_thread_with_log
                 $thread->join();
 
                 $error         = $THREAD_POOL{$thread->tid()}{'status'} if $error ne 0;
-                my $run_cmd    = $THREAD_POOL{$thread->tid()}{'run_cmd'};
                 my $result     = $THREAD_POOL{$thread->tid()}{'result'};
-                my $logfile    = $THREAD_POOL{$thread->tid()}{'logfile'};
-                my $log_handle = Veronica::Common::open_or_die($logfile);
-                print $log_handle "\n\n";
-                print $log_handle $run_cmd;
-                print $log_handle $result if defined $result;
-                close $log_handle;
+                my $info       = $THREAD_POOL{$thread->tid()}{'info'};
+
+                if(exists $THREAD_POOL{$thread->tid()}{'logfile'})
+                {
+                    my $logfile    = $THREAD_POOL{$thread->tid()}{'logfile'};
+                    my $log_handle = Veronica::Common::open_or_die($logfile);
+                    print $log_handle "\n\n";
+                    print $log_handle $info;
+                    print $log_handle $result if defined $result;
+                    close $log_handle;
+                }
 
                 $freed_slot++;
                 Veronica::Common::say_level('Thread '.$thread->tid().' joined', 5);
@@ -59,7 +63,7 @@ sub join_n_thread_with_log
 # $logfile should be appended with open pattern !
 sub thread_start
 {
-    my ($run_cmd, $logfile) = @_;
+    my ($info, $logfile, $entry_func_ref, @parameters) = @_;
     my $error = 0;
     
     if(scalar threads->list() >= $NUM_CORE)
@@ -67,24 +71,17 @@ sub thread_start
         $error = join_n_thread_with_log(1);
     }
     
-    my $thread = threads->new(\&thread_main, "$run_cmd");
+    my $thread = threads->new($entry_func_ref, @parameters);
+    my $tid = $thread->tid();
+
+    $THREAD_POOL{$thread->tid()}{'status'}  = $?;
+    $THREAD_POOL{$thread->tid()}{'result'}  = '';
+    $THREAD_POOL{$thread->tid()}{'info'}    = $info;
+    $THREAD_POOL{$thread->tid()}{'logfile'} = $logfile if $logfile ne '';
+    
     Veronica::Common::say_level('Thread '.$thread->tid().' launched', 5);
 
-    $THREAD_POOL{$thread->tid()}{'run_cmd'} = $run_cmd;
-    $THREAD_POOL{$thread->tid()}{'logfile'} = $logfile;
-
     return $error if $error;
-}
-
-sub thread_main
-{
-    my ($run_cmd) = @_;
-    my $result = `$run_cmd 2>&1`;
-    my $thread = threads->self();
-    my $tid    = $thread->tid();
-
-    $THREAD_POOL{$thread->tid()}{'result'}  = $result;
-    $THREAD_POOL{$thread->tid()}{'status'}  = $?;
 }
 
 1;
