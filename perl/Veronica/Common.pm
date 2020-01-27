@@ -79,11 +79,11 @@ sub say_level
         my $prefix = '';
         if($level == 5)
         {
-            $prefix = '[LIB-Script] ';
+            $prefix = '[INFO-Script] ';
         }
         elsif($level == 4)
         {
-            $prefix = '[INFO-Script] ';
+            $prefix = '[MESG-Script] ';
         }
         elsif($level == 3)
         {
@@ -95,7 +95,7 @@ sub say_level
         }
         elsif($level == 1)
         {
-            $prefix = '[BUG-Script] ';
+            $prefix = '[ERROR-Script] ';
         }
         elsif($level == 0)
         {
