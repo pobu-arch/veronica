@@ -8,7 +8,7 @@ use warnings;
 use threads;
 use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
-my @EXPORT = qw(set_num_core make_at_least_n_thread_slots thread_start);
+my @EXPORT = qw(set_num_core join_n_thread_with_log thread_start);
 
 our $NUM_CORE    = 8;
 our %THREAD_POOL = ();
@@ -17,6 +17,12 @@ sub set_num_core
 {
     my ($num) = @_;
     $NUM_CORE = $num;
+}
+
+sub system_entry
+{
+    my (@parameters) = @_;
+    return system "@parameters";
 }
 
 sub join_n_thread_with_log
@@ -49,10 +55,11 @@ sub join_n_thread_with_log
                 }
 
                 $freed_slot++;
-                Veronica::Common::say_level('Thread '.$thread->tid().' joined', 5);
+                Veronica::Common::say_level('Thread '.$thread->tid().' joined with info '.$info, 5);
                 delete $THREAD_POOL{$thread->tid()};
             }
         }
+        last if(scalar threads->list() == 0);
         last if($freed_slot >= $target_num);
 
         #sleep(1);
@@ -79,7 +86,7 @@ sub thread_start
     $THREAD_POOL{$thread->tid()}{'info'}    = $info;
     $THREAD_POOL{$thread->tid()}{'logfile'} = $logfile if $logfile ne '';
     
-    Veronica::Common::say_level('Thread '.$thread->tid().' launched', 5);
+    Veronica::Common::say_level('Thread '.$thread->tid().' launched with info '.$info, 5);
 
     return $error if $error;
 }
