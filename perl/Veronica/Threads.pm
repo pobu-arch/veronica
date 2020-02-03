@@ -25,6 +25,12 @@ sub system_entry
     return system "@parameters";
 }
 
+sub backquote_entry
+{
+    my (@parameters) = @_;
+    return `@parameters`;
+}
+
 sub join_n_thread_with_log
 {
     my ($target_num) = @_;
