@@ -74,6 +74,7 @@ sub set_msg_level
 sub say_level
 {
     my ($string, $level) = @_;
+
     if($level <= $MSG_LEVEL && $string ne '')
     {
         my $prefix = '';
