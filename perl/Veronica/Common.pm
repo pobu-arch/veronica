@@ -8,7 +8,7 @@ use warnings;
 use Cwd 'abs_path';
 use File::Basename;
 use File::Copy qw(move);
-my @EXPORT = qw(get_script_path filter_path mkdir_or_die open_or_die say_level);
+my @EXPORT = qw(get_script_path filter_path mkdir_or_die open_or_die override_symbol_link set_msg_level say_level);
 
 our $MSG_LEVEL = 5;
 
@@ -63,6 +63,13 @@ sub open_or_die
     if !open my $FILE_HANDLE, "$file_to_open";
 
     return $FILE_HANDLE;
+}
+
+sub override_symbol_link
+{
+    my ($src_file, $dest_link) = @_;
+    system "rm -irf $dest_link" if -e $dest_link;
+    system "ln -s $src_file $dest_link";
 }
 
 sub set_msg_level
