@@ -61,7 +61,7 @@ sub join_n_thread_with_log
                 }
 
                 $freed_slot++;
-                Veronica::Common::say_level('Thread '.$thread->tid().' joined with info '.$info, 5);
+                Veronica::Common::say_level('Thread '.$thread->tid().' joined with info - '.$info, 5);
                 delete $THREAD_POOL{$thread->tid()};
             }
         }
@@ -92,7 +92,7 @@ sub thread_start
     $THREAD_POOL{$thread->tid()}{'info'}    = $info;
     $THREAD_POOL{$thread->tid()}{'logfile'} = $logfile if $logfile ne '';
     
-    Veronica::Common::say_level('Thread '.$thread->tid().' launched with info '.$info, 5);
+    Veronica::Common::say_level('Thread '.$thread->tid().' launched with info - '.$info, 5);
 
     return $error if $error;
 }
