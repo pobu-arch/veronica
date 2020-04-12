@@ -28,7 +28,7 @@ sub system_entry
 sub backquote_entry
 {
     my (@parameters) = @_;
-    return `@parameters`;
+    return `@parameters 2>&1`;
 }
 
 sub join_n_thread_with_log
@@ -44,7 +44,7 @@ sub join_n_thread_with_log
         {
             if($thread->is_joinable())
             {
-                $thread->join();
+                my $returned_value = $thread->join();
 
                 $error         = $THREAD_POOL{$thread->tid()}{'status'} if $error ne 0;
                 my $result     = $THREAD_POOL{$thread->tid()}{'result'};
@@ -55,8 +55,10 @@ sub join_n_thread_with_log
                     my $logfile    = $THREAD_POOL{$thread->tid()}{'logfile'};
                     my $log_handle = Veronica::Common::open_or_die($logfile);
                     print $log_handle "\n\n";
+                    print $log_handle $THREAD_POOL{$thread->tid()}{'parameters'};
                     print $log_handle $info;
                     print $log_handle $result if defined $result;
+                    print $log_handle $returned_value;
                     close $log_handle;
                 }
 
@@ -87,10 +89,11 @@ sub thread_start
     my $thread = threads->new($entry_func_ref, @parameters);
     my $tid = $thread->tid();
 
-    $THREAD_POOL{$thread->tid()}{'status'}  = $?;
-    $THREAD_POOL{$thread->tid()}{'result'}  = '';
-    $THREAD_POOL{$thread->tid()}{'info'}    = $info;
-    $THREAD_POOL{$thread->tid()}{'logfile'} = $logfile if $logfile ne '';
+    $THREAD_POOL{$thread->tid()}{'status'}      = $?;
+    $THREAD_POOL{$thread->tid()}{'result'}      = '';
+    $THREAD_POOL{$thread->tid()}{'info'}        = $info;
+    $THREAD_POOL{$thread->tid()}{'parameters'}  = "@parameters";
+    $THREAD_POOL{$thread->tid()}{'logfile'}     = $logfile if $logfile ne '';
     
     Veronica::Common::say_level('Thread '.$thread->tid().' launched with info - '.$info, 5);
 
