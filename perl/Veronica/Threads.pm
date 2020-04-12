@@ -28,15 +28,18 @@ sub system_entry
 sub backquote_entry
 {
     my (@parameters) = @_;
-    return `@parameters 2>&1`;
+    my $thread = threads->self();
+    $THREAD_POOL{$thread->tid()}{'result'} = `@parameters 2>&1`;
+    $THREAD_POOL{$thread->tid()}{'status'} = $?;
+    return $?;
 }
 
 sub join_n_thread_with_log
 {
     my ($target_num) = @_;
     my $freed_slot = 0;
-    my $error = 0;
     my $logfile;
+    my $return_value = 0;
 
     while(1)
     {
@@ -44,26 +47,36 @@ sub join_n_thread_with_log
         {
             if($thread->is_joinable())
             {
-                my $returned_value = $thread->join();
-
-                $error         = $THREAD_POOL{$thread->tid()}{'status'} if $error ne 0;
-                my $result     = $THREAD_POOL{$thread->tid()}{'result'};
-                my $info       = $THREAD_POOL{$thread->tid()}{'info'};
+                $thread->join();
 
                 if(exists $THREAD_POOL{$thread->tid()}{'logfile'})
                 {
                     my $logfile    = $THREAD_POOL{$thread->tid()}{'logfile'};
                     my $log_handle = Veronica::Common::open_or_die($logfile);
+                    
                     print $log_handle "\n\n";
+                    print $log_handle $THREAD_POOL{$thread->tid()}{'info'} . "  --  ";
                     print $log_handle $THREAD_POOL{$thread->tid()}{'parameters'};
-                    print $log_handle $info;
-                    print $log_handle $result if defined $result;
-                    print $log_handle $returned_value;
+                    print $log_handle $THREAD_POOL{$thread->tid()}{'result'};
                     close $log_handle;
                 }
 
                 $freed_slot++;
-                Veronica::Common::say_level('Thread '.$thread->tid().' joined with info - '.$info, 5);
+                $return_value = $THREAD_POOL{$thread->tid()}{'status'};
+                Veronica::Common::say_level("\n",0);
+                if($return_value)
+                {
+                    Veronica::Common::say_level('Thread '.$thread->tid().' detected error with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 1);
+                    Veronica::Common::say_level('Thread '.$thread->tid().' error message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 1);
+                }
+                else
+                {
+                    Veronica::Common::say_level('Thread '.$thread->tid().' succeessfully joined with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 5);
+                    if($THREAD_POOL{$thread->tid()}{'result'} ne '')
+                    {
+                        Veronica::Common::say_level('Thread '.$thread->tid().' message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 5);
+                    }
+                }
                 delete $THREAD_POOL{$thread->tid()};
             }
         }
@@ -72,7 +85,7 @@ sub join_n_thread_with_log
 
         #sleep(1);
     }
-    return $error;
+    return $return_value;
 }
 
 # $logfile should be appended with open pattern !
@@ -89,15 +102,16 @@ sub thread_start
     my $thread = threads->new($entry_func_ref, @parameters);
     my $tid = $thread->tid();
 
-    $THREAD_POOL{$thread->tid()}{'status'}      = $?;
+    $THREAD_POOL{$thread->tid()}{'status'}      = '';
     $THREAD_POOL{$thread->tid()}{'result'}      = '';
     $THREAD_POOL{$thread->tid()}{'info'}        = $info;
     $THREAD_POOL{$thread->tid()}{'parameters'}  = "@parameters";
     $THREAD_POOL{$thread->tid()}{'logfile'}     = $logfile if $logfile ne '';
     
+    Veronica::Common::say_level("\n",0);
     Veronica::Common::say_level('Thread '.$thread->tid().' launched with info - '.$info, 5);
 
-    return $error if $error;
+    return $error;
 }
 
 1;
