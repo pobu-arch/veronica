@@ -8,7 +8,8 @@ use warnings;
 use Cwd 'abs_path';
 use File::Basename;
 use File::Copy qw(move);
-my @EXPORT = qw(get_script_path filter_path mkdir_or_die open_or_die override_symbol_link set_msg_level say_level);
+use Carp qw/cluck/;
+my @EXPORT = qw(get_script_path filter_path mkdir_or_die open_or_die override_symbol_link set_msg_level say_level get_os_type);
 
 our $MSG_LEVEL = 5;
 
@@ -44,40 +45,6 @@ sub filter_path
     return $new_path;
 }
 
-sub mkdir_or_die
-{
-    my ($dirpath, $die_msg) = @_;
-
-    mkdir $dirpath if !-e $dirpath;
-    
-    die "[error] fail to create dir at $dirpath due to $!" . ($die_msg ne '' ? ", $die_msg" : '' )
-    if !-e $dirpath;
-}
-
-# $file_to_open should be appended with open pattern !
-sub open_or_die
-{
-    my ($file_to_open, $die_msg) = @_;
-
-    die "[error] fail to open $file_to_open" . ($die_msg ne '' ? ", $die_msg" : '' )
-    if !open my $FILE_HANDLE, "$file_to_open";
-
-    return $FILE_HANDLE;
-}
-
-sub override_symbol_link
-{
-    my ($src_file, $dest_link) = @_;
-    system "rm -irf $dest_link" if -e $dest_link;
-    system "ln -s $src_file $dest_link";
-}
-
-sub set_msg_level
-{
-    my ($level) = @_;
-    our $MSG_LEVEL = $level;
-}
-
 sub say_level
 {
     my ($string, $level) = @_;
@@ -109,9 +76,67 @@ sub say_level
         {
             $prefix = '';
         }
+        elsif($level == -1)
+        {
+            print "\n";
+            cluck "$@n";
+            print "\n";
+            die "[ERROR-Script] $string";
+        }
         
         chomp $string;
         say "${prefix}"."${string}";
+    }
+}
+
+sub mkdir_or_die
+{
+    my ($dirpath, $die_msg) = @_;
+
+    mkdir $dirpath if !-e $dirpath;
+    
+    &say_level("fail to create dir at $dirpath due to $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    if !-e $dirpath;
+}
+
+# $file_to_open should be appended with open pattern !
+sub open_or_die
+{
+    my ($file_to_open, $die_msg) = @_;
+
+    &say_level("fail to open $file_to_open" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    if !open my $FILE_HANDLE, "$file_to_open";
+
+    return $FILE_HANDLE;
+}
+
+sub override_symbol_link
+{
+    my ($src_file, $dest_link) = @_;
+    system "rm -irf $dest_link" if -e $dest_link;
+    system "ln -s $src_file $dest_link";
+}
+
+sub set_msg_level
+{
+    my ($level) = @_;
+    our $MSG_LEVEL = $level;
+}
+
+sub get_os_type
+{
+    my $result = `uname -a`;
+    if($result =~ 'Darwin')
+    {
+        return 'MacOSX';
+    }
+    elsif($result =~ 'Linux')
+    {
+        return 'Linux';
+    }
+    else
+    {
+        &say_level('unsupported OS', -1);
     }
 }
 1;
