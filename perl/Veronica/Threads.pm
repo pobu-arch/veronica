@@ -8,10 +8,11 @@ use warnings;
 use threads;
 use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
-my @EXPORT = qw(set_num_core join_n_thread_with_log thread_start);
+my @EXPORT = qw(set_num_core system_entry backquote_entry join_n_thread_with_log thread_start);
 
 our $NUM_CORE    = 8;
 our %THREAD_POOL = ();
+our $PLACE_HOLDER = '--VERONICA--';
 
 sub set_num_core
 {
@@ -29,9 +30,9 @@ sub backquote_entry
 {
     my (@parameters) = @_;
     my $thread = threads->self();
-    $THREAD_POOL{$thread->tid()}{'result'} = `@parameters 2>&1`;
-    $THREAD_POOL{$thread->tid()}{'status'} = $?;
-    return $?;
+    my $result = `@parameters 2>&1`;
+    my $status = $?;
+    return "$status"."$PLACE_HOLDER"."$result";
 }
 
 sub join_n_thread_with_log
@@ -47,9 +48,12 @@ sub join_n_thread_with_log
         {
             if($thread->is_joinable())
             {
-                $thread->join();
+                my $return = $thread->join();
+                my @split_output = split $PLACE_HOLDER, $return;
+                $THREAD_POOL{$thread->tid()}{'status'} = $split_output[0];
+                $THREAD_POOL{$thread->tid()}{'result'} = $split_output[1];
 
-                if(exists $THREAD_POOL{$thread->tid()}{'logfile'})
+                if($THREAD_POOL{$thread->tid()}{'logfile'} ne '')
                 {
                     my $logfile    = $THREAD_POOL{$thread->tid()}{'logfile'};
                     my $log_handle = Veronica::Common::open_or_die($logfile);
@@ -72,10 +76,6 @@ sub join_n_thread_with_log
                 else
                 {
                     Veronica::Common::say_level('Thread '.$thread->tid().' succeessfully joined with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 5);
-                    if($THREAD_POOL{$thread->tid()}{'result'} ne '')
-                    {
-                        Veronica::Common::say_level('Thread '.$thread->tid().' message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 5);
-                    }
                 }
                 delete $THREAD_POOL{$thread->tid()};
             }
@@ -83,9 +83,10 @@ sub join_n_thread_with_log
         last if(scalar threads->list() == 0);
         last if($freed_slot >= $target_num);
 
+        return $return_value if $return_value;
         #sleep(1);
     }
-    return $return_value;
+    return 0;
 }
 
 # $logfile should be appended with open pattern !
@@ -101,9 +102,6 @@ sub thread_start
     
     my $thread = threads->new($entry_func_ref, @parameters);
     my $tid = $thread->tid();
-
-    $THREAD_POOL{$thread->tid()}{'status'}      = '';
-    $THREAD_POOL{$thread->tid()}{'result'}      = '';
     $THREAD_POOL{$thread->tid()}{'info'}        = $info;
     $THREAD_POOL{$thread->tid()}{'parameters'}  = "@parameters";
     $THREAD_POOL{$thread->tid()}{'logfile'}     = $logfile if $logfile ne '';
