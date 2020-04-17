@@ -53,7 +53,7 @@ sub join_n_thread_with_log
                 $THREAD_POOL{$thread->tid()}{'status'} = $split_output[0];
                 $THREAD_POOL{$thread->tid()}{'result'} = $split_output[1] if defined $split_output[1];
 
-                if($THREAD_POOL{$thread->tid()}{'logfile'} ne '')
+                if(exists $THREAD_POOL{$thread->tid()}{'logfile'})
                 {
                     my $logfile    = $THREAD_POOL{$thread->tid()}{'logfile'};
                     my $log_handle = Veronica::Common::open_or_die($logfile);
