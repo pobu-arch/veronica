@@ -51,7 +51,7 @@ sub join_n_thread_with_log
                 my $return = $thread->join();
                 my @split_output = split $PLACE_HOLDER, $return;
                 $THREAD_POOL{$thread->tid()}{'status'} = $split_output[0];
-                $THREAD_POOL{$thread->tid()}{'result'} = $split_output[1];
+                $THREAD_POOL{$thread->tid()}{'result'} = $split_output[1] if defined $split_output[1];
 
                 if($THREAD_POOL{$thread->tid()}{'logfile'} ne '')
                 {
@@ -61,7 +61,8 @@ sub join_n_thread_with_log
                     print $log_handle "\n\n";
                     print $log_handle $THREAD_POOL{$thread->tid()}{'info'} . "  --  ";
                     print $log_handle $THREAD_POOL{$thread->tid()}{'parameters'};
-                    print $log_handle $THREAD_POOL{$thread->tid()}{'result'};
+                    print $log_handle $THREAD_POOL{$thread->tid()}{'result'}
+                          if exists $THREAD_POOL{$thread->tid()}{'result'};
                     close $log_handle;
                 }
 
