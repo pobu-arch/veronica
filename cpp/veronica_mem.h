@@ -1,17 +1,19 @@
+#pragma once
+
 #include <iostream>
 #include <errno.h>
 #include <sys/mman.h>
 
 namespace veronica
 {
-    const uint64_t CACHE_BLOCK_SIZE = 64;
-    const uint64_t PAGE_SIZE        = 4096;
+    const uint64 CACHE_BLOCK_SIZE = 64;
+    const uint64 PAGE_SIZE        = 4096;
 
-    void* page_aligned_malloc(uint64_t size)
+    void* page_aligned_malloc(uint64 size)
     {
         // make sure mem addr is aligned
         void* start_addr = NULL;
-        uint64_t alignment = PAGE_SIZE;
+        uint64 alignment = PAGE_SIZE;
         int err = posix_memalign(&start_addr, alignment, size);
         if (err != 0)
         {
