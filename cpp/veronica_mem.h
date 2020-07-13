@@ -10,21 +10,20 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "veronica_type.h"
 
 namespace veronica
 {
     const uint64 CACHE_BLOCK_SIZE = 64;
-    const uint64 PAGE_SIZE        = 4096;
     const uint64 PFN_MASK         = ((((uint64)1)<<55)-1);
     const uint64 PFN_PRESENT_FLAG = (((uint64)1)<<63);
 
     #define page_map_file     "/proc/self/pagemap"
 
-    void* page_aligned_malloc(const uint64 size)
+    void* aligned_malloc(const uint64 size, const uint64 alignment = 4096)
     {
         // make sure mem addr is aligned
         void* start_addr = NULL;
-        uint64 alignment = PAGE_SIZE;
         int err = posix_memalign(&start_addr, alignment, size);
         if (err != 0)
         {
@@ -66,16 +65,17 @@ namespace veronica
 
         if(sizeof(uint64) != read(fd, &pfn_item, sizeof(uint64)))
         {
-            printf("read %s failed\n", page_map_file);
+            printf("read %s failed for addr %llx\n", page_map_file, vir);
             exit(-1);
         }
 
         if(0==(pfn_item & PFN_PRESENT_FLAG))
         {
-            printf("page is not present\n");
+            printf("page is not present for addr %llx\n", vir);
             exit(-1);
         }
-
-        return (pfn_item & PFN_MASK) * page_size + vir % page_size;
+        uint64 phy = (pfn_item & PFN_MASK) * page_size + vir % page_size;
+        //printf("virtual-to-physical mapping found for %llx page -> addr %llx\n", vir, phy);
+        return phy;
     }
 }

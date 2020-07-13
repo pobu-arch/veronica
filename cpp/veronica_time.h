@@ -1,22 +1,23 @@
 #pragma once
 
 #include <cstdio>
-#include <ctime>
 #include <cmath>
-#include <string>
+#include <sys/time.h>
 #include "veronica_type.h"
 
 namespace veronica
 {
     const uint64 MAX_NUM_TIMER = 10;
 
-    struct timepoint
+    struct time_pair
     {
-        struct timespec start;
-        struct timespec end;
-    }timepoints[MAX_NUM_TIMER];
+        struct timeval start;
+        struct timeval end;
+    };
+    
+    static time_pair time_pair_array[MAX_NUM_TIMER];
 
-    void check_timer_index(const uint64 index)
+    void check_timer_index(const int index)
     {
         if(index >= MAX_NUM_TIMER)
         {
@@ -25,49 +26,43 @@ namespace veronica
         }
     }
 
-    double time_spec_to_ns(const timespec* tv)
+    double time_spec_to_us(const timeval* tv)
     {
-        return tv->tv_sec * pow(10,9) + tv->tv_nsec;
+        return tv->tv_sec * pow(10.0,6.0) + tv->tv_usec;
     }
 
-    void set_timer_start(const uint64 index)
+    void set_timer_start(const int index)
     {
         check_timer_index(index);
-        clock_gettime(CLOCK_MONOTONIC, &(timepoints[index].start));
+        gettimeofday(&(time_pair_array[index].start),NULL);
     }
 
-    void set_timer_end(const uint64 index)
+    void set_timer_end(const int index)
     {
         check_timer_index(index);
-        clock_gettime(CLOCK_MONOTONIC, &(timepoints[index].end));
+        gettimeofday(&(time_pair_array[index].end), NULL);
     }
 
-    void print_timer(const uint64 index, const char* name)
+    void print_timer(const int index, const char* name)
     {
-        double elapsed_time = time_spec_to_ns(&(timepoints[index].end)) - time_spec_to_ns((&timepoints[index].start));
+        double elapsed_time = time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us((&time_pair_array[index].start));
 
-        if(elapsed_time >= pow(10,9))
+        if(elapsed_time >= pow(10.0,6.0))
         {
-            uint64 sec  = floor(elapsed_time / pow(10,9));
-            uint64 msec = floor((elapsed_time - sec * pow(10,9)) / pow(10,6));
-            printf("[time] timer %s = %llus %llums\n", name, sec, msec);
+            double sec  = floor(elapsed_time / pow(10.0,6.0));
+            double msec = floor((elapsed_time - sec * pow(10.0,6.0)) / pow(10.0,3.0));
+            printf("[time] timer %s = %.0fs %.0f ms\n", name, sec, msec);
         }
-        else if(elapsed_time >= pow(10,6))
+        else if(elapsed_time >= pow(10.0,3.0))
         {
-            uint64 msec  = floor(elapsed_time / pow(10,6));
-            uint64 usec = floor((elapsed_time - msec * pow(10,6)) / pow(10,3));
-            printf("[time] timer %s = %llums %lluus\n", name, msec, usec);
-        }
-        else if(elapsed_time >= pow(10,3))
-        {
-            uint64 usec  = floor(elapsed_time / pow(10,3));
-            uint64 nsec = floor((elapsed_time - usec * pow(10,3)));
-            printf("[time] timer %s = %lluus %lluns\n", name, usec, nsec);
+            double msec = floor(elapsed_time / pow(10.0,3.0));
+            double usec = floor((elapsed_time - msec * pow(10.0,3.0)));
+            printf("[time] timer %s = %.0fms %.0f us\n", name, msec, usec);
         }
         else
         {
-            printf("[time] timer %s = %lluns\n", name, (uint64)time_spec_to_ns(&(timepoints[index].start)));
-            printf("[time] timer %s = %lluns\n", name, (uint64)time_spec_to_ns(&(timepoints[index].end)));
+            printf("[time] timer %s = %.0fus\n", name, time_spec_to_us(&(time_pair_array[index].start)));
+            printf("[time] timer %s = %.0fus\n", name, time_spec_to_us(&(time_pair_array[index].end)));
         }
     }
 }
