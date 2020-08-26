@@ -5,10 +5,12 @@ package Veronica::Common;
 use v5.10;
 use strict;
 use warnings;
-use Cwd 'abs_path';
 use File::Basename;
 use File::Copy qw(move);
+use Cwd 'abs_path';
 use Carp qw/cluck/;
+use Time::HiRes qw(gettimeofday tv_interval);
+
 my @EXPORT = qw(get_script_path filter_path mkdir_or_die open_or_die override_symbol_link set_msg_level say_level get_os_type);
 
 our $MSG_LEVEL = 5;
@@ -78,9 +80,9 @@ sub say_level
         }
         elsif($level == -1)
         {
-            print "\n";
-            cluck "$@n";
-            print "\n";
+            say "\n";
+            cluck "$@n";  # display the error line num
+            say "\n";
             die "[ERROR-Script] $string";
         }
         
