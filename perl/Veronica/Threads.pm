@@ -61,6 +61,7 @@ sub join_n_thread_with_log
                     print $log_handle "\n\n";
                     print $log_handle $THREAD_POOL{$thread->tid()}{'info'} . "  --  ";
                     print $log_handle $THREAD_POOL{$thread->tid()}{'parameters'};
+                    print $log_handle "\n\n";
                     print $log_handle $THREAD_POOL{$thread->tid()}{'result'}
                           if exists $THREAD_POOL{$thread->tid()}{'result'};
                     close $log_handle;
