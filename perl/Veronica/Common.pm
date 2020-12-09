@@ -11,7 +11,7 @@ use Cwd 'abs_path';
 use Carp qw/cluck/;
 use Time::HiRes qw(gettimeofday tv_interval);
 
-my @EXPORT = qw(get_script_path filter_path mkdir_or_die open_or_die override_symbol_link set_msg_level say_level get_os_type);
+my @EXPORT = qw(get_script_path filter_path read_filelist set_msg_level say_level mkdir_or_die open_or_die override_symbol_link  get_os_type);
 
 our $MSG_LEVEL = 5;
 
@@ -45,6 +45,47 @@ sub filter_path
     $new_path =~ s/^\\(?<rest>.+)/$+{rest}/;
     chomp $new_path;
     return $new_path;
+}
+
+sub read_filelist
+{
+    my ($name, $find_path, $filelist_path) = @_;
+    my %filelist = ();
+    
+    if(-e $filelist_path)
+    {
+        my $filelist_handle = Veronica::Common::open_or_die("<$filelist_path");
+
+        while(my $line = <$filelist_handle>)
+        {
+            chomp $line;
+            my $overall_path = "$find_path/$line";
+            
+            if(-e $overall_path)
+            {
+                $filelist{$overall_path} = $line;
+            }
+            else
+            {
+                Veronica::Common::say_level("file $line doesn't exist at $overall_path", -1);
+            }
+        }
+        close $filelist_handle;
+
+        Veronica::Common::say_level("filelist contains " . (scalar keys %filelist). " files for $name ...", 5);
+    }
+    else
+    {
+        Veronica::Common::say_level("filelist doesn't exist at $filelist_path", -1);
+    }
+
+    return %filelist;
+}
+
+sub set_msg_level
+{
+    my ($level) = @_;
+    our $MSG_LEVEL = $level;
 }
 
 sub say_level
@@ -117,12 +158,6 @@ sub override_symbol_link
     my ($src_file, $dest_link) = @_;
     system "rm -irf $dest_link" if -e $dest_link;
     system "ln -s $src_file $dest_link";
-}
-
-sub set_msg_level
-{
-    my ($level) = @_;
-    our $MSG_LEVEL = $level;
 }
 
 sub get_os_type
