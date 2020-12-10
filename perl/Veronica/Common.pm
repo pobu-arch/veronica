@@ -11,7 +11,7 @@ use Cwd 'abs_path';
 use Carp qw/cluck/;
 use Time::HiRes qw(gettimeofday tv_interval);
 
-my @EXPORT = qw(get_script_path filter_path read_filelist set_msg_level say_level mkdir_or_die open_or_die override_symbol_link  get_os_type);
+my @EXPORT = qw(get_script_path filter_path read_filelist set_msg_level say_level mkdir_or_die open_or_die override_symbol_link  get_os_type get_endian);
 
 our $MSG_LEVEL = 5;
 
@@ -175,5 +175,10 @@ sub get_os_type
     {
         &say_level('unsupported OS', -1);
     }
+}
+sub get_endian
+{
+    my $result = `echo -n I | od -o | head -n1 | cut -f2 -d" " | cut -c6`;
+    return $result ? 'little' : 'big';
 }
 1;
