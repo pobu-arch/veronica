@@ -88,6 +88,8 @@ sub join_n_thread_with_log
 
         if($error)
         {
+            Veronica::Common::say_level('Evicting all the threads due to the detected error', 1);
+            
             # empty the thread pool
             while(scalar threads->list())
             {
