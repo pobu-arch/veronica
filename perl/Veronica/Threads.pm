@@ -10,7 +10,7 @@ use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
 my @EXPORT = qw(set_num_core system_entry backquote_entry join_n_thread_with_log thread_start);
 
-our $NUM_CORE    = 8;
+our $NUM_CORE    = 16;
 our %THREAD_POOL = ();
 our $PLACE_HOLDER = '--VERONICA--';
 
@@ -38,9 +38,11 @@ sub backquote_entry
 sub join_n_thread_with_log
 {
     my ($target_num) = @_;
-    my $freed_slot = 0;
+    my $freed_slot   = 0;
     my $logfile;
+    
     my $return_value = 0;
+    my $error        = 0;
 
     while(1)
     {
@@ -74,6 +76,7 @@ sub join_n_thread_with_log
                 {
                     Veronica::Common::say_level('Thread '.$thread->tid().' detected error with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 1);
                     Veronica::Common::say_level('Thread '.$thread->tid().' error message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 1);
+                    $error = 1;
                 }
                 else
                 {
@@ -82,10 +85,21 @@ sub join_n_thread_with_log
                 delete $THREAD_POOL{$thread->tid()};
             }
         }
-        last if(scalar threads->list() == 0);
-        last if($freed_slot >= $target_num);
 
-        return $return_value if $return_value;
+        if($error)
+        {
+            # empty the thread pool
+            while(scalar threads->list())
+            {
+                foreach my $thread (threads->list())
+                {
+                    $thread->join() if($thread->is_joinable());
+                }
+            }
+            return $error;
+        }
+
+        last if($freed_slot >= $target_num || scalar threads->list() == 0);
         #sleep(1);
     }
     return 0;
@@ -100,6 +114,7 @@ sub thread_start
     if(scalar threads->list() >= $NUM_CORE)
     {
         $error = join_n_thread_with_log(1);
+        return $error if $error;
     }
     
     my $thread = threads->new($entry_func_ref, @parameters);
