@@ -71,16 +71,16 @@ sub join_n_thread_with_log
 
                 $freed_slot++;
                 $return_value = $THREAD_POOL{$thread->tid()}{'status'};
-                Veronica::Common::say_level("\n",0);
+                Veronica::Common::log_level("\n",0);
                 if($return_value)
                 {
-                    Veronica::Common::say_level('Thread '.$thread->tid().' detected error with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 1);
-                    Veronica::Common::say_level('Thread '.$thread->tid().' error message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 1);
+                    Veronica::Common::log_level('Thread '.$thread->tid().' detected error with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 1);
+                    Veronica::Common::log_level('Thread '.$thread->tid().' error message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 1);
                     $error = 1;
                 }
                 else
                 {
-                    Veronica::Common::say_level('Thread '.$thread->tid().' succeessfully joined with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 5);
+                    Veronica::Common::log_level('Thread '.$thread->tid().' succeessfully joined with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 5);
                 }
                 delete $THREAD_POOL{$thread->tid()};
             }
@@ -88,7 +88,7 @@ sub join_n_thread_with_log
 
         if($error)
         {
-            Veronica::Common::say_level('Evicting all the threads due to the detected error', 1);
+            Veronica::Common::log_level('Evicting all the threads due to the detected error', 1);
             
             # empty the thread pool
             while(scalar threads->list())
@@ -125,8 +125,8 @@ sub thread_start
     $THREAD_POOL{$thread->tid()}{'parameters'}  = "@parameters";
     $THREAD_POOL{$thread->tid()}{'logfile'}     = $logfile if $logfile ne '';
     
-    Veronica::Common::say_level("\n",0);
-    Veronica::Common::say_level('Thread '.$thread->tid().' launched with info - '.$info, 5);
+    Veronica::Common::log_level("\n",0);
+    Veronica::Common::log_level('Thread '.$thread->tid().' launched with info - '.$info, 5);
 
     return $error;
 }
