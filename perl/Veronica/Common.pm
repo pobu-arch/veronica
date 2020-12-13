@@ -11,9 +11,9 @@ use Cwd 'abs_path';
 use Carp qw/cluck/;
 use Time::HiRes qw(gettimeofday tv_interval);
 
-my @EXPORT = qw(get_script_path filter_path read_filelist set_msg_level say_level mkdir_or_die open_or_die override_symbol_link  get_os_type get_endian);
+my @EXPORT = qw(get_script_path filter_path read_filelist set_msg_level log_level mkdir_or_die open_or_die override_symbol_link  get_os_type get_endian);
 
-our $MSG_LEVEL = 5;
+our $LOG_LEVEL = 5;
 
 ####################################################################################################
 
@@ -55,6 +55,7 @@ sub read_filelist
     if(-e $filelist_path)
     {
         my $filelist_handle = Veronica::Common::open_or_die("<$filelist_path");
+        my $file_num = 0;
 
         while(my $line = <$filelist_handle>)
         {
@@ -64,35 +65,37 @@ sub read_filelist
             if(-e $overall_path)
             {
                 $filelist{$overall_path} = $line;
+                $filelist{$overall_path}{'file_num'} = $file_num;
+                $file_num++;
             }
             else
             {
-                Veronica::Common::say_level("file $line doesn't exist at $overall_path", -1);
+                Veronica::Common::log_level("file $line doesn't exist at $overall_path", -1);
             }
         }
         close $filelist_handle;
 
-        Veronica::Common::say_level("filelist contains " . (scalar keys %filelist). " files for $name ...", 5);
+        Veronica::Common::log_level("filelist contains " . (scalar keys %filelist). " files for $name ...", 5);
     }
     else
     {
-        Veronica::Common::say_level("filelist doesn't exist at $filelist_path", -1);
+        Veronica::Common::log_level("filelist doesn't exist at $filelist_path", -1);
     }
 
     return %filelist;
 }
 
-sub set_msg_level
+sub set_log_level
 {
     my ($level) = @_;
-    our $MSG_LEVEL = $level;
+    our $LOG_LEVEL = $level;
 }
 
-sub say_level
+sub log_level
 {
     my ($string, $level) = @_;
 
-    if($level <= $MSG_LEVEL && $string ne '')
+    if($level <= $LOG_LEVEL && $string ne '')
     {
         my $prefix = '';
         if($level == 5)
@@ -138,7 +141,7 @@ sub mkdir_or_die
 
     mkdir $dirpath if !-e $dirpath;
     
-    &say_level("fail to create dir at $dirpath due to $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    &log_level("fail to create dir at $dirpath due to $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
     if !-e $dirpath;
 }
 
@@ -147,7 +150,7 @@ sub open_or_die
 {
     my ($file_to_open, $die_msg) = @_;
 
-    &say_level("fail to open $file_to_open" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    &log_level("fail to open $file_to_open" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
     if !open my $FILE_HANDLE, "$file_to_open";
 
     return $FILE_HANDLE;
@@ -173,7 +176,7 @@ sub get_os_type
     }
     else
     {
-        &say_level('unsupported OS', -1);
+        &log_level('unsupported OS', -1);
     }
 }
 sub get_endian
