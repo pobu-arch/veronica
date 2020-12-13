@@ -55,7 +55,7 @@ sub read_filelist
     if(-e $filelist_path)
     {
         my $filelist_handle = Veronica::Common::open_or_die("<$filelist_path");
-        my $file_num = 0;
+        my $filenum = 0;
 
         while(my $line = <$filelist_handle>)
         {
@@ -64,9 +64,9 @@ sub read_filelist
             
             if(-e $overall_path)
             {
-                $filelist{$overall_path} = $line;
-                $filelist{$overall_path}{'file_num'} = $file_num;
-                $file_num++;
+                $filelist{$overall_path}{'filename'} = $line;
+                $filelist{$overall_path}{'filenum'}  = $filenum;
+                $filenum++;
             }
             else
             {
