@@ -75,7 +75,7 @@ sub join_n_thread_with_log
                 if($return_value)
                 {
                     Veronica::Common::log_level('Thread '.$thread->tid().' detected error with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 1);
-                    Veronica::Common::log_level('Thread '.$thread->tid().' error message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 1);
+                    Veronica::Common::log_level('Thread '.$thread->tid().' error message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 1) if exists $THREAD_POOL{$thread->tid()}{'result'};
                     $error = 1;
                 }
                 else
