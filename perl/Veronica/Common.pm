@@ -127,7 +127,7 @@ sub log_level
             say "\n";
             cluck "$@n";  # display the error line num
             say "\n";
-            die "[ERROR-Script] $string";
+            die "[ERROR-Script] $string\n\n";
         }
         
         chomp $string;
