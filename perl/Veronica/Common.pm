@@ -98,13 +98,17 @@ sub log_level
     if($level <= $LOG_LEVEL && $string ne '')
     {
         my $prefix = '';
-        if($level == 5)
+        if($level == 6)
+        {
+            $prefix = '[DEBUG-Script] ';
+        }
+        elsif($level == 5)
         {
             $prefix = '[INFO-Script] ';
         }
         elsif($level == 4)
         {
-            $prefix = '[MESG-Script] ';
+            $prefix = '[UNINPLEMENTED-Script] ';
         }
         elsif($level == 3)
         {
@@ -128,6 +132,13 @@ sub log_level
             cluck "$@n";  # display the error line num
             say "\n";
             die "[ERROR-Script] $string\n\n";
+        }
+        else
+        {
+            say "\n";
+            cluck "$@n";  # display the error line num
+            say "\n";
+            die "[ERROR-Script] Wrong Parameters\n\n";
         }
         
         chomp $string;
