@@ -78,4 +78,9 @@ namespace veronica
         //printf("virtual-to-physical mapping found for %llx page -> addr %llx\n", vir, phy);
         return phy;
     }
+
+    uint64 get_page_size()
+    {
+        return (uint64)getpagesize();
+    }
 }
