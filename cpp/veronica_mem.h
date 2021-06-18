@@ -84,14 +84,15 @@ namespace veronica
         return (uint64)getpagesize();
     }
 
-    static inline void invalidate_tlb_entry_x86(unsigned long addr)
+    static inline void invalidate_tlb_entry_x86(uint64 addr)
     {
+	addr = (unsigned long) addr;
         asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
     }
 
-    static inline void flush_cache_line_x86(unsigned long addr)
+    static inline void flush_cache_line_x86(uint64 addr)
     {
         void *__p = (void *) addr;
-        asm volatile("clflush %0" : "+m" (*(volatile char __force *)__p));
+        asm volatile("clflush %0" : "+m" (*(char*)__p));
     }
 }
