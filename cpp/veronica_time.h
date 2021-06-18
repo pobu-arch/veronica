@@ -51,17 +51,17 @@ namespace veronica
         {
             double sec  = floor(elapsed_time / pow(10.0,6.0));
             double msec = floor((elapsed_time - sec * pow(10.0,6.0)) / pow(10.0,3.0));
-            printf("[time] timer %s = %.0fs %.0f ms\n", name, sec, msec);
+            printf("[time] timer %s = %.0f s %.0f ms\n", name, sec, msec);
         }
         else if(elapsed_time >= pow(10.0,3.0))
         {
             double msec = floor(elapsed_time / pow(10.0,3.0));
             double usec = floor((elapsed_time - msec * pow(10.0,3.0)));
-            printf("[time] timer %s = %.0fms %.0f us\n", name, msec, usec);
+            printf("[time] timer %s = %.0f ms %.0f us\n", name, msec, usec);
         }
         else
         {
-            printf("[time] timer %s = %.0fus\n", name, 
+            printf("[time] timer %s = %.0f us\n", name, 
             time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us(&(time_pair_array[index].start)));
         }
     }
