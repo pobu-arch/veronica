@@ -61,8 +61,8 @@ namespace veronica
         }
         else
         {
-            printf("[time] timer %s = %.0fus\n", name, time_spec_to_us(&(time_pair_array[index].start)));
-            printf("[time] timer %s = %.0fus\n", name, time_spec_to_us(&(time_pair_array[index].end)));
+            printf("[time] timer %s = %.0fus\n", name, 
+            time_spec_to_us(&(time_pair_array[index].end) - time_spec_to_us(&(time_pair_array[index].start))));
         }
     }
 }
