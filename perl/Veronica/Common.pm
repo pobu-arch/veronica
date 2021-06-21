@@ -179,17 +179,40 @@ sub get_os_type
     my $result = `uname -a`;
     if($result =~ 'Darwin')
     {
-        return 'MacOSX';
+        return 'MACOSX';
     }
     elsif($result =~ 'Linux')
     {
-        return 'Linux';
+        return 'LINUX';
     }
     else
     {
         &log_level('unsupported OS', -1);
     }
 }
+
+sub get_arch_type
+{
+    my $result = `uname -a`;
+    if($result =~ /aarch64/)
+    {
+        return 'ARM';
+    }
+    elsif($result =~ /x86_64/)
+    {
+        return 'X86_64';
+    }
+    elsif($result =~ /riscv64/)
+    {
+        return 'RISCV64';
+    }
+    else
+    {
+        &log_level('unsupported arch', -1);
+    }
+}
+
+
 sub get_endian
 {
     my $result = `echo -n I | od -o | head -n1 | cut -f2 -d" " | cut -c6`;
