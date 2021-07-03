@@ -193,16 +193,18 @@ sub get_os_type
 
 sub get_arch_type
 {
-    my $result = `uname -a`;
-    if($result =~ /aarch64/)
+    my ($compiler) = @_; 
+
+    my $result = `$compiler -v`;
+    if($result =~ /--target=aarch64/)
     {
         return 'ARM';
     }
-    elsif($result =~ /x86_64/)
+    elsif($result =~ /--target=x86_64/)
     {
         return 'X86_64';
     }
-    elsif($result =~ /riscv64/)
+    elsif($result =~ /--target=riscv64/)
     {
         return 'RISCV64';
     }
