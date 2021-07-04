@@ -195,45 +195,41 @@ sub get_arch_type
 {
     my ($compiler) = @_;
 
-    my $result  = `$compiler -v 2>&1`;
-    my $os_type = &get_os_type();
+    my $arch   = '';
+    my $result = `$compiler -v 2>&1`;
 
-    if($os_type eq 'LINUX')
+    # detect compiler info
+    if($result =~ /--target=(?<arch>\w+)/)
     {
-        if($result =~ /--target=x86_64/)
-        {
-            return 'X86_64';
-        }
-        elsif($result =~ /--target=aarch64/)
-        {
-            return 'ARM';
-        }
-        elsif($result =~ /--target=riscv64/)
-        {
-            return 'RISCV64';
-        }
-        else
-        {
-            &log_level('unsupported arch', -1);
-        }
+        $arch = $+{arch};
     }
-    elsif($os_type eq 'MACOSX')
+    elsif($result =~ /Target:\s+(?<arch>\w+)/)
     {
-        if($result =~ /Target:\s+x86_64/)
-        {
-            return 'X86_64';
-        }
-        elsif($result =~ /Target:\s+aarch64/)
-        {
-            return 'ARM';
-        }
-        else
-        {
-            &log_level('unsupported arch', -1);
-        }
+        $arch = $+{arch};
+    }
+    else
+    {
+        &log_level('unsupported compiler info format', -1);
+    }
+
+    # detect target arch type from compiler info
+    if($arch =~ 'x86_64')
+    {
+        return 'X86_64';
+    }
+    elsif($arch =~ 'aarch64')
+    {
+        return 'ARM';
+    }
+    elsif($arch =~ 'riscv64')
+    {
+        return 'RISCV64';
+    }
+    else
+    {
+        &log_level('unsupported arch', -1);
     }
 }
-
 
 sub get_endian
 {
