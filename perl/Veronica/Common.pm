@@ -193,24 +193,44 @@ sub get_os_type
 
 sub get_arch_type
 {
-    my ($compiler) = @_; 
+    my ($compiler) = @_;
 
-    my $result = `$compiler -v`;
-    if($result =~ /--target=aarch64/)
+    my $result  = `$compiler -v 2>&1`;
+    my $os_type = &get_os_type();
+
+    if($os_type eq 'LINUX')
     {
-        return 'ARM';
+        if($result =~ /--target=x86_64/)
+        {
+            return 'X86_64';
+        }
+        elsif($result =~ /--target=aarch64/)
+        {
+            return 'ARM';
+        }
+        elsif($result =~ /--target=riscv64/)
+        {
+            return 'RISCV64';
+        }
+        else
+        {
+            &log_level('unsupported arch', -1);
+        }
     }
-    elsif($result =~ /--target=x86_64/)
+    elsif($os_type eq 'MACOSX')
     {
-        return 'X86_64';
-    }
-    elsif($result =~ /--target=riscv64/)
-    {
-        return 'RISCV64';
-    }
-    else
-    {
-        &log_level('unsupported arch', -1);
+        if($result =~ /Target:\s+x86_64/)
+        {
+            return 'X86_64';
+        }
+        elsif($result =~ /Target:\s+aarch64/)
+        {
+            return 'ARM';
+        }
+        else
+        {
+            &log_level('unsupported arch', -1);
+        }
     }
 }
 
