@@ -38,7 +38,7 @@ namespace veronica
             exit(1);
         }
 
-        printf("[Info] posix_memalign ok, start_addr = %p\n", start_addr);
+        // printf("[Info] posix_memalign ok, start_addr = %p\n", start_addr);
         return start_addr;
     }
 
