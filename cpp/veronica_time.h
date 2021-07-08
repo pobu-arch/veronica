@@ -43,9 +43,14 @@ namespace veronica
         gettimeofday(&(time_pair_array[index].end), NULL);
     }
 
+    double get_elapsed_time_in_us(const int index)
+    {
+        return time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us((&time_pair_array[index].start));
+    }
+
     void print_timer(const int index, const char* name)
     {
-        double elapsed_time = time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us((&time_pair_array[index].start));
+        double elapsed_time = get_elapsed_time_in_us(index);
 
         if(elapsed_time >= pow(10.0,6.0))
         {
