@@ -29,16 +29,16 @@ namespace veronica
         {
             if (err == EINVAL)
             {
-                printf("[error] posix_memalign EINVAL\n");
+                printf("[Error] posix_memalign EINVAL\n");
             }
             else if (err == ENOMEM)
             {
-                printf("[error] posix_memalign ENOMEM\n");
+                printf("[Error] posix_memalign ENOMEM\n");
             }
             exit(1);
         }
 
-        printf("[info] posix_memalign ok, start_addr = %p\n", start_addr);
+        printf("[Info] posix_memalign ok, start_addr = %p\n", start_addr);
         return start_addr;
     }
 
@@ -53,25 +53,25 @@ namespace veronica
         fd = open(page_map_file, O_RDONLY);
         if(fd<0)
         {
-            printf("open %s failed\n", page_map_file);
+            printf("[Error] open %s failed\n", page_map_file);
             exit(-1);
         }
 
         if((off_t)-1 == lseek(fd, pfn_item_offset, SEEK_SET))
         {
-            printf("lseek %s failed\n", page_map_file);
+            printf("[Error] lseek %s failed\n", page_map_file);
             exit(-1);
         }
 
         if(sizeof(uint64) != read(fd, &pfn_item, sizeof(uint64)))
         {
-            printf("read %s failed for addr %llx\n", page_map_file, vir);
+            printf("[Error] read %s failed for addr %llx\n", page_map_file, vir);
             exit(-1);
         }
 
         if(0==(pfn_item & PFN_PRESENT_FLAG))
         {
-            printf("page is not present for addr %llx\n", vir);
+            printf("[Error] page is not present for addr %llx\n", vir);
             exit(-1);
         }
         uint64 phy = (pfn_item & PFN_MASK) * page_size + vir % page_size;
