@@ -191,7 +191,36 @@ sub get_os_type
     }
 }
 
-sub get_arch_type
+sub parse_arch_type
+{
+    my ($string) = @_;
+
+    # detect target arch type from compiler info
+    if($string =~ 'x86_64')
+    {
+        return 'X86_64';
+    }
+    elsif($string =~ 'aarch64')
+    {
+        return 'ARM';
+    }
+    elsif($string =~ 'riscv64')
+    {
+        return 'RISCV64';
+    }
+    else
+    {
+        &log_level('unsupported arch', -1);
+    }
+}
+
+sub get_host_arch_type
+{
+    my $result = `uname -a`;
+    return &parse_arch_type($result);
+}
+
+sub get_target_arch_type
 {
     my ($compiler) = @_;
 
@@ -212,23 +241,7 @@ sub get_arch_type
         &log_level('unsupported compiler info format', -1);
     }
 
-    # detect target arch type from compiler info
-    if($arch =~ 'x86_64')
-    {
-        return 'X86_64';
-    }
-    elsif($arch =~ 'aarch64')
-    {
-        return 'ARM';
-    }
-    elsif($arch =~ 'riscv64')
-    {
-        return 'RISCV64';
-    }
-    else
-    {
-        &log_level('unsupported arch', -1);
-    }
+    return &parse_arch_type($arch);
 }
 
 sub get_endian

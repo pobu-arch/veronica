@@ -42,6 +42,19 @@ namespace veronica
         return start_addr;
     }
 
+    void* aligned_calloc(const uint64 size, const uint64 alignment = 4096)
+    {
+        // make sure mem addr is aligned
+        void* start_addr = aligned_malloc(size, alignment);
+
+        if(start_addr != NULL)
+        {
+            memset(start_addr, 0, size);
+            return start_addr;
+        }
+        return NULL;
+    }
+
     uint64 mem_addr_vir2phy(uint64 vir)
     {
         int fd;
@@ -49,7 +62,7 @@ namespace veronica
         unsigned long vir_page_idx    = vir/page_size;
         unsigned long pfn_item_offset = vir_page_idx * sizeof(uint64);
         uint64 pfn_item;
-        
+
         fd = open(page_map_file, O_RDONLY);
         if(fd<0)
         {
