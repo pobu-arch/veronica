@@ -202,7 +202,7 @@ sub parse_arch_type
     }
     elsif($string =~ 'aarch64')
     {
-        return 'ARM';
+        return 'ARMV8';
     }
     elsif($string =~ 'riscv64')
     {
@@ -248,5 +248,24 @@ sub get_endian
 {
     my $result = `echo -n I | od -o | head -n1 | cut -f2 -d" " | cut -c6`;
     return $result ? 'little' : 'big';
+}
+
+sub get_cache_line_size
+{
+    my $os_type = &get_os_type();
+    if($os_type eq 'LINUX')
+    {
+        return `cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size`;
+    }
+    elsif($os_type eq 'MACOSX')
+    {
+        my $result = `sysctl hw.cachelinesize`;
+        return $+{num} if($result =~ /(?<num>\d+)/);
+    }
+}
+
+sub get_page_size
+{
+    return `getconf PAGESIZE`;
 }
 1;

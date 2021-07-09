@@ -21,7 +21,7 @@ namespace veronica
     {
         if(index >= MAX_NUM_TIMER)
         {
-            printf("[error] timer index is larger than MAX_NUM_TIMER %llu\n", MAX_NUM_TIMER);
+            printf("[Error] timer index is larger than MAX_NUM_TIMER %llu\n", MAX_NUM_TIMER);
             exit(-1);
         }
     }
@@ -56,17 +56,17 @@ namespace veronica
         {
             double sec  = floor(elapsed_time / pow(10.0,6.0));
             double msec = floor((elapsed_time - sec * pow(10.0,6.0)) / pow(10.0,3.0));
-            printf("[time] timer %s = %.0f s %.0f ms\n", name, sec, msec);
+            printf("[Time] timer %s = %.0f s %.0f ms\n", name, sec, msec);
         }
         else if(elapsed_time >= pow(10.0,3.0))
         {
             double msec = floor(elapsed_time / pow(10.0,3.0));
             double usec = floor((elapsed_time - msec * pow(10.0,3.0)));
-            printf("[time] timer %s = %.0f ms %.0f us\n", name, msec, usec);
+            printf("[Time] timer %s = %.0f ms %.0f us\n", name, msec, usec);
         }
         else
         {
-            printf("[time] timer %s = %.0f us\n", name, 
+            printf("[Time] timer %s = %.0f us\n", name, 
             time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us(&(time_pair_array[index].start)));
         }
     }
