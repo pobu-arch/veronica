@@ -15,6 +15,7 @@
 
 namespace veronica
 {
+    // TODO: get cache line size programmatically
     const uint64 CACHE_BLOCK_SIZE = 64;
     const uint64 PFN_MASK         = ((((uint64)1)<<55)-1);
     const uint64 PFN_PRESENT_FLAG = (((uint64)1)<<63);
