@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cstdio>
+#include <cstring>
 #include <cstdint>
 #include <cstdlib>
 #include <errno.h>
