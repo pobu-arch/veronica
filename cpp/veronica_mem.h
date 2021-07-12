@@ -70,7 +70,7 @@ namespace veronica
     // TODO
     uint64 get_cpu_freq_in_GHz()
     {
-        
+        return 0;
     }
 
     void* aligned_malloc(const uint64 size, const uint64 alignment = 4096)
