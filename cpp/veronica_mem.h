@@ -22,6 +22,12 @@ namespace veronica
 
     #define page_map_file     "/proc/self/pagemap"
 
+    // TODO
+    uint64 get_cpu_freq_in_GHz()
+    {
+        return 0;
+    }
+    
     const char* get_os_type()
     {
         #if defined(__APPLE__)
@@ -31,6 +37,11 @@ namespace veronica
         #if defined(__linux__)
             return "LINUX";
         #endif
+    }
+
+    uint64 get_page_size()
+    {
+        return (uint64)getpagesize();
     }
 
     uint64 get_cache_line_size()
@@ -55,21 +66,22 @@ namespace veronica
 
         if(NULL != fgets(readbuf, sizeof(readbuf), fstream))
         {
+            #if defined(__APPLE__)
             CACHE_LINE_SIZE = atoi(readbuf+18);
+            #endif
+
+            #if defined(__linux__)
+            CACHE_LINE_SIZE = atoi(readbuf);
+            #endif
+            
             pclose(fstream);
+
+            if(CACHE_LINE_SIZE == 0)
+            {
+                printf("[Error] failed to detect CACHE_LINE_SIZE\n");
+            }
             return CACHE_LINE_SIZE;
         }
-        return 0;
-    }
-
-    uint64 get_page_size()
-    {
-        return (uint64)getpagesize();
-    }
-
-    // TODO
-    uint64 get_cpu_freq_in_GHz()
-    {
         return 0;
     }
 
