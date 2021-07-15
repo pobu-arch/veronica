@@ -157,6 +157,7 @@ namespace veronica
         return phy;
     }
 
+    // need root access ?
     static inline void invalidate_tlb_entry_x86(uint64 addr)
     {
 	    //addr = (unsigned long) addr;
@@ -165,6 +166,7 @@ namespace veronica
         asm volatile("invlpg %0" : "+m" (*(char*)__p));
     }
 
+    // can be called from user mode
     static inline void flush_cache_line_x86(uint64 addr)
     {
         void *__p = (void *) addr;
