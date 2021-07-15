@@ -224,15 +224,15 @@ sub get_target_arch_type
 {
     my ($compiler) = @_;
 
-    my $arch   = '';
     my $result = `$compiler -v 2>&1`;
+    my $arch   = '';
 
     # detect compiler info
-    if($result =~ /--target=(?<arch>\w+)/)
+    if($result =~ /--target=(?<arch>\w+)/g)
     {
         $arch = $+{arch};
     }
-    elsif($result =~ /Target:\s+(?<arch>\w+)/)
+    elsif($result =~ /Target\:\s+(?<arch>\w+)/g)
     {
         $arch = $+{arch};
     }
