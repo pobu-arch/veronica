@@ -8,16 +8,20 @@ use warnings;
 use threads;
 use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
-my @EXPORT = qw(set_num_core system_entry backquote_entry join_n_thread_with_log thread_start);
 
-our $NUM_CORE    = 16;
-our %THREAD_POOL = ();
-our $PLACE_HOLDER = '--VERONICA--';
+our $NUM_CORE_LIMIT = 8;
+our %THREAD_POOL    = ();
+our $PLACE_HOLDER   = '--VERONICA--';
 
 sub set_num_core
 {
     my ($num) = @_;
-    $NUM_CORE = $num;
+    $NUM_CORE_LIMIT = $num;
+}
+
+sub get_num_core
+{
+    return $NUM_CORE_LIMIT;
 }
 
 sub system_entry
@@ -113,7 +117,7 @@ sub thread_start
     my ($info, $logfile, $entry_func_ref, @parameters) = @_;
     my $error = 0;
     
-    if(scalar threads->list() >= $NUM_CORE)
+    if(scalar threads->list() >= $NUM_CORE_LIMIT)
     {
         $error = join_n_thread_with_log(1);
         return $error if $error;
