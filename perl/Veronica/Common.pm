@@ -11,8 +11,6 @@ use Cwd 'abs_path';
 use Carp qw/cluck/;
 use Time::HiRes qw(gettimeofday tv_interval);
 
-my @EXPORT = qw(get_script_path filter_path read_filelist set_msg_level log_level mkdir_or_die open_or_die override_symbol_link  get_os_type get_endian);
-
 our $LOG_LEVEL = 5;
 
 ####################################################################################################
@@ -253,19 +251,105 @@ sub get_endian
 sub get_cache_line_size
 {
     my $os_type = &get_os_type();
-    if($os_type eq 'LINUX')
+    my $result  = 0;
+    if($os_type eq 'MACOSX')
     {
-        return `cat /sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size`;
+        $result = `sysctl hw.cachelinesize`;
     }
-    elsif($os_type eq 'MACOSX')
+    elsif($os_type eq 'LINUX')
     {
-        my $result = `sysctl hw.cachelinesize`;
-        return $+{num} if($result =~ /(?<num>\d+)/);
+        my $path = "sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size";
+        $result = `cat $path` if -e $path;
     }
+    
+    return $+{num} if($result =~ /(?<num>\d+)/);
+    return 0; # default value
 }
 
 sub get_page_size
 {
-    return `getconf PAGESIZE`;
+    my $result = `getconf PAGESIZE`;
+    chomp $result;
+    return $result if $result =~ /\d+/;
+    return 0;
+}
+
+sub get_threads_per_core
+{
+    my $os_type = &get_os_type();
+    if($os_type eq 'MACOSX')
+    {
+        my $num_logical_cores_per_socket  = &get_num_logical_core_per_socket();
+        my $num_physical_cores_per_socket = &get_num_physical_core_per_socket();
+        if($num_physical_cores_per_socket != 0)
+        {
+            return $num_logical_cores_per_socket / $num_physical_cores_per_socket;
+        }
+        else
+        {
+            # use this as the default value if the detection failed
+            return 1;
+        }
+    }
+    elsif($os_type eq 'LINUX')
+    {
+        my $result = `lscpu`;
+        my $threads_per_core = 1;
+           $threads_per_core = $+{num} if ($result =~ /Thread\(s\)\s+ per core\:\s+(?<num>\d+)/g);
+        return $threads_per_core;
+    }
+}
+
+sub get_num_physical_core_per_socket
+{
+    my $os_type = &get_os_type();
+    if($os_type eq 'MACOSX')
+    {
+        my $result = `sysctl hw.physicalcpu`;
+        return $+{num} if($result =~ /(?<num>\d+)/g);
+        return 0; # default value
+    }
+    elsif($os_type eq 'LINUX')
+    {
+        my $result = `lscpu`;
+        return $+{num} if($result =~ /Core\(s\)\s+ per socket\:\s+(?<num>\d+)/g);
+        return 0; # default value
+    }
+}
+
+sub get_num_logical_core_per_socket
+{
+    my $os_type = &get_os_type();
+    if($os_type eq 'MACOSX')
+    {
+        my $result = `sysctl hw.logicalcpu`;
+        return $+{num} if($result =~ /(?<num>\d+)/g);
+        return 0; # default value
+    }
+    elsif($os_type eq 'LINUX')
+    {
+        return (&get_threads_per_core() * &get_num_physical_core_per_socket());
+    }
+}
+
+sub print_sys_info
+{
+    my ($compiler) = @_;
+
+    my $endian              = &get_endian();
+    my $page_size           = &get_page_size();
+    my $cache_line_size     = &get_cache_line_size();
+    my $os_type             = &get_os_type();
+    my $host_arch_type      = &get_host_arch_type();
+    my $target_arch_type    = &get_target_arch_type($compiler);
+    my $num_physical_core   = &get_num_physical_core_per_socket();
+    my $num_logical_core    = &get_num_logical_core_per_socket();
+
+    log_level("\n", 0);
+    log_level("this machine is $endian-endian", 5);
+    log_level("page size is $page_size bytes, cache line size is $cache_line_size bytes", 5);
+    log_level("host OS is $os_type, host arch is $host_arch_type, target arch is $target_arch_type", 5);
+    log_level("there are $num_physical_core physical cores per socket, and $num_logical_core threads per physical core", 5);
+    log_level("\n", 0);
 }
 1;

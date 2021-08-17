@@ -18,7 +18,6 @@ namespace veronica
     // TODO: get cache line size programmatically
     const uint64 PFN_MASK         = ((((uint64)1)<<55)-1);
     const uint64 PFN_PRESENT_FLAG = (((uint64)1)<<63);
-          uint64 CACHE_LINE_SIZE  = 0;
 
     #define page_map_file     "/proc/self/pagemap"
 
@@ -46,9 +45,7 @@ namespace veronica
 
     uint64 get_cache_line_size()
     {
-        if(CACHE_LINE_SIZE != 0) 
-            return CACHE_LINE_SIZE;
-        
+        uint64 CACHE_LINE_SIZE = 0;
         FILE *fstream = NULL;
         char readbuf[32];
         memset(readbuf, 0, sizeof(readbuf));
@@ -75,14 +72,14 @@ namespace veronica
             #endif
             
             pclose(fstream);
-
-            if(CACHE_LINE_SIZE == 0)
-            {
-                printf("[Error] failed to detect CACHE_LINE_SIZE\n");
-            }
-            return CACHE_LINE_SIZE;
         }
-        return 0;
+
+        if(CACHE_LINE_SIZE == 0)
+        {
+            printf("[Critical-Warning] failed to detect CACHE_LINE_SIZE, will use 64 as the default size\n");
+            CACHE_LINE_SIZE = 64;
+        }
+        return CACHE_LINE_SIZE;
     }
 
     void* aligned_malloc(const uint64 size, const uint64 alignment = 4096)
