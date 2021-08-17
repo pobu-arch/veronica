@@ -248,6 +248,22 @@ sub get_endian
     return $result ? 'little' : 'big';
 }
 
+sub get_thp_status
+{
+    my $path = "/sys/kernel/mm/transparent_hugepage/enabled";
+    my $result = 'undetectable';
+    $result = `cat $path` if -e $path;
+    return $result;
+}
+
+sub get_page_size
+{
+    my $result = `getconf PAGESIZE`;
+    chomp $result;
+    return $result if $result =~ /\d+/;
+    return 0;
+}
+
 sub get_cache_line_size
 {
     my $os_type = &get_os_type();
@@ -264,14 +280,6 @@ sub get_cache_line_size
     
     return $+{num} if($result =~ /(?<num>\d+)/);
     return 0; # default value
-}
-
-sub get_page_size
-{
-    my $result = `getconf PAGESIZE`;
-    chomp $result;
-    return $result if $result =~ /\d+/;
-    return 0;
 }
 
 sub get_threads_per_core
@@ -337,6 +345,7 @@ sub print_sys_info
     my ($compiler) = @_;
 
     my $endian              = &get_endian();
+    my $thp_status          = &get_thp_status();
     my $page_size           = &get_page_size();
     my $cache_line_size     = &get_cache_line_size();
     my $os_type             = &get_os_type();
@@ -347,7 +356,8 @@ sub print_sys_info
 
     log_level("\n", 0);
     log_level("this machine is $endian-endian", 5);
-    log_level("page size is $page_size bytes, cache line size is $cache_line_size bytes", 5);
+    log_level("transparent huge page status is $thp_status", 5);
+    log_level("page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 5);
     log_level("host OS is $os_type, host arch is $host_arch_type, target arch is $target_arch_type", 5);
     log_level("there are $num_physical_core physical cores per socket, and $num_logical_core threads per physical core", 5);
     log_level("\n", 0);
