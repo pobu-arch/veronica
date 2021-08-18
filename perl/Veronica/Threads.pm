@@ -17,6 +17,7 @@ our $PLACE_HOLDER      = '--VERONICA--';
 sub set_num_core
 {
     my ($num) = @_;
+    num = &Veronica::Common::get_num_physical_core_per_socket() if $num eq 0;
     $NUM_CORE_LIMIT = $num;
     Veronica::Common::log_level("already set the num core limit to be $NUM_CORE_LIMIT", 5);
 }
