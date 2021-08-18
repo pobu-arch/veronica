@@ -9,9 +9,10 @@ use threads;
 use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
 
-our $NUM_CORE_LIMIT = 8;
-our %THREAD_POOL    = ();
-our $PLACE_HOLDER   = '--VERONICA--';
+our $NUM_CORE_LIMIT    = 8;
+our $THREAD_JOIN_PAUSE = 0;
+our %THREAD_POOL       = ();
+our $PLACE_HOLDER      = '--VERONICA--';
 
 sub set_num_core
 {
@@ -23,6 +24,17 @@ sub set_num_core
 sub get_num_core
 {
     return $NUM_CORE_LIMIT;
+}
+
+sub set_thread_join_pause
+{
+    my ($num) = @_;
+    $THREAD_JOIN_PAUSE = $+{num} if $num =~ /(?<num>\d+)/;
+}
+
+sub clear_thread_join_pause
+{
+    $THREAD_JOIN_PAUSE = 0;
 }
 
 sub system_entry
@@ -107,7 +119,7 @@ sub join_n_thread_with_log
         }
 
         last if($freed_slot >= $target_num || scalar threads->list() == 0);
-        #sleep(1);
+        sleep($THREAD_JOIN_PAUSE) if($THREAD_JOIN_PAUSE != 0);
     }
     return 0;
 }
