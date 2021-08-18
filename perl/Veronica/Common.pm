@@ -345,22 +345,22 @@ sub print_sys_info
 {
     my ($compiler) = @_;
 
-    my $endian              = &get_endian();
-    my $thp_status          = &get_thp_status();
-    my $page_size           = &get_page_size();
-    my $cache_line_size     = &get_cache_line_size();
-    my $os_type             = &get_os_type();
-    my $host_arch_type      = &get_host_arch_type();
-    my $target_arch_type    = &get_target_arch_type($compiler);
-    my $num_physical_core   = &get_num_physical_core_per_socket();
-    my $num_logical_core    = &get_num_logical_core_per_socket();
+    my $endian                  = &get_endian();
+    my $thp_status              = &get_thp_status();
+    my $page_size               = &get_page_size();
+    my $cache_line_size         = &get_cache_line_size();
+    my $os_type                 = &get_os_type();
+    my $host_arch_type          = &get_host_arch_type();
+    my $target_arch_type        = &get_target_arch_type($compiler);
+    my $num_physical_core       = &get_num_physical_core_per_socket();
+    my $num_threads_per_core    = &get_threads_per_core();
 
     log_level("\n", 0);
     log_level("this machine is $endian-endian", 5);
     log_level("transparent huge page status is $thp_status", 5);
     log_level("page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 5);
     log_level("host OS is $os_type, host arch is $host_arch_type, target arch is $target_arch_type", 5);
-    log_level("there are $num_physical_core physical cores per socket, and $num_logical_core threads per physical core", 5);
+    log_level("there are $num_physical_core physical cores per socket, and $num_threads_per_core threads per physical core", 5);
     log_level("\n", 0);
 }
 1;
