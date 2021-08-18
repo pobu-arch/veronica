@@ -253,7 +253,7 @@ sub get_thp_status
     my $path = "/sys/kernel/mm/transparent_hugepage/enabled";
     my $result = 'undetectable';
     $result = `cat $path` if -e $path;
-    return $result;
+    return "< $result >";
 }
 
 sub get_page_size
@@ -274,7 +274,7 @@ sub get_cache_line_size
     }
     elsif($os_type eq 'LINUX')
     {
-        my $path = "sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size";
+        my $path = "/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size";
         $result = `cat $path` if -e $path;
     }
     
