@@ -253,6 +253,7 @@ sub get_thp_status
     my $path = "/sys/kernel/mm/transparent_hugepage/enabled";
     my $result = 'undetectable';
     $result = `cat $path` if -e $path;
+    chomp $result;
     return "< $result >";
 }
 
@@ -261,7 +262,7 @@ sub get_page_size
     my $result = `getconf PAGESIZE`;
     chomp $result;
     return $result if $result =~ /\d+/;
-    return 0;
+    return 0; # default value
 }
 
 sub get_cache_line_size
@@ -302,7 +303,7 @@ sub get_threads_per_core
     elsif($os_type eq 'LINUX')
     {
         my $result = `lscpu`;
-        my $threads_per_core = 1;
+        my $threads_per_core = 1; # default value
            $threads_per_core = $+{num} if ($result =~ /Thread\(s\)\s+ per core\:\s+(?<num>\d+)/g);
         return $threads_per_core;
     }
