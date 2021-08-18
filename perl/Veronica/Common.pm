@@ -304,7 +304,7 @@ sub get_threads_per_core
     {
         my $result = `lscpu`;
         my $threads_per_core = 1; # default value
-           $threads_per_core = $+{num} if ($result =~ /Thread\(s\)\s+ per core\:\s+(?<num>\d+)/g);
+           $threads_per_core = $+{num} if ($result =~ /Thread\(s\)\s+per\s+core\:\s+(?<num>\d+)/g);
         return $threads_per_core;
     }
 }
@@ -321,7 +321,7 @@ sub get_num_physical_core_per_socket
     elsif($os_type eq 'LINUX')
     {
         my $result = `lscpu`;
-        return $+{num} if($result =~ /Core\(s\)\s+ per socket\:\s+(?<num>\d+)/g);
+        return $+{num} if($result =~ /Core\(s\)\s+per\s+socket\:\s+(?<num>\d+)/g);
         return 0; # default value
     }
 }
