@@ -17,6 +17,7 @@ sub set_num_core
 {
     my ($num) = @_;
     $NUM_CORE_LIMIT = $num;
+    log_level("already set the num core limit to be $NUM_CORE_LIMIT", 5);
 }
 
 sub get_num_core
