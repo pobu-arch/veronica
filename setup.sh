@@ -15,6 +15,6 @@ case $OSTYPE in
         ;;
 esac
 
-echo "Please add this following command to your shrc file to make effective everytime you login:"
+echo "Please add this following command to your shrc file to make it effective everytime you login:"
 echo "export VERONICA=$DIR"
 export VERONICA=$DIR
