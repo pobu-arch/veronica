@@ -17,6 +17,7 @@ namespace veronica
 {
     #define default_uncached_dev "/home/bowen/uncached_mem_dev"
     
+    #if defined(__linux__)
     void* uncached_mmap(char *dev, int size)
     {
         int fd = open(dev == NULL ? default_uncached_dev : dev, O_RDWR, 0);
@@ -42,6 +43,7 @@ namespace veronica
         printf("[Info] mmap()'completed %s\n", dev);
         return map;
     }
+    #endif
 
     void* aligned_malloc(const uint64 size, const uint64 alignment = 4096)
     {
