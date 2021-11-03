@@ -28,7 +28,7 @@ namespace veronica
 
     template <typename FP> void init_matrix(FP* matrix, const int row, const int col)
     {
-        printf("[info] init matrix addr %p with row = %d, col = %d\n", matrix, row, col);
+        printf("[Info] init matrix addr %p with row = %d, col = %d\n", matrix, row, col);
         
         for (int i = 0; i < row; i++)
         {
@@ -80,7 +80,7 @@ namespace veronica
             }
         }
         
-        printf("[info] Average error is: %e\n", total/(row * col));
-        printf("[info] Maximum error is: %e\n", max);
+        printf("[Info] Average error is: %e\n", total/(row * col));
+        printf("[Info] Maximum error is: %e\n", max);
     }
 }
