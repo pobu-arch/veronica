@@ -7,7 +7,7 @@
 
 namespace veronica
 {
-    const uint64 MAX_NUM_TIMER = 10;
+    const uint64 MAX_NUM_TIMER = 16;
 
     // for x86 only, cycle-precision
     struct cycle_pair
@@ -22,11 +22,11 @@ namespace veronica
         struct timeval start;
         struct timeval end;
     };
-    
+
     // for x86 only, cycle-precision
     static time_pair  time_pair_array[MAX_NUM_TIMER];
     // generic timer
-    static cycle_pair time_pair_array[MAX_NUM_TIMER];
+    static cycle_pair cycle_pair_array[MAX_NUM_TIMER];
 
 #ifdef X86_64
     inline uint64_t x86_rdtsc() 
@@ -60,16 +60,17 @@ namespace veronica
             printf("[Error] getting a 0 for cpu freq\n");
             exit(-1);
         }
-        return ((double)1.0/cpu_freq) * cycle;
+        double ns = pow(10.0,9.0) * cycle / cpu_freq;
+        return ns;
     }
 
     void set_timer_start(const int index)
     {
         check_timer_index(index);
         #ifdef X86_64
-            time_pair_array[index].start = x86_rdtsc();
+            cycle_pair_array[index].start = x86_rdtsc();
         #else
-            gettimeofday(&(time_pair_array[index].start),NULL);
+            gettimeofday(&(time_pair_array[index].start), NULL);
         #endif
     }
 
@@ -77,7 +78,7 @@ namespace veronica
     {
         check_timer_index(index);
         #ifdef X86_64
-            time_pair_array[index].end = x86_rdtsc();
+            cycle_pair_array[index].end = x86_rdtsc();
         #else
             gettimeofday(&(time_pair_array[index].end), NULL);
         #endif
@@ -86,7 +87,7 @@ namespace veronica
     double get_elapsed_time_in_us(const int index)
     {
         #ifdef X86_64
-            return (cycle_count_to_ns(time_pair_array[index].end - time_pair_array[index].start)) / 1000;
+            return (cycle_count_to_ns(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
         #else
             return time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us((&time_pair_array[index].start));
         #endif
