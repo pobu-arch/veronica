@@ -26,8 +26,11 @@ namespace veronica
             exit(-1);
         }
 
-        if (size & ~PAGE_MASK)
-                size = (size & PAGE_MASK) + PAGE_SIZE;
+        int page_size = (int)get_page_size();
+        int page_mask = (int)get_page_mask(); 
+
+        if (size & ~page_mask)
+                size = (size & page_mask) + page_size;
 
         void *map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (map == MAP_FAILED)

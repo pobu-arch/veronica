@@ -75,6 +75,12 @@ namespace veronica
         return (uint64)getpagesize();
     }
 
+    uint64 get_page_mask()
+    {
+        uint64 page_size = get_page_size();
+        return (~(page_size-1));
+    }
+
     uint64 get_cache_line_size()
     {
         uint64 CACHE_LINE_SIZE = 0;
