@@ -15,6 +15,31 @@
 
 namespace veronica
 {
+    #define default_uncached_dev "/home/bowen/uncached_mem_dev"
+    
+    void* uncached_mmap(char *dev, int size)
+    {
+        int fd = open(dev == NULL ? default_uncached_dev : dev, O_RDWR, 0);
+        if (fd == -1)
+        {
+            printf("[Error] couldn't open device\n");
+            exit(-1);
+        }
+
+        if (size & ~PAGE_MASK)
+                size = (size & PAGE_MASK) + PAGE_SIZE;
+
+        void *map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        if (map == MAP_FAILED)
+        {
+            printf("[Error] mmap failed.\n");
+            exit(-1);
+        }
+
+        printf("[Info] mmap()'completed %s\n", dev);
+        return map;
+    }
+
     void* aligned_malloc(const uint64 size, const uint64 alignment = 4096)
     {
         // make sure mem addr is aligned
