@@ -33,7 +33,7 @@ namespace veronica
 
     uint64 get_cpu_freq()
     {
-        uint64 FREQ = 0;
+        uint64 freq = 0;
         FILE *fstream = NULL;
         char readbuf[64];
         memset(readbuf, 0, sizeof(readbuf));
@@ -62,15 +62,15 @@ namespace veronica
 
             #if defined(__APPLE__) || defined(__linux__)
                 char* end   = start + strlen(start);
-                FREQ        = strtoull(start, &end, 10);
+                freq        = strtoull(start, &end, 10);
                 pclose(fstream);
                 #if defined(__linux__)
-                    FREQ *= 1000; // linux is counting freq in KHz
+                    freq *= 1000; // linux is counting freq in KHz
                 #endif
             #endif
         }
         // it could be returning 0
-        return FREQ;
+        return freq;
     }
 
     uint64 get_page_size()
@@ -86,7 +86,7 @@ namespace veronica
 
     uint64 get_cache_line_size()
     {
-        uint64 CACHE_LINE_SIZE = 0;
+        uint64 cache_line_size = 0;
         FILE *fstream = NULL;
         char readbuf[64];
         memset(readbuf, 0, sizeof(readbuf));
@@ -106,9 +106,9 @@ namespace veronica
         if(NULL != fgets(readbuf, sizeof(readbuf), fstream))
         {
             #if defined(__APPLE__)
-                CACHE_LINE_SIZE = atoi(readbuf+18);
+                cache_line_size = atoi(readbuf+18);
             #elif defined(__linux__)
-                CACHE_LINE_SIZE = atoi(readbuf);
+                cache_line_size = atoi(readbuf);
             #else
                 #error NOT SUPPORTED OS
             #endif
@@ -119,7 +119,7 @@ namespace veronica
         }
 
         // it could be returning 0
-        return CACHE_LINE_SIZE;
+        return cache_line_size;
     }
 
     uint64 mem_addr_vir2phy(uint64 vir)
