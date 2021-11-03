@@ -9,13 +9,34 @@ namespace veronica
 {
     const uint64 MAX_NUM_TIMER = 10;
 
+    // for x86 only, cycle-precision
+    struct cycle_pair
+    {
+        uint64 start;
+        uint64 end;
+    };
+
+    // generic timer
     struct time_pair
     {
         struct timeval start;
         struct timeval end;
     };
     
-    static time_pair time_pair_array[MAX_NUM_TIMER];
+    // for x86 only, cycle-precision
+    static time_pair  time_pair_array[MAX_NUM_TIMER];
+    // generic timer
+    static cycle_pair time_pair_array[MAX_NUM_TIMER];
+
+#ifdef X86_64
+    inline uint64_t x86_rdtsc() 
+    { 
+        uint32_t lo, hi; 
+        asm volatile("mfence"); 
+        asm volatile("rdtsc" : "=a" (lo), "=d" (hi)); 
+        return (uint64_t)hi << 32 | lo; 
+    }
+#endif
 
     void check_timer_index(const int index)
     {
@@ -28,24 +49,47 @@ namespace veronica
 
     double time_spec_to_us(const timeval* tv)
     {
-        return tv->tv_sec * pow(10.0,6.0) + tv->tv_usec;
+        return tv->tv_sec * pow(10.0,9.0) + tv->tv_usec;
+    }
+
+    double cycle_count_to_ns(const uint64 cycle)
+    {
+        uint64 cpu_freq = get_cpu_freq();
+        if(cpu_freq == 0)
+        {
+            printf("[Error] getting a 0 for cpu freq\n");
+            exit(-1);
+        }
+        return ((double)1.0/cpu_freq) * cycle;
     }
 
     void set_timer_start(const int index)
     {
         check_timer_index(index);
-        gettimeofday(&(time_pair_array[index].start),NULL);
+        #ifdef X86_64
+            time_pair_array[index].start = x86_rdtsc();
+        #else
+            gettimeofday(&(time_pair_array[index].start),NULL);
+        #endif
     }
 
     void set_timer_end(const int index)
     {
         check_timer_index(index);
-        gettimeofday(&(time_pair_array[index].end), NULL);
+        #ifdef X86_64
+            time_pair_array[index].end = x86_rdtsc();
+        #else
+            gettimeofday(&(time_pair_array[index].end), NULL);
+        #endif
     }
 
     double get_elapsed_time_in_us(const int index)
     {
-        return time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us((&time_pair_array[index].start));
+        #ifdef X86_64
+            return (cycle_count_to_ns(time_pair_array[index].end - time_pair_array[index].start)) / 1000;
+        #else
+            return time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us((&time_pair_array[index].start));
+        #endif
     }
 
     void print_timer(const int index, const char* name)
@@ -66,8 +110,7 @@ namespace veronica
         }
         else
         {
-            printf("[Time] timer %s = %.0f us\n", name, 
-            time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us(&(time_pair_array[index].start)));
+            printf("[Time] timer %s = %.0f ns\n", name, elapsed_time * 1000);
         }
     }
 }
