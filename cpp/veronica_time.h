@@ -67,12 +67,12 @@ namespace veronica
         #endif
     }
 
-    double time_spec_to_us(const timeval* tv)
+    double time_spec_to_usec(const timeval* tv)
     {
         return tv->tv_sec * pow(10.0,9.0) + tv->tv_usec;
     }
 
-    double cycle_count_to_ns(const uint64 cycle)
+    double cycle_count_to_nsec(const uint64 cycle)
     {
         uint64 cpu_freq = get_cpu_freq();
         if(cpu_freq == 0)
@@ -80,27 +80,27 @@ namespace veronica
             printf("[Error] getting a 0 for cpu freq\n");
             exit(-1);
         }
-        double ns = pow(10.0,9.0) * cycle / cpu_freq;
+        double ns = pow(10.0, 9.0) * cycle / cpu_freq;
         return ns;
     }
 
-    double get_elapsed_time_in_us(const int index)
+    double get_elapsed_time_in_usec(const int index)
     {
         #ifdef X86_64
-            return (cycle_count_to_ns(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
+            return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
         #else
-            return time_spec_to_us(&(time_pair_array[index].end)) - time_spec_to_us((&time_pair_array[index].start));
+            return time_spec_to_usec(&(time_pair_array[index].end)) - time_spec_to_usec((&time_pair_array[index].start));
         #endif
     }
 
-    double get_elapsed_time_in_ns(const int index)
+    double get_elapsed_time_in_cycle(const int index)
     {
-        return get_elapsed_time_in_us(index) * 1000;
+        return (cycle_pair_array[index].end - cycle_pair_array[index].start);
     }
 
     void print_timer(const int index, const char* name)
     {
-        double elapsed_time = get_elapsed_time_in_us(index);
+        double elapsed_time = get_elapsed_time_in_usec(index);
 
         if(elapsed_time >= pow(10.0,6.0))
         {

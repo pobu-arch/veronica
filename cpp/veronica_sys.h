@@ -64,6 +64,9 @@ namespace veronica
                 char* end   = start + strlen(start);
                 FREQ        = strtoull(start, &end, 10);
                 pclose(fstream);
+                #if defined(__linux__)
+                    FREQ *= 1000; // linux is counting freq in KHz
+                #endif
             #endif
         }
         // it could be returning 0
