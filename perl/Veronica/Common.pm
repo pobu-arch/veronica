@@ -198,7 +198,7 @@ sub parse_arch_type
     {
         return 'X86_64';
     }
-    elsif($string =~ 'aarch64')
+    elsif($string =~ 'aarch64|ARM64|arm64')
     {
         return 'ARMV8';
     }
