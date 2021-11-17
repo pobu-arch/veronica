@@ -43,6 +43,8 @@ namespace veronica
         printf("[Info] mmap()'completed %s\n", dev);
         return map;
     }
+    #else
+        #error "NOT SUPPORTED OS"
     #endif
 
     void* aligned_malloc(const uint64 size, const uint64 alignment = 4096)
