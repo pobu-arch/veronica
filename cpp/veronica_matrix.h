@@ -55,7 +55,7 @@ namespace veronica
         }
     }
 
-#ifdef INTEL_MKL
+#ifdef MACRO_INTEL_MKL
     void mkl_gemm(const FP* a, const FP* b, FP* result, const int m, const int n, const int p)
     {
         static_if(constexpr (std::is_same<FP, float>::value))

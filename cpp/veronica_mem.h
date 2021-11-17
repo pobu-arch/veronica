@@ -15,12 +15,12 @@
 
 namespace veronica
 {
-    #define default_uncached_dev "/home/bowen/uncached_mem_dev"
+    #define MACRO_UNCACHED_DEV_PATH "/home/bowen/uncached_mem_dev"
     
     #if defined(__linux__)
     void* uncached_mmap(char *dev, int size)
     {
-        int fd = open(dev == NULL ? default_uncached_dev : dev, O_RDWR, 0);
+        int fd = open(dev == NULL ? MACRO_UNCACHED_DEV_PATH : dev, O_RDWR, 0);
         if (fd == -1)
         {
             printf("[Error] couldn't open device\n");
