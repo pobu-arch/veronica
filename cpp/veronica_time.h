@@ -69,7 +69,7 @@ namespace veronica
 
     double time_spec_to_usec(const timeval* tv)
     {
-        return tv->tv_sec * pow(10.0,9.0) + tv->tv_usec;
+        return tv->tv_sec * pow(10.0,6.0) + tv->tv_usec;
     }
 
     double cycle_count_to_nsec(const uint64 cycle)
@@ -89,7 +89,9 @@ namespace veronica
         #ifdef X86_64
             return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
         #else
-            return time_spec_to_usec(&(time_pair_array[index].end)) - time_spec_to_usec((&time_pair_array[index].start));
+            double start_time = veronica::time_spec_to_usec(&(veronica::time_pair_array[index].start));
+            double end_time   = veronica::time_spec_to_usec(&(veronica::time_pair_array[index].end));
+            return end_time - start_time;
         #endif
     }
 
@@ -106,17 +108,17 @@ namespace veronica
         {
             double sec  = floor(elapsed_time / pow(10.0,6.0));
             double msec = floor((elapsed_time - sec * pow(10.0,6.0)) / pow(10.0,3.0));
-            printf("[Time] timer %s = %.0f s %.0f ms\n", name, sec, msec);
+            printf("[Time] timer %s = %.0lf s %.0lf ms\n", name, sec, msec);
         }
         else if(elapsed_time >= pow(10.0,3.0))
         {
             double msec = floor(elapsed_time / pow(10.0,3.0));
             double usec = floor((elapsed_time - msec * pow(10.0,3.0)));
-            printf("[Time] timer %s = %.0f ms %.0f us\n", name, msec, usec);
+            printf("[Time] timer %s = %.0lf ms %.0lf us\n", name, msec, usec);
         }
         else
         {
-            printf("[Time] timer %s = %.0f ns\n", name, elapsed_time * 1000);
+            printf("[Time] timer %s = %.0lf ns\n", name, elapsed_time * 1000);
         }
     }
 }
