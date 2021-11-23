@@ -206,6 +206,10 @@ sub parse_arch_type
     {
         return 'RISCV64';
     }
+    elsif($string =~ 'riscv32')
+    {
+        return 'RISCV32';
+    }
     else
     {
         &log_level('unsupported arch', -1);
