@@ -92,13 +92,21 @@ sub join_n_thread_with_log
                 Veronica::Common::log_level("\n",0);
                 if($return_value)
                 {
-                    Veronica::Common::log_level('Thread '.$thread->tid().' detected error with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 1);
-                    Veronica::Common::log_level('Thread '.$thread->tid().' error message is - '.$THREAD_POOL{$thread->tid()}{'result'}, 1) if exists $THREAD_POOL{$thread->tid()}{'result'};
+                    Veronica::Common::log_level('Thread ID '.$thread->tid().
+                                                ' detected error with info - '.
+                                                $THREAD_POOL{$thread->tid()}{'info'}, 1);
+                    Veronica::Common::log_level('Thread ID '.$thread->tid().
+                                                ' error message is - '.
+                                                $THREAD_POOL{$thread->tid()}{'result'}, 1) 
+                                                if exists $THREAD_POOL{$thread->tid()}{'result'};
                     $error = 1;
                 }
                 else
                 {
-                    Veronica::Common::log_level('Thread '.$thread->tid().' succeessfully joined with info - '.$THREAD_POOL{$thread->tid()}{'info'}, 5);
+                    Veronica::Common::log_level('Thread ID '.
+                                                $thread->tid().
+                                                ' succeessfully joined with info - '.
+                                                $THREAD_POOL{$thread->tid()}{'info'}, 5);
                 }
                 delete $THREAD_POOL{$thread->tid()};
             }
@@ -106,7 +114,7 @@ sub join_n_thread_with_log
 
         if($error)
         {
-            Veronica::Common::log_level('Evicting all the threads due to the detected error', 1);
+            Veronica::Common::log_level('Evicting all the threads due to previous detected error', 1);
             
             # empty the thread pool
             while(scalar threads->list())
@@ -144,7 +152,7 @@ sub thread_start
     $THREAD_POOL{$thread->tid()}{'logfile'}     = $logfile if $logfile ne '';
     
     Veronica::Common::log_level("\n",0);
-    Veronica::Common::log_level('Thread '.$thread->tid().' launched with info - '.$info, 5);
+    Veronica::Common::log_level('Thread ID '.$thread->tid().' launched with info - '.$info, 5);
 
     return $error;
 }

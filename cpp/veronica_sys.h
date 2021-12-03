@@ -161,28 +161,20 @@ namespace veronica
 
     // TODO
     // need root access ?
-    
+    #ifdef MACRO_X86_64
     static inline void invalidate_tlb_entry_x86(uint64 addr)
     {
-        #ifdef MACRO_X86_64
-            //addr = (unsigned long) addr;
-            //asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
-            void *__p = (void *) addr;
-            asm volatile("invlpg %0" : "+m" (*(char*)__p));
-        #else
-            #error "THIS FUNCTION ONLY SUPPORTS X86_64"
-        #endif
+        //addr = (unsigned long) addr;
+        //asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
+        void *__p = (void *) addr;
+        asm volatile("invlpg %0" : "+m" (*(char*)__p));
     }
-    
 
     // can be called from user mode
     static inline void flush_cache_line_x86(uint64 addr)
     {
-        #ifdef MACRO_X86_64
-            void *__p = (void *) addr;
-            asm volatile("clflush %0" : "+m" (*(char*)__p));
-        #else
-            #error "THIS FUNCTION ONLY SUPPORTS X86_64"
-        #endif
+        void *__p = (void *) addr;
+        asm volatile("clflush %0" : "+m" (*(char*)__p));
     }
+    #endif
 }

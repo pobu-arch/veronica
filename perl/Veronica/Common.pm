@@ -200,7 +200,7 @@ sub parse_arch_type
     }
     elsif($string =~ 'aarch64|ARM64|arm64')
     {
-        return 'ARMV8';
+        return 'ARM64';
     }
     elsif($string =~ 'riscv64')
     {

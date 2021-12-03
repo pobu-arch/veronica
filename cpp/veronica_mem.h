@@ -16,10 +16,10 @@
 namespace veronica
 {
     #define MACRO_UNCACHED_DEV_PATH "/home/bowen/uncached_mem_dev"
-    
-    #if defined(__linux__)
+
     void* uncached_mmap(char *dev, int size)
     {
+        #if defined(__linux__)
         int fd = open(dev == NULL ? MACRO_UNCACHED_DEV_PATH : dev, O_RDWR, 0);
         if (fd == -1)
         {
@@ -42,10 +42,13 @@ namespace veronica
 
         printf("[Info] mmap()'completed %s\n", dev);
         return map;
+
+        #else
+            //#error "NOT SUPPORTED OS"
+            return NULL;
+        #endif
     }
-    #else
-        #error "NOT SUPPORTED OS"
-    #endif
+    
 
     void* aligned_malloc(const uint64 size, const uint64 alignment = 4096)
     {
