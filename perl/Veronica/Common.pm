@@ -240,7 +240,9 @@ sub get_target_arch_type
     }
     else
     {
+        &log_level("compiler info is : $result", 1);
         &log_level('unsupported compiler info format', -1);
+
     }
 
     return &parse_arch_type($arch);

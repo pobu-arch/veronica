@@ -1,3 +1,5 @@
+//void __attribute__ ((noinline))
+
 #ifdef MACRO_X86_64
     #define NOP_1       asm volatile("nop\n\t");
     #define NOP_2       {NOP_1 NOP_1}
@@ -305,16 +307,1424 @@ inline void stream_store(void* start_addr)
 
 inline int test_nop(int input)
 {
+    int i = 1;
     #ifdef MACRO_X86_64 
-        if(input % 3 == 2)
+        if(input <= i++)
         {
             NOP_4096
-            return input % 5;
+            printf("temp\n");
+            return i;
         }
-        else
+        else if(input <= i++)
         {
-            NOP_2048
-            return input % 4;
+            NOP_4096
+            printf("temp\n");
+            return i;
         }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else if(input <= i++)
+        {
+            NOP_4096
+            printf("temp\n");
+            return i;
+        }
+        else return i;
     #endif
 }
