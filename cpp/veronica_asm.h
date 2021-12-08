@@ -1,3 +1,19 @@
+#ifdef MACRO_X86_64
+    #define NOP_1       asm volatile("nop\n\t");
+    #define NOP_2       {NOP_1 NOP_1}
+    #define NOP_4       {NOP_2 NOP_2}
+    #define NOP_8       {NOP_4 NOP_4}
+    #define NOP_16      {NOP_8 NOP_8}
+    #define NOP_32      {NOP_16 NOP_16}
+    #define NOP_64      {NOP_32 NOP_32}
+    #define NOP_128     {NOP_64 NOP_64}
+    #define NOP_256     {NOP_128 NOP_128}
+    #define NOP_512     {NOP_256 NOP_256}
+    #define NOP_1024    {NOP_512 NOP_512}
+    #define NOP_2048    {NOP_1024 NOP_1024}
+    #define NOP_4096    {NOP_2048 NOP_2048}
+#endif
+
 inline void stream_load(void* start_addr)
 {
     #ifdef MACRO_X86_64
@@ -284,5 +300,21 @@ inline void stream_store(void* start_addr)
         #endif
     #else
         #error "NOT SUPPORTED ARCH"
+    #endif
+}
+
+inline int test_nop(int input)
+{
+    #ifdef MACRO_X86_64 
+        if(input % 3 == 2)
+        {
+            NOP_4096
+            return input % 5;
+        }
+        else
+        {
+            NOP_2048
+            return input % 4;
+        }
     #endif
 }
