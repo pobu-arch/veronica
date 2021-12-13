@@ -306,7 +306,7 @@ inline void stream_store(void* start_addr)
     #endif // MACRO_ISA
 }
 
-inline uint64 inst_nop(uint64* input)
+uint64 inst_nop(uint64* input)
 {
     uint64 i = 1;
     #ifdef MACRO_ISA_X86_64 
@@ -317,6 +317,9 @@ inline uint64 inst_nop(uint64* input)
             printf("temp\n");
             return i;
         }
+        else if(input[i++] % 2147483647 == 0){FENCE; NOP_4096; return i;}
+        else if(input[i++] % 2147483647 == 0){FENCE; NOP_4096; return i;}
+        else if(input[i++] % 2147483647 == 0){FENCE; NOP_4096; return i;}
         else if(input[i++] % 2147483647 == 0){FENCE; NOP_4096; return i;}
         else return i;
     #endif // MACRO_ISA_X86_64
