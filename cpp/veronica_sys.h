@@ -161,7 +161,7 @@ namespace veronica
 
     // TODO
     // need root access ?
-    #ifdef MACRO_X86_64
+    #ifdef MACRO_ISA_X86_64
     static inline void invalidate_tlb_entry_x86(uint64 addr)
     {
         //addr = (unsigned long) addr;
