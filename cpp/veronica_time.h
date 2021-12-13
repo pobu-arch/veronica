@@ -28,7 +28,7 @@ namespace veronica
     // generic timer
     static cycle_pair cycle_pair_array[MAX_NUM_TIMER];
 
-#ifdef MACRO_X86_64
+#ifdef MACRO_ISA_X86_64
     inline uint64_t x86_rdtsc() 
     { 
         uint32_t lo, hi; 
@@ -50,7 +50,7 @@ namespace veronica
     void set_timer_start(const int index)
     {
         check_timer_index(index);
-        #ifdef MACRO_X86_64
+        #ifdef MACRO_ISA_X86_64
             cycle_pair_array[index].start = x86_rdtsc();
         #else
             gettimeofday(&(time_pair_array[index].start), NULL);
@@ -60,7 +60,7 @@ namespace veronica
     void set_timer_end(const int index)
     {
         check_timer_index(index);
-        #ifdef MACRO_X86_64
+        #ifdef MACRO_ISA_X86_64
             cycle_pair_array[index].end = x86_rdtsc();
         #else
             gettimeofday(&(time_pair_array[index].end), NULL);
@@ -86,7 +86,7 @@ namespace veronica
 
     double get_elapsed_time_in_usec(const int index)
     {
-        #ifdef MACRO_X86_64
+        #ifdef MACRO_ISA_X86_64
             return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
         #else
             double start_time = veronica::time_spec_to_usec(&(veronica::time_pair_array[index].start));
