@@ -365,7 +365,7 @@ sub print_sys_info
     log_level("this machine is $endian-endian", 5);
     log_level("transparent huge page status is $thp_status", 5);
     log_level("page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 5);
-    log_level("host OS is $os_type, host ISA is $host_isa_type, target IAS is $target_isa_type", 5);
+    log_level("host OS is $os_type, host ISA is $host_isa_type, target ISA is $target_isa_type", 5);
     log_level("there are $num_physical_core physical cores per socket, and $num_threads_per_core threads per physical core", 5);
     log_level("\n", 0);
 }
