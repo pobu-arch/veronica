@@ -69,7 +69,7 @@ inline void stream_load(void* start_addr)
             #error "NOT SUPPORTED CACHE_LINE_SIZE"
         #endif // MACRO_CACHE_LINE_SIZE
 
-    #elif defined MACRO_ISA_ARMV8
+    #elif defined MACRO_ISA_ARM64
         #if MACRO_CACHE_LINE_SIZE == 64
             asm volatile("ldr x7, [%0, #0]\n\t"
                         "ldr x7, [%0, #64]\n\t"
@@ -115,6 +115,7 @@ inline void stream_load(void* start_addr)
                         "ldr x7, [%0, #512]\n\t"
                         "ldr x7, [%0, #640]\n\t"
                         "ldr x7, [%0, #768]\n\t"
+                        "ldr x7, [%0, #896]\n\t"
                         "ldr x7, [%0, #1024]\n\t"
                         "ldr x7, [%0, #1152]\n\t"
                         "ldr x7, [%0, #1280]\n\t"
@@ -219,7 +220,7 @@ inline void stream_store(void* start_addr)
             #error "NOT SUPPORTED CACHE_LINE_SIZE"
         #endif // MACRO_CACHE_LINE_SIZE
 
-    #elif defined MACRO_ISA_ARMV8
+    #elif defined MACRO_ISA_ARM64
         #if MACRO_CACHE_LINE_SIZE == 64
             asm volatile("str x7, [%0, #0]\n\t"
                         "str x7, [%0, #64]\n\t"
@@ -284,22 +285,38 @@ inline void stream_store(void* start_addr)
 
     #elif defined MACRO_ISA_RISCV64
         #if MACRO_CACHE_LINE_SIZE == 64
-            asm volatile("sd t7, 0(%0)\n\t"
+            asm volatile("sd t7,  0(%0)\n\t"
+                        "sd t7,  64(%0)\n\t"
                         "sd t7, 128(%0)\n\t"
+                        "sd t7, 192(%0)\n\t"
                         "sd t7, 256(%0)\n\t"
+                        "sd t7, 320(%0)\n\t"
                         "sd t7, 384(%0)\n\t"
+                        "sd t7, 448(%0)\n\t"
                         "sd t7, 512(%0)\n\t"
+                        "sd t7, 576(%0)\n\t"
                         "sd t7, 640(%0)\n\t"
+                        "sd t7, 704(%0)\n\t"
                         "sd t7, 768(%0)\n\t"
+                        "sd t7, 832(%0)\n\t"
                         "sd t7, 896(%0)\n\t"
+                        "sd t7, 960(%0)\n\t"
                         "sd t7, 1024(%0)\n\t"
+                        "sd t7, 1088(%0)\n\t"
                         "sd t7, 1152(%0)\n\t"
+                        "sd t7, 1216(%0)\n\t"
                         "sd t7, 1280(%0)\n\t"
+                        "sd t7, 1344(%0)\n\t"
                         "sd t7, 1408(%0)\n\t"
+                        "sd t7, 1472(%0)\n\t"
                         "sd t7, 1536(%0)\n\t"
+                        "sd t7, 1600(%0)\n\t"
                         "sd t7, 1664(%0)\n\t"
+                        "sd t7, 1728(%0)\n\t"
                         "sd t7, 1792(%0)\n\t"
+                        "sd t7, 1856(%0)\n\t"
                         "sd t7, 1920(%0)\n\t"
+                        "sd t7, 1984(%0)\n\t"
                         :
                         : "r"(start_addr)
                         );
