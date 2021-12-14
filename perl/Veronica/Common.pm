@@ -189,11 +189,11 @@ sub get_os_type
     }
 }
 
-sub parse_arch_type
+sub parse_isa_type
 {
     my ($string) = @_;
 
-    # detect target arch type from compiler info
+    # detect target ISA type from compiler info
     if($string =~ 'x86_64')
     {
         return 'X86_64';
@@ -212,31 +212,31 @@ sub parse_arch_type
     }
     else
     {
-        &log_level('unsupported arch', -1);
+        &log_level('unsupported ISA', -1);
     }
 }
 
-sub get_host_arch_type
+sub get_host_isa_type
 {
     my $result = `uname -a`;
-    return &parse_arch_type($result);
+    return &parse_isa_type($result);
 }
 
-sub get_target_arch_type
+sub get_target_isa_type
 {
     my ($compiler) = @_;
 
     my $result = `$compiler -v 2>&1`;
-    my $arch   = '';
+    my $isa    = '';
 
     # detect compiler info
-    if($result =~ /--target=(?<arch>\w+)/g)
+    if($result =~ /--target=(?<isa>\w+)/g)
     {
-        $arch = $+{arch};
+        $isa = $+{isa};
     }
-    elsif($result =~ /Target\:\s+(?<arch>\w+)/g)
+    elsif($result =~ /Target\:\s+(?<isa>\w+)/g)
     {
-        $arch = $+{arch};
+        $isa = $+{isa};
     }
     else
     {
@@ -245,7 +245,7 @@ sub get_target_arch_type
 
     }
 
-    return &parse_arch_type($arch);
+    return &parse_isa_type($isa);
 }
 
 sub get_endian
@@ -356,8 +356,8 @@ sub print_sys_info
     my $page_size               = &get_page_size();
     my $cache_line_size         = &get_cache_line_size();
     my $os_type                 = &get_os_type();
-    my $host_arch_type          = &get_host_arch_type();
-    my $target_arch_type        = &get_target_arch_type($compiler);
+    my $host_isa_type           = &get_host_isa_type();
+    my $target_isa_type         = &get_target_isa_type($compiler);
     my $num_physical_core       = &get_num_physical_core_per_socket();
     my $num_threads_per_core    = &get_threads_per_core();
 
@@ -365,7 +365,7 @@ sub print_sys_info
     log_level("this machine is $endian-endian", 5);
     log_level("transparent huge page status is $thp_status", 5);
     log_level("page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 5);
-    log_level("host OS is $os_type, host arch is $host_arch_type, target arch is $target_arch_type", 5);
+    log_level("host OS is $os_type, host ISA is $host_isa_type, target IAS is $target_isa_type", 5);
     log_level("there are $num_physical_core physical cores per socket, and $num_threads_per_core threads per physical core", 5);
     log_level("\n", 0);
 }
