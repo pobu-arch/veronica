@@ -328,6 +328,7 @@ inline void stream_store(void* start_addr)
     #endif // MACRO_ISA
 }
 
+#ifdef MACRO_HUGE_BUILD
 uint64 inst_nop(uint64* input)
 {
     uint64 i = 1;
@@ -598,3 +599,4 @@ uint64 inst_nop(uint64* input)
         else return i;
     #endif // MACRO_ISA_X86_64
 }
+#endif
