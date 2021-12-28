@@ -336,8 +336,7 @@ uint64 inst_nop(uint64* input)
         if(input[i++] % 2147483647 == 0)
         {
             FENCE
-            NOP_4096
-            printf("temp\n");
+            NOP_65536
             return i;
         }
         else if(input[i++] % 2147483647 == 0){FENCE; NOP_65536; return i;}
