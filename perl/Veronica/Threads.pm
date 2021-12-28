@@ -8,6 +8,7 @@ use warnings;
 use threads;
 use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
+use threads 'exit' => 'threads_only';
 
 our $NUM_CORE_LIMIT    = 8;
 our $THREAD_JOIN_PAUSE = 0;
@@ -41,12 +42,18 @@ sub clear_thread_join_pause
 sub system_entry
 {
     my (@parameters) = @_;
+    
+    #$SIG{'KILL'} = sub{ threads->exit() };
+
     return system "@parameters";
 }
 
 sub backquote_entry
 {
     my (@parameters) = @_;
+
+    #$SIG{'KILL'} = sub{ threads->exit() };
+
     my $thread = threads->self();
     my $result = `@parameters 2>&1`;
     my $status = $?;
