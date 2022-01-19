@@ -1,5 +1,13 @@
 //void __attribute__ ((noinline))
 
+#ifdef __GNUC__
+    #define likely(x)       __builtin_expect(!!(x), 1)
+    #define unlikely(x)     __builtin_expect(!!(x), 0)
+#else
+    #define likely(x)       (!!x)
+    #define unlikely(x)     (!!x)
+#endif
+
 #ifdef MACRO_ISA_X86_64
     #define NOP_1       asm volatile("nop\n\t");
     #define NOP_2       {NOP_1 NOP_1}
