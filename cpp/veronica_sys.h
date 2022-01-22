@@ -162,19 +162,19 @@ namespace veronica
     // TODO
     // need root access ?
     #ifdef MACRO_ISA_X86_64
+    // can be called from user mode
+    static inline void flush_cache_line_x86(uint64 addr)
+    {
+        void *__p = (void *) addr;
+        asm volatile("clflush %0" : "+m" (*(char*)__p));
+    }
+    
     static inline void invalidate_tlb_entry_x86(uint64 addr)
     {
         //addr = (unsigned long) addr;
         //asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
         void *__p = (void *) addr;
         asm volatile("invlpg %0" : "+m" (*(char*)__p));
-    }
-
-    // can be called from user mode
-    static inline void flush_cache_line_x86(uint64 addr)
-    {
-        void *__p = (void *) addr;
-        asm volatile("clflush %0" : "+m" (*(char*)__p));
     }
     #endif
 }
