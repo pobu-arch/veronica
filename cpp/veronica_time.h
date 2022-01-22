@@ -9,7 +9,7 @@ namespace veronica
 {
     const uint64 MAX_NUM_TIMER = 16;
 
-    // for x86 only, cycle-precision
+    // cycle-level precision
     struct cycle_pair
     {
         uint64 start;
@@ -23,7 +23,7 @@ namespace veronica
         struct timeval end;
     };
 
-    // for x86 only, cycle-precision
+    // for cycle-level precision
     static time_pair  time_pair_array[MAX_NUM_TIMER];
     // generic timer
     static cycle_pair cycle_pair_array[MAX_NUM_TIMER];
@@ -35,6 +35,19 @@ namespace veronica
         asm volatile("mfence"); 
         asm volatile("rdtsc" : "=a" (lo), "=d" (hi)); 
         return (uint64_t)hi << 32 | lo; 
+    }
+#endif
+
+#ifdef MACRO_ISA_ARM64
+    inline uint64_t arm_mfcp() 
+    { 
+        #define mfcp(rn)    ({u32 rval = 0U; \
+             __asm__ __volatile__(\
+               "mrc " rn "\n"\
+               : "=r" (rval)\
+             );\
+             rval;\
+             })
     }
 #endif
 
@@ -52,6 +65,8 @@ namespace veronica
         check_timer_index(index);
         #ifdef MACRO_ISA_X86_64
             cycle_pair_array[index].start = x86_rdtsc();
+        #elif MACRO_ISA_ARM64
+            cycle_pair_array[index].start = arm_mfcp(CNTPCT_EL0);
         #else
             gettimeofday(&(time_pair_array[index].start), NULL);
         #endif
@@ -62,6 +77,8 @@ namespace veronica
         check_timer_index(index);
         #ifdef MACRO_ISA_X86_64
             cycle_pair_array[index].end = x86_rdtsc();
+        #elif MACRO_ISA_ARM64
+            cycle_pair_array[index].end = arm_mfcp(CNTPCT_EL0);
         #else
             gettimeofday(&(time_pair_array[index].end), NULL);
         #endif
@@ -86,7 +103,7 @@ namespace veronica
 
     double get_elapsed_time_in_usec(const int index)
     {
-        #ifdef MACRO_ISA_X86_64
+        #if defined(MACRO_ISA_X86_64) || defined(MACRO_ISA_ARM64)
             return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
         #else
             double start_time = veronica::time_spec_to_usec(&(veronica::time_pair_array[index].start));
