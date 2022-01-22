@@ -41,13 +41,9 @@ namespace veronica
 #ifdef MACRO_ISA_ARM64
     inline uint64_t arm_mfcp() 
     { 
-        #define mfcp(rn)    ({u32 rval = 0U; \
-             __asm__ __volatile__(\
-               "mrc " rn "\n"\
-               : "=r" (rval)\
-             );\
-             rval;\
-             })
+        u32 rval = 0U;
+        __asm__ __volatile__("mrc CNTPCT_EL0 \n" : "=r" (rval));
+        return rval;
     }
 #endif
 
@@ -66,7 +62,7 @@ namespace veronica
         #ifdef MACRO_ISA_X86_64
             cycle_pair_array[index].start = x86_rdtsc();
         #elif MACRO_ISA_ARM64
-            cycle_pair_array[index].start = arm_mfcp(CNTPCT_EL0);
+            cycle_pair_array[index].start = arm_mfcp();
         #else
             gettimeofday(&(time_pair_array[index].start), NULL);
         #endif
@@ -78,7 +74,7 @@ namespace veronica
         #ifdef MACRO_ISA_X86_64
             cycle_pair_array[index].end = x86_rdtsc();
         #elif MACRO_ISA_ARM64
-            cycle_pair_array[index].end = arm_mfcp(CNTPCT_EL0);
+            cycle_pair_array[index].end = arm_mfcp();
         #else
             gettimeofday(&(time_pair_array[index].end), NULL);
         #endif
