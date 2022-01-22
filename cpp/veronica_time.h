@@ -46,11 +46,11 @@ namespace veronica
         if (!arm_msr_enable)
         {
             // program the performance-counter control-register:
-            asm volatile("msr pmcr_el0, %w0" : : "r" (17));
+            asm volatile("msr pmcr_el0, %0" : : "r" (17));
             // enable all counters
-            asm volatile("msr PMCNTENSET_EL0, %w0" : : "r" (0x8000000f));
+            asm volatile("msr PMCNTENSET_EL0, %0" : : "r" (0x8000000f));
             // clear the overflow 
-            asm volatile("msr PMOVSCLR_EL0, %w0" : : "r" (0x8000000f));
+            asm volatile("msr PMOVSCLR_EL0, %0" : : "r" (0x8000000f));
             arm_msr_enable = 1;
         }
         // read the coutner value
