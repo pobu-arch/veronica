@@ -8,7 +8,7 @@
 namespace veronica
 {
     const uint64 MAX_NUM_TIMER = 16;
-
+    int arm_msr_enable = 0;
     // cycle-level precision
     struct cycle_pair
     {
@@ -40,10 +40,21 @@ namespace veronica
 
 #ifdef MACRO_ISA_ARM64
     inline uint64_t arm_mfcp() 
-    { 
-        unsigned long rval = 0;
-        __asm__ __volatile__("mrc CNTPCT_EL0 \n" : "=r" (rval));
-        return rval;
+    {
+        unsigned long result = 0;
+        if (!arm_msr_enable)
+        {
+            // program the performance-counter control-register:
+            asm volatile("msr pmcr_el0, %0" : : "r" (17));
+            //enable all counters
+            asm volatile("msr PMCNTENSET_EL0, %0" : : "r" (0x8000000f));
+            //clear the overflow 
+            asm volatile("msr PMOVSCLR_EL0, %0" : : "r" (0x8000000f));
+            arm_msr_enable = 1;
+        }
+        //read the coutner value
+        asm volatile("mrs %0, PMCCNTR_EL0" : "=r" (result));
+        return result;
     }
 #endif
 
