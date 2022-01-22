@@ -41,7 +41,7 @@ namespace veronica
 #ifdef MACRO_ISA_ARM64
     inline uint64_t arm_mfcp() 
     { 
-        u32 rval = 0U;
+        unsigned long rval = 0;
         __asm__ __volatile__("mrc CNTPCT_EL0 \n" : "=r" (rval));
         return rval;
     }
