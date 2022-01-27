@@ -39,25 +39,26 @@ namespace veronica
     }
 #endif
 
-#ifdef MACRO_ISA_ARM64
-    inline uint64_t arm_pmc() 
-    {
-        unsigned long result = 0;
-        if (!arm_msr_enable)
-        {
-            // program the performance-counter control-register:
-            asm volatile("msr pmcr_el0, %0" : : "r" (17));
-            // enable all counters
-            asm volatile("msr PMCNTENSET_EL0, %0" : : "r" (0x8000000f));
-            // clear the overflow 
-            asm volatile("msr PMOVSCLR_EL0, %0" : : "r" (0x8000000f));
-            arm_msr_enable = 1;
-        }
-        // read the coutner value
-        asm volatile("mrs %0, PMCCNTR_EL0" : "=r" (result));
-        return result;
-    }
-#endif
+// TODO
+// #ifdef MACRO_ISA_ARM64
+//     inline uint64_t arm_pmc() 
+//     {
+//         unsigned long result = 0;
+//         if (!arm_msr_enable)
+//         {
+//             // program the performance-counter control-register:
+//             asm volatile("msr pmcr_el0, %0" : : "r" (17));
+//             // enable all counters
+//             asm volatile("msr PMCNTENSET_EL0, %0" : : "r" (0x8000000f));
+//             // clear the overflow 
+//             asm volatile("msr PMOVSCLR_EL0, %0" : : "r" (0x8000000f));
+//             arm_msr_enable = 1;
+//         }
+//         // read the coutner value
+//         asm volatile("mrs %0, PMCCNTR_EL0" : "=r" (result));
+//         return result;
+//     }
+// #endif
 
     void check_timer_index(const int index)
     {
@@ -74,7 +75,8 @@ namespace veronica
         #ifdef MACRO_ISA_X86_64
             cycle_pair_array[index].start = x86_rdtsc();
         #elif MACRO_ISA_ARM64
-            cycle_pair_array[index].start = arm_pmc();
+            //cycle_pair_array[index].start = arm_pmc();
+            gettimeofday(&(time_pair_array[index].start), NULL);
         #else
             gettimeofday(&(time_pair_array[index].start), NULL);
         #endif
@@ -86,7 +88,8 @@ namespace veronica
         #ifdef MACRO_ISA_X86_64
             cycle_pair_array[index].end = x86_rdtsc();
         #elif MACRO_ISA_ARM64
-            cycle_pair_array[index].end = arm_pmc();
+            //cycle_pair_array[index].end = arm_pmc();
+            gettimeofday(&(time_pair_array[index].end), NULL);
         #else
             gettimeofday(&(time_pair_array[index].end), NULL);
         #endif
@@ -111,8 +114,10 @@ namespace veronica
 
     double get_elapsed_time_in_usec(const int index)
     {
-        #if defined(MACRO_ISA_X86_64) || defined(MACRO_ISA_ARM64)
+        #if defined(MACRO_ISA_X86_64)
             return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
+        //#elif defined(MACRO_ISA_ARM64)
+            //return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
         #else
             double start_time = veronica::time_spec_to_usec(&(veronica::time_pair_array[index].start));
             double end_time   = veronica::time_spec_to_usec(&(veronica::time_pair_array[index].end));
