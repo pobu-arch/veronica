@@ -41,12 +41,24 @@ namespace veronica
         #if defined(__APPLE__)
             if(NULL == (fstream = popen("sysctl hw.cpufrequency", "r")))
         #elif defined(__linux__)
+            
+            // //warmup
+            // uint64 iterations = 20000000000ULL;
+            // while(iterations--)
+            // {
+            //     #if defined(MACRO_ISA_X86_64)
+            //          asm volatile("add $0x0,%eax\n\t");
+            //     #elif defined(MACRO_ISA_ARM64)
+
+            //     #endif
+            // }
+            
             if(NULL == (fstream = popen("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r")))
         #else
             #error NOT SUPPORTED OS
         #endif
         {
-            printf("[Error] execute command failed: %s\n", strerror(errno));
+            printf("[error] execute command failed: %s\n", strerror(errno));
             exit(-1);
         }
 
@@ -133,25 +145,25 @@ namespace veronica
         fd = open(page_map_file, O_RDONLY);
         if(fd<0)
         {
-            printf("[Error] open %s failed\n", page_map_file);
+            printf("[error] open %s failed\n", page_map_file);
             exit(-1);
         }
 
         if((off_t)-1 == lseek(fd, pfn_item_offset, SEEK_SET))
         {
-            printf("[Error] lseek %s failed\n", page_map_file);
+            printf("[error] lseek %s failed\n", page_map_file);
             exit(-1);
         }
 
         if(sizeof(uint64) != read(fd, &pfn_item, sizeof(uint64)))
         {
-            printf("[Error] read %s failed for addr %llx\n", page_map_file, vir);
+            printf("[error] read %s failed for addr %llx\n", page_map_file, vir);
             exit(-1);
         }
 
         if(0==(pfn_item & PFN_PRESENT_FLAG))
         {
-            printf("[Error] page is not present for addr %llx\n", vir);
+            printf("[error] page is not present for addr %llx\n", vir);
             exit(-1);
         }
         uint64 phy = (pfn_item & PFN_MASK) * page_size + vir % page_size;
@@ -161,7 +173,7 @@ namespace veronica
 
     // TODO
     // need root access ?
-    #ifdef MACRO_ISA_X86_64
+    #if defined(MACRO_ISA_X86_64)
     // can be called from user mode
     static inline void flush_cache_line_x86(uint64 addr)
     {

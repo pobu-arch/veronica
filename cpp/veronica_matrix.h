@@ -7,7 +7,7 @@
 #include <type_traits>
 #include "veronica_type.h"
 
-#ifdef INTEL_MKL
+#if defined(INTEL_MKL)
     #include "mkl.h"
 #endif
 
@@ -28,7 +28,7 @@ namespace veronica
 
     template <typename FP> void init_matrix(FP* matrix, const int row, const int col)
     {
-        printf("[Info] init matrix addr %p with row = %d, col = %d\n", matrix, row, col);
+        printf("[info] init matrix addr %p with row = %d, col = %d\n", matrix, row, col);
         
         for (int i = 0; i < row; i++)
         {
@@ -55,7 +55,7 @@ namespace veronica
         }
     }
 
-#ifdef MACRO_LIB_MKL
+#if defined(INTEL_MKL)
     void mkl_gemm(const FP* a, const FP* b, FP* result, const int m, const int n, const int p)
     {
         static_if(constexpr (std::is_same<FP, float>::value))
@@ -80,7 +80,7 @@ namespace veronica
             }
         }
         
-        printf("[Info] Average error is: %e\n", total/(row * col));
-        printf("[Info] Maximum error is: %e\n", max);
+        printf("[info] Average error is: %e\n", total/(row * col));
+        printf("[info] Maximum error is: %e\n", max);
     }
 }

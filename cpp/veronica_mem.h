@@ -23,7 +23,7 @@ namespace veronica
         int fd = open(dev == NULL ? MACRO_UNCACHED_DEV_PATH : dev, O_RDWR, 0);
         if (fd == -1)
         {
-            printf("[Error] couldn't open device\n");
+            printf("[error] couldn't open device\n");
             exit(-1);
         }
 
@@ -36,11 +36,11 @@ namespace veronica
         void *map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (map == MAP_FAILED)
         {
-            printf("[Error] mmap failed.\n");
+            printf("[error] mmap failed.\n");
             exit(-1);
         }
 
-        printf("[Info] mmap()'completed %s\n", dev);
+        printf("[info] mmap()'completed %s\n", dev);
         return map;
 
         #else
@@ -59,16 +59,16 @@ namespace veronica
         {
             if (err == EINVAL)
             {
-                printf("[Error] posix_memalign EINVAL\n");
+                printf("[error] posix_memalign EINVAL\n");
             }
             else if (err == ENOMEM)
             {
-                printf("[Error] posix_memalign ENOMEM\n");
+                printf("[error] posix_memalign ENOMEM\n");
             }
             exit(1);
         }
 
-        // printf("[Info] posix_memalign ok, start_addr = %p\n", start_addr);
+        // printf("[info] posix_memalign ok, start_addr = %p\n", start_addr);
         return start_addr;
     }
 
