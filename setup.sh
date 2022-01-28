@@ -17,4 +17,4 @@ esac
 
 echo "Please add the following commands to your shrc file to make it effective everytime you login:"
 echo "export VERONICA=$DIR"
-echo "export PATH=\"\$VERONICA/cpp/pmu_driver:\$PATH\""
+echo "export PATH=\"\$VERONICA/perl/perf_wrapper:\$PATH\""
