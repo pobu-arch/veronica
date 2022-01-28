@@ -8,9 +8,8 @@
 namespace veronica
 {
     const uint64 MAX_NUM_TIMER = 16;
-    int arm_msr_enable = 0;
     
-    // cycle-level precision
+    // cycle-level precision timer
     struct cycle_pair
     {
         uint64 start;
@@ -29,7 +28,7 @@ namespace veronica
     // generic timer
     static cycle_pair cycle_pair_array[MAX_NUM_TIMER];
 
-#ifdef MACRO_ISA_X86_64
+#if defined(MACRO_ISA_X86_64)
     inline uint64_t x86_rdtsc() 
     { 
         uint32_t lo, hi; 
@@ -38,27 +37,6 @@ namespace veronica
         return (uint64_t)hi << 32 | lo; 
     }
 #endif
-
-// TODO
-// #ifdef MACRO_ISA_ARM64
-//     inline uint64_t arm_pmc() 
-//     {
-//         unsigned long result = 0;
-//         if (!arm_msr_enable)
-//         {
-//             // program the performance-counter control-register:
-//             asm volatile("msr pmcr_el0, %0" : : "r" (17));
-//             // enable all counters
-//             asm volatile("msr PMCNTENSET_EL0, %0" : : "r" (0x8000000f));
-//             // clear the overflow 
-//             asm volatile("msr PMOVSCLR_EL0, %0" : : "r" (0x8000000f));
-//             arm_msr_enable = 1;
-//         }
-//         // read the coutner value
-//         asm volatile("mrs %0, PMCCNTR_EL0" : "=r" (result));
-//         return result;
-//     }
-// #endif
 
     void check_timer_index(const int index)
     {
@@ -72,12 +50,12 @@ namespace veronica
     void set_timer_start(const int index)
     {
         check_timer_index(index);
-        #ifdef MACRO_ISA_X86_64
+        #if defined(MACRO_ISA_X86_64)
             cycle_pair_array[index].start = x86_rdtsc();
-        #elif MACRO_ISA_ARM64
-            //cycle_pair_array[index].start = arm_pmc();
-            gettimeofday(&(time_pair_array[index].start), NULL);
         #else
+            #if defined(MACRO_ISA_ARM64)
+                asm volatile("dmb ish": : :"memory");
+            #endif
             gettimeofday(&(time_pair_array[index].start), NULL);
         #endif
     }
@@ -85,19 +63,14 @@ namespace veronica
     void set_timer_end(const int index)
     {
         check_timer_index(index);
-        #ifdef MACRO_ISA_X86_64
+        #if defined(MACRO_ISA_X86_64)
             cycle_pair_array[index].end = x86_rdtsc();
-        #elif MACRO_ISA_ARM64
-            //cycle_pair_array[index].end = arm_pmc();
-            gettimeofday(&(time_pair_array[index].end), NULL);
         #else
+            #if defined(MACRO_ISA_ARM64)
+                asm volatile("dmb ish": : :"memory");
+            #endif
             gettimeofday(&(time_pair_array[index].end), NULL);
         #endif
-    }
-
-    double time_spec_to_usec(const timeval* tv)
-    {
-        return tv->tv_sec * pow(10.0,6.0) + tv->tv_usec;
     }
 
     double cycle_count_to_nsec(const uint64 cycle)
@@ -112,22 +85,22 @@ namespace veronica
         return ns;
     }
 
+    double get_elapsed_time_in_cycle(const int index)
+    {
+        return (cycle_pair_array[index].end - cycle_pair_array[index].start);
+    }
+
     double get_elapsed_time_in_usec(const int index)
     {
         #if defined(MACRO_ISA_X86_64)
             return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
-        //#elif defined(MACRO_ISA_ARM64)
-            //return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
         #else
-            double start_time = veronica::time_spec_to_usec(&(veronica::time_pair_array[index].start));
-            double end_time   = veronica::time_spec_to_usec(&(veronica::time_pair_array[index].end));
+            timeval* tv       = &(veronica::time_pair_array[index].start);
+            double start_time = tv->tv_sec * pow(10.0,6.0) + tv->tv_usec;
+                     tv       = &(veronica::time_pair_array[index].end);
+            double end_time   = tv->tv_sec * pow(10.0,6.0) + tv->tv_usec;
             return end_time - start_time;
         #endif
-    }
-
-    double get_elapsed_time_in_cycle(const int index)
-    {
-        return (cycle_pair_array[index].end - cycle_pair_array[index].start);
     }
 
     void print_timer(const int index, const char* name)
