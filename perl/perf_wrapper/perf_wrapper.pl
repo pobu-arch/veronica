@@ -11,20 +11,14 @@ use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
 use Veronica::Threads;
 
-our %TOP_INFO    = ();
+our %TOP_INFO               = ();
+$TOP_INFO{'root_dir'}       = Veronica::Common::get_script_path();
+$TOP_INFO{'intel_pmu_info'} = $TOP_INFO{'root_dir'}.'/intel_pmu_info.pl';
 
-&init_check();
-require "$TOP_INFO{'speccpu_helper'}";
-require "$TOP_INFO{'geekbench_helper'}";
-require "$TOP_INFO{'parsec_helper'}";
-require "$TOP_INFO{'gap_helper'}";
+require "$TOP_INFO{'intel_pmu_info'}";
 
-require "$TOP_INFO{'standalone_helper'}";
-require "$TOP_INFO{'dlrm_helper'}";
-
-require "$TOP_INFO{'common_helper'}";
-require "$TOP_INFO{'download_helper'}";
-&main_workflow();
+&cmd_parse();
+&gen_perf_cmd();
 
 ####################################################################################################
 
@@ -32,3 +26,12 @@ require "$TOP_INFO{'download_helper'}";
 
 ####################################################################################################
 
+sub cmd_parse
+{
+
+}
+
+sub gen_perf_cmd
+{
+    
+}
