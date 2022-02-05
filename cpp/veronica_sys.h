@@ -41,18 +41,6 @@ namespace veronica
         #if defined(__APPLE__)
             if(NULL == (fstream = popen("sysctl hw.cpufrequency", "r")))
         #elif defined(__linux__)
-            
-            // //warmup
-            // uint64 iterations = 20000000000ULL;
-            // while(iterations--)
-            // {
-            //     #if defined(MACRO_ISA_X86_64)
-            //          asm volatile("add $0x0,%eax\n\t");
-            //     #elif defined(MACRO_ISA_ARM64)
-
-            //     #endif
-            // }
-            
             if(NULL == (fstream = popen("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r")))
         #else
             #error NOT SUPPORTED OS

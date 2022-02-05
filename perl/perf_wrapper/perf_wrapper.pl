@@ -11,24 +11,61 @@ use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
 use Veronica::Threads;
 
-our %TOP_INFO    = ();
+our $THIS_DIR       = Veronica::Common::get_script_path();
+our $COUNTER_GROUP  = 'general';
+our $MICROARCH      = '';
 
-&init_check();
-require "$TOP_INFO{'speccpu_helper'}";
-require "$TOP_INFO{'geekbench_helper'}";
-require "$TOP_INFO{'parsec_helper'}";
-require "$TOP_INFO{'gap_helper'}";
+require "$THIS_DIR/intel_pmu_info.pl";
 
-require "$TOP_INFO{'standalone_helper'}";
-require "$TOP_INFO{'dlrm_helper'}";
-
-require "$TOP_INFO{'common_helper'}";
-require "$TOP_INFO{'download_helper'}";
-&main_workflow();
+&cmd_parse();
+&cmd_gen();
 
 ####################################################################################################
 
-# Init.
+# Command-Line Parsing
 
 ####################################################################################################
+
+sub cmd_parse()
+{
+    Veronica::Common::log_level("parsing arguments ...", 5);
+
+    if(@ARGV < 1)
+    {
+        die '[error-script] no enough parameters for this script';
+    }
+
+    foreach my $current_arg (@ARGV)
+    {
+        if($current_arg =~ /-microarch=(?<microarch>\w+)/)
+        {
+            $MICROARCH = $+{microarch};
+        }
+        elsif($current_arg =~ /-group=(?<group>\w+)/)
+        {
+            $COUNTER_GROUP = $+{group};
+        }
+        else
+        {
+            die "[error-script] unknown parameters $current_arg";
+        }
+    }
+
+    die "[error-script] please specify the microarchitecture" if $MICROARCH eq '';
+
+    Veronica::Common::log_level("the selected microarchitecture is $MICROARCH".
+                                ", metrics group is $COUNTER_GROUP", 5);
+}
+
+
+####################################################################################################
+
+# Perf Command Generation
+
+####################################################################################################
+
+sub cmd_gen
+{
+    
+}
 
