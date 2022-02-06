@@ -13,24 +13,24 @@
     {
         'universal' =>
         {
-            'eventsel'   => '0x00',
-            'umask'      => '0x02',
+            'eventsel'   => '0x3c',
+            'umask'      => '0x00',
             'cmask'      => ''
         },
 
-        'group' => 'instruction'
+        'group' => 'instruction general'
     },
 
     'inst_retired.any' =>
     {
         'universal' =>
         {
-            'eventsel'   => '0x00',
-            'umask'      => '0x01',
+            'eventsel'   => '0xc0',
+            'umask'      => '0x00',
             'cmask'      => ''
         },
         
-        'group' => 'instruction'
+        'group' => 'instruction general'
     },
 
     'uops_retired.retire_slots' =>
@@ -42,7 +42,7 @@
             'cmask'      => ''
         },
         
-        'group' => 'instruction'
+        'group' => 'instruction general'
     },
 
     'uops_executed.x87' =>
@@ -138,7 +138,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'instruction'
+        'group' => 'instruction general'
     },
 
     'mem_inst_retired.all_loads' =>
@@ -150,7 +150,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'instruction'
+        'group' => 'instruction general'
     },
 
     'mem_inst_retired.all_stores' =>
@@ -162,7 +162,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'instruction'
+        'group' => 'instruction general'
     },
 
 ####################################################################################################
@@ -187,7 +187,7 @@
             'cmask'      => ''
         },
         
-        'group' => 'speculation'
+        'group' => 'speculation general'
     },
 
     'uops_executed.thread' =>
@@ -273,7 +273,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'speculation'
+        'group' => 'speculation general'
     },
 
     'br_misp_retired.conditional' =>
@@ -547,7 +547,7 @@
             'eventsel'   => '0x61',
             'umask'      => '0x02',
             'cmask'      => ''
-        }
+        },
 
         'group' => 'front-end'
     },
@@ -628,7 +628,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'mem_load_retired.l1_hit' =>
@@ -640,7 +640,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'mem_load_retired.l1_miss' =>
@@ -652,7 +652,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'mem_load_retired.l2_miss' =>
@@ -664,7 +664,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'mem_load_retired.l3_miss' =>
@@ -676,7 +676,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'rs_events.empty_cycles' =>
@@ -724,7 +724,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'dtlb_misses.stlb_hit' =>
@@ -757,7 +757,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'dtlb_load_misses.walk_completed' =>
@@ -783,7 +783,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'cycle_activity.stalls_l1d_miss' =>
@@ -834,5 +834,119 @@
         },
 
         'group' => 'back-end'
+    },
+
+    'l1d.replacement' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0x51',
+            'umask'      => '0x01',
+            'cmask'      => ''
+        },
+
+        'group' => 'back-end general'
+    },
+
+####################################################################################################
+
+# Complementary
+
+####################################################################################################
+    
+    'page_walker_loads.itlb_l1' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0xbc',
+            'umask'      => '0x21',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
+    },
+
+    'page_walker_loads.itlb_l2' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0xbc',
+            'umask'      => '0x22',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
+    },
+
+    'page_walker_loads.itlb_l3' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0xbc',
+            'umask'      => '0x24',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
+    },
+
+    'page_walker_loads.itlb_mem' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0xbc',
+            'umask'      => '0x28',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
+    },
+
+    'page_walker_loads.dtlb_l1' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0xbc',
+            'umask'      => '0x11',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
+    },
+
+    'page_walker_loads.dtlb_l2' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0xbc',
+            'umask'      => '0x12',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
+    },
+
+    'page_walker_loads.dtlb_l3' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0xbc',
+            'umask'      => '0x14',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
+    },
+
+    'page_walker_loads.dtlb_mem' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0xbc',
+            'umask'      => '0x18',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
     }
-}
+)
