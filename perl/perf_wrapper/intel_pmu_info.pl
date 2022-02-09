@@ -396,7 +396,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'speculation'
+        'group' => 'front-end'
     },
 
     'idq_uops_not_delivered.cycles_0_uops_deliv.core' =>
@@ -425,25 +425,12 @@
         'group' => 'front-end'
     },
 
-    'idq.empty' =>
-    {
-        # inherited from haswell 
-        'universal' =>
-        {
-            'eventsel'   => '0x79',
-            'umask'      => '0x02',
-            'cmask'      => ''
-        },
-
-        'group' => 'front-end'
-    },
-
     'idq.mite_uops' =>
     {
         'universal' =>
         {
-            'eventsel'   => '0x04',
-            'umask'      => '0x79',
+            'eventsel'   => '0x79',
+            'umask'      => '0x04',
             'cmask'      => ''
         },
 
@@ -454,8 +441,8 @@
     {
         'universal' =>
         {
-            'eventsel'   => '0x08',
-            'umask'      => '0x79',
+            'eventsel'   => '0x79',
+            'umask'      => '0x08',
             'cmask'      => ''
         },
 
@@ -493,18 +480,18 @@
         'group' => 'front-end'
     },
 
-    'icache.hit' =>
-    {
-        # inherited from haswell 
-        'universal' =>
-        {
-            'eventsel'   => '0x80',
-            'umask'      => '0x01',
-            'cmask'      => ''
-        },
+    # 'icache.hit' =>
+    # {
+    #     # inherited from haswell 
+    #     'universal' =>
+    #     {
+    #         'eventsel'   => '0x80',
+    #         'umask'      => '0x01',
+    #         'cmask'      => ''
+    #     },
 
-        'group' => 'front-end'
-    },
+    #     'group' => 'front-end'
+    # },
 
     'icache.misses' =>
     {
