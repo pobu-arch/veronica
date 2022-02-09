@@ -351,7 +351,7 @@
         {
             'eventsel'   => '0xc3',
             'umask'      => '0x01',
-            'cmask'      => '0x01'
+            'cmask'      => '1'
         },
 
         'group' => 'speculation'
@@ -405,21 +405,21 @@
         {
             'eventsel'   => '0x9c',
             'umask'      => '0x01',
-            'cmask'      => '0x04'
+            'cmask'      => '4'
         },
 
         'sunnycove' =>
         {
             'eventsel'   => '0x9c',
             'umask'      => '0x01',
-            'cmask'      => '0x05'
+            'cmask'      => '5'
         },
 
         'goldencove' =>
         {
             'eventsel'   => '0x9c',
             'umask'      => '0x01',
-            'cmask'      => '0x06'
+            'cmask'      => '6'
         },
 
         'group' => 'front-end'
@@ -513,6 +513,32 @@
         {
             'eventsel'   => '0x80',
             'umask'      => '0x03',
+            'cmask'      => ''
+        },
+
+        'group' => 'front-end'
+    },
+
+    'icache_data.stalls' =>
+    {
+        # inherited from haswell, and built-in to goldencove
+        'universal' =>
+        {
+            'eventsel'   => '0x80',
+            'umask'      => '0x04',
+            'cmask'      => ''
+        },
+
+        'group' => 'front-end'
+    },
+
+    'icache_tag.stalls' =>
+    {
+        # inherited from haswell, and built-in to goldencove
+        'universal' =>
+        {
+            'eventsel'   => '0x83',
+            'umask'      => '0x04',
             'cmask'      => ''
         },
 
@@ -775,11 +801,18 @@
 
     'cycle_activity.stalls_l1d_miss' =>
     {
-        'universal' =>
+        'sandybridge haswell skylake sunnycove' =>
         {
             'eventsel'   => '0xa3',
             'umask'      => '0x0c',
-            'cmask'      => '0x12'
+            'cmask'      => '12'
+        },
+
+        'goldencove' =>
+        {
+            'eventsel'   => '0x47',
+            'umask'      => '0x03',
+            'cmask'      => '3'
         },
 
         'group' => 'back-end'
@@ -787,11 +820,18 @@
 
     'cycle_activity.stalls_l2_miss' =>
     {
-        'universal' =>
+        'sandybridge haswell skylake sunnycove' =>
         {
             'eventsel'   => '0xa3',
             'umask'      => '0x05',
-            'cmask'      => '0x05'
+            'cmask'      => '5'
+        },
+
+        'goldencove' =>
+        {
+            'eventsel'   => '0x47',
+            'umask'      => '0x05',
+            'cmask'      => '5'
         },
 
         'group' => 'back-end'
@@ -800,11 +840,18 @@
     # haswell and sandybridge don't have this counter
     'cycle_activity.stalls_l3_miss' =>
     {
-        'universal' =>
+        'sandybridge haswell skylake sunnycove' =>
         {
             'eventsel'   => '0xa3',
             'umask'      => '0x06',
-            'cmask'      => '0x06'
+            'cmask'      => '6'
+        },
+
+        'goldencove' =>
+        {
+            'eventsel'   => '0x47',
+            'umask'      => '0x09',
+            'cmask'      => '9'
         },
 
         'group' => 'back-end'
@@ -817,7 +864,7 @@
         {
             'eventsel'   => '0xa3',
             'umask'      => '0x14',
-            'cmask'      => '0x20'
+            'cmask'      => '20'
         },
 
         'group' => 'back-end'
