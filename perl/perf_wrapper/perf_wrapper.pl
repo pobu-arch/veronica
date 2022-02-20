@@ -17,6 +17,7 @@ our $MICROARCH      = '';
 
 our %INTEL_PMU_INFO;
 require "$THIS_DIR/intel_pmu_info.pl";
+our @INTEL_MICRO_ARCH_ARRAY = ('sandybridge', 'haswell', 'skylake', 'sunnycove', 'goldencove');
 
 &cmd_parse();
 &cmd_gen();
@@ -65,13 +66,45 @@ sub cmd_parse()
 
 ####################################################################################################
 
+sub verify_intel_pmu_info
+{
+    my @event_name_array = keys %INTEL_PMU_INFO;
+    my %verify_info = ();
+    foreach my $event_name (sort @event_name_array)
+    {
+        my @event_microarch_array = keys %{$INTEL_PMU_INFO{$event_name}};
+        foreach my $intel_microarch (@INTEL_MICRO_ARCH_ARRAY)
+        {
+            foreach my $event_microarch (@event_microarch_array)
+            {
+                if($event_microarch eq 'universal' or $event_microarch =~ $intel_microarch)
+                {
+                    $verify_info{$intel_microarch}++   if exists $verify_info{$intel_microarch};
+                    $verify_info{$intel_microarch} = 1 if !exists $verify_info{$intel_microarch};
+                    last;
+                }
+            }    
+        }
+
+        foreach my $intel_microarch (@INTEL_MICRO_ARCH_ARRAY)
+        {
+            if(!exists $verify_info{$intel_microarch} or
+                       $verify_info{$intel_microarch} != 1)
+            {
+                Veronica::Common::log_level("intel PMU info error at $event_name $intel_microarch", -1);
+            }
+            delete $verify_info{$intel_microarch};
+        }
+    }
+}
+
 sub identify_microarch
 {
-    return 'intel' if($MICROARCH eq 'sandybridge' or
-                      $MICROARCH eq 'haswell' or
-                      $MICROARCH eq 'skylake' or
-                      $MICROARCH eq 'sunnycove' or
-                      $MICROARCH eq 'goldencove');
+    &verify_intel_pmu_info();
+    foreach my $intel_microarch (@INTEL_MICRO_ARCH_ARRAY)
+    {
+        return 'intel' if $intel_microarch eq $MICROARCH;
+    }
     
     Veronica::Common::log_level("unsupported microarchtecture $MICROARCH", -1);
 }

@@ -396,7 +396,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'front-end'
+        'group' => 'front-end general'
     },
 
     'idq_uops_not_delivered.cycles_0_uops_deliv.core' =>
@@ -423,6 +423,26 @@
         },
 
         'group' => 'front-end'
+    },
+
+    'inst.decoded.decoders' =>
+    {
+        'goldencove' =>
+        {
+            'eventsel'   => '0x75',
+            'umask'      => '0x01',
+            'cmask'      => ''
+        },
+
+        # officially available since skylake
+        'sunnycove skylake haswell sandybridge' =>
+        {
+            'eventsel'   => '0x55',
+            'umask'      => '0x01',
+            'cmask'      => ''
+        },
+
+        'group' => 'front-end complementary'
     },
 
     'idq.mite_uops' =>
@@ -482,7 +502,7 @@
 
     # 'icache.hit' =>
     # {
-    #     # inherited from haswell 
+    #     # officially available since haswell 
     #     'universal' =>
     #     {
     #         'eventsel'   => '0x80',
@@ -495,7 +515,7 @@
 
     'icache.misses' =>
     {
-        # inherited from haswell, and built-in to goldencove
+        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'universal' =>
         {
             'eventsel'   => '0x80',
@@ -508,7 +528,7 @@
 
     'icache_accesses' =>
     {
-        # inherited from haswell, and built-in to goldencove
+        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'universal' =>
         {
             'eventsel'   => '0x80',
@@ -521,7 +541,7 @@
 
     'icache_data.stalls' =>
     {
-        # inherited from haswell, and built-in to goldencove
+        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'universal' =>
         {
             'eventsel'   => '0x80',
@@ -534,7 +554,7 @@
 
     'icache_tag.stalls' =>
     {
-        # inherited from haswell, and built-in to goldencove
+        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'universal' =>
         {
             'eventsel'   => '0x83',
@@ -547,7 +567,7 @@
 
     'dsb2mite_switches.penalty_cycles' =>
     {
-        # inherited from haswell, and built-in to goldencove
+        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'sandybridge haswell skylake sunnycove' =>
         {
             'eventsel'   => '0xab',
@@ -567,7 +587,7 @@
 
     'itlb_misses.stlb_hit' =>
     {
-        # inherited from haswell, and built-in to goldencove
+        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'sandybridge' =>
         {
             'eventsel'   => '0x85',
@@ -601,7 +621,7 @@
 
     'itlb_misses.walk_completed' =>
     {
-        # inherited from haswell, and built-in to goldencove
+        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'sandybridge' =>
         {
             'eventsel'   => '0x85',
@@ -692,18 +712,6 @@
         'group' => 'back-end general'
     },
 
-    'rs_events.empty_cycles' =>
-    {
-        'universal' =>
-        {
-            'eventsel'   => '0x5e',
-            'umask'      => '0x01',
-            'cmask'      => ''
-        },
-
-        'group' => 'back-end'
-    },
-
     'resource_stalls.any' =>
     {
         'universal' =>
@@ -716,6 +724,25 @@
         'group' => 'back-end'
     },
 
+    'exe_activity.bound_on_stores' =>
+    {
+        'sunnycove goldencove' =>
+        {
+            'eventsel'   => '0xa6',
+            'umask'      => '0x40',
+            'cmask'      => '2'
+        },
+
+        'sandybridge haswell skylake' =>
+        {
+            'eventsel'   => '0xa6',
+            'umask'      => '0x40',
+            'cmask'      => ''
+        },
+
+        'group' => 'back-end complementary'
+    },
+
     'l1d_pending_miss.pending' =>
     {
         'universal' =>
@@ -726,6 +753,25 @@
         },
 
         'group' => 'back-end'
+    },
+
+    'l1d_pending_miss.fb_full' =>
+    {
+        'skylake sunnycove goldencove' =>
+        {
+            'eventsel'   => '0x48',
+            'umask'      => '0x02',
+            'cmask'      => ''
+        },
+
+        'sandybridge haswell' =>
+        {
+            'eventsel'   => '0x48',
+            'umask'      => '0x02',
+            'cmask'      => '1'
+        },
+
+        'group' => 'back-end complementary'
     },
 
     'mem_inst_retired.stlb_miss_loads' =>
@@ -837,7 +883,7 @@
         'group' => 'back-end'
     },
 
-    # haswell and sandybridge don't have this counter
+    # officially available since skylake
     'cycle_activity.stalls_l3_miss' =>
     {
         'sandybridge haswell skylake sunnycove' =>
@@ -857,7 +903,7 @@
         'group' => 'back-end'
     },
 
-    # goldencove doesn't have this counter
+    # goldencove officially doesn't have this counter
     'cycle_activity.stalls_mem_any' =>
     {
         'universal' =>
@@ -870,6 +916,24 @@
         'group' => 'back-end'
     },
 
+####################################################################################################
+
+# Complementary
+
+####################################################################################################
+    
+    'rs_events.empty_cycles' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0x5e',
+            'umask'      => '0x01',
+            'cmask'      => ''
+        },
+
+        'group' => 'complementary'
+    },
+
     'l1d.replacement' =>
     {
         'universal' =>
@@ -879,15 +943,9 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end general'
+        'group' => 'complementary general'
     },
 
-####################################################################################################
-
-# Complementary
-
-####################################################################################################
-    
     'page_walker_loads.itlb_l1' =>
     {
         'universal' =>
