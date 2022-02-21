@@ -138,7 +138,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'instruction general'
+        'group' => 'instruction'
     },
 
     'mem_inst_retired.all_loads' =>
@@ -273,7 +273,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'speculation general'
+        'group' => 'speculation'
     },
 
     'br_misp_retired.conditional' =>
@@ -442,7 +442,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'front-end complementary'
+        'group' => 'front-end'
     },
 
     'idq.mite_uops' =>
@@ -740,7 +740,7 @@
             'cmask'      => ''
         },
 
-        'group' => 'back-end complementary'
+        'group' => 'back-end'
     },
 
     'l1d_pending_miss.pending' =>
@@ -771,7 +771,7 @@
             'cmask'      => '1'
         },
 
-        'group' => 'back-end complementary'
+        'group' => 'back-end'
     },
 
     'mem_inst_retired.stlb_miss_loads' =>
@@ -861,7 +861,7 @@
             'cmask'      => '3'
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     'cycle_activity.stalls_l2_miss' =>
@@ -880,7 +880,7 @@
             'cmask'      => '5'
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     # officially available since skylake
@@ -900,7 +900,7 @@
             'cmask'      => '9'
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
     # goldencove officially doesn't have this counter
@@ -913,7 +913,7 @@
             'cmask'      => '20'
         },
 
-        'group' => 'back-end'
+        'group' => 'back-end general'
     },
 
 ####################################################################################################
