@@ -445,6 +445,18 @@
         'group' => 'front-end'
     },
 
+    'idq.mite_cycles_any' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0x79',
+            'umask'      => '0x04',
+            'cmask'      => '1'
+        },
+
+        'group' => 'front-end'
+    },
+
     'idq.mite_uops' =>
     {
         'universal' =>
@@ -452,6 +464,18 @@
             'eventsel'   => '0x79',
             'umask'      => '0x04',
             'cmask'      => ''
+        },
+
+        'group' => 'front-end'
+    },
+
+    'idq.dsb_cycles_any' =>
+    {
+        'universal' =>
+        {
+            'eventsel'   => '0x79',
+            'umask'      => '0x08',
+            'cmask'      => '1'
         },
 
         'group' => 'front-end'
