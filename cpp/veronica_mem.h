@@ -17,7 +17,7 @@ namespace veronica
 {
     #define MACRO_UNCACHED_DEV_PATH "/home/bowen/uncached_mem_dev"
 
-    void* uncached_mmap(char *dev, int size)
+    void* uncached_mmap(char *dev, unsigned int size)
     {
         #if defined(__linux__)
         int fd = open(dev == NULL ? MACRO_UNCACHED_DEV_PATH : dev, O_RDWR, 0);
@@ -27,8 +27,8 @@ namespace veronica
             exit(-1);
         }
 
-        int page_size = (int)get_page_size();
-        int page_mask = (int)get_page_mask(); 
+        unsigned int page_size = (unsigned int)get_page_size();
+        unsigned int page_mask = (unsigned int)get_page_mask(); 
 
         if (size & ~page_mask)
                 size = (size & page_mask) + page_size;
