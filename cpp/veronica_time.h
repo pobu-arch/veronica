@@ -28,7 +28,7 @@ namespace veronica
     // generic timer
     static cycle_pair cycle_pair_array[MAX_NUM_TIMER];
 
-#if defined(MACRO_ISA_X86_64)
+#if defined(ISA_X86_64)
     inline uint64_t x86_rdtsc() 
     { 
         uint32_t lo, hi; 
@@ -42,7 +42,7 @@ namespace veronica
     {
         if(index >= MAX_NUM_TIMER)
         {
-            printf("[Error] timer index is larger than MAX_NUM_TIMER %llu\n", MAX_NUM_TIMER);
+            printf("[error] timer index is larger than MAX_NUM_TIMER %llu\n", MAX_NUM_TIMER);
             exit(-1);
         }
     }
@@ -50,10 +50,10 @@ namespace veronica
     void set_timer_start(const int index)
     {
         check_timer_index(index);
-        #if defined(MACRO_ISA_X86_64)
+        #if defined(ISA_X86_64)
             cycle_pair_array[index].start = x86_rdtsc();
         #else
-            #if defined(MACRO_ISA_ARM64)
+            #if defined(ISA_ARM64)
                 asm volatile("dmb ish": : :"memory");
             #endif
             gettimeofday(&(time_pair_array[index].start), NULL);
@@ -63,10 +63,10 @@ namespace veronica
     void set_timer_end(const int index)
     {
         check_timer_index(index);
-        #if defined(MACRO_ISA_X86_64)
+        #if defined(ISA_X86_64)
             cycle_pair_array[index].end = x86_rdtsc();
         #else
-            #if defined(MACRO_ISA_ARM64)
+            #if defined(ISA_ARM64)
                 asm volatile("dmb ish": : :"memory");
             #endif
             gettimeofday(&(time_pair_array[index].end), NULL);
@@ -78,7 +78,7 @@ namespace veronica
         uint64 cpu_freq = get_cpu_freq();
         if(cpu_freq == 0)
         {
-            printf("[Error] getting a 0 for cpu freq\n");
+            printf("[error] getting a 0 for cpu freq\n");
             exit(-1);
         }
         double ns = pow(10.0, 9.0) * cycle / cpu_freq;
@@ -92,7 +92,7 @@ namespace veronica
 
     double get_elapsed_time_in_usec(const int index)
     {
-        #if defined(MACRO_ISA_X86_64)
+        #if defined(ISA_X86_64)
             return (cycle_count_to_nsec(cycle_pair_array[index].end - cycle_pair_array[index].start)) / 1000;
         #else
             timeval* tv       = &(veronica::time_pair_array[index].start);

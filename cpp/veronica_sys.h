@@ -161,7 +161,7 @@ namespace veronica
 
     // TODO
     // need root access ?
-    #if defined(MACRO_ISA_X86_64)
+    #if defined(ISA_X86_64)
     // can be called from user mode
     static inline void flush_cache_line_x86(uint64 addr)
     {
