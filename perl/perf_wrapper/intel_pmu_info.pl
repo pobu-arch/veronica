@@ -885,7 +885,7 @@
             'cmask'      => '3'
         },
 
-        'group' => 'back-end general'
+        'group' => 'back-end'
     },
 
     'cycle_activity.stalls_l2_miss' =>
@@ -904,7 +904,7 @@
             'cmask'      => '5'
         },
 
-        'group' => 'back-end general'
+        'group' => 'back-end'
     },
 
     # officially available since skylake
@@ -924,7 +924,7 @@
             'cmask'      => '9'
         },
 
-        'group' => 'back-end general'
+        'group' => 'back-end'
     },
 
     # goldencove officially doesn't have this counter
@@ -937,7 +937,7 @@
             'cmask'      => '20'
         },
 
-        'group' => 'back-end general'
+        'group' => 'back-end'
     },
 
 ####################################################################################################

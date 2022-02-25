@@ -116,7 +116,7 @@ sub cmd_gen
     my @event_name_array = keys %INTEL_PMU_INFO if $vendor eq 'intel';
     my @sample_queue;
 
-    my $perf_cmd        = 'perf stat -e ';
+    my $perf_cmd        = 'sudo perf stat -e ';
     my $perf_prefix     = $MICROARCH eq 'goldencove' ? 'cpu_core' : 'cpu';
     my $event_count     = 0;
 
