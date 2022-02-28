@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+git submodule init
+
 DIR=''
 case $OSTYPE in
     linux-gnu*)
