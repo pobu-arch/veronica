@@ -45,6 +45,7 @@
         'group' => 'instruction general'
     },
 
+    # valid since sunnycove only
     'uops_executed.x87' =>
     {
         'universal' => 
@@ -57,6 +58,7 @@
         'group' => 'instruction'
     },
 
+    # valid since skylake only
     'fp_arith_inst_retired.scalar_double' =>
     {
         'universal' =>
@@ -69,6 +71,7 @@
         'group' => 'instruction'
     },
 
+    # valid since skylake only
     'fp_arith_inst_retired.scalar_single' =>
     {
         'universal' =>
@@ -81,6 +84,7 @@
         'group' => 'instruction'
     },
 
+    # valid since skylake only
     'fp_arith_inst_retired.128b_packed_double' =>
     {
         'universal' =>
@@ -93,6 +97,7 @@
         'group' => 'instruction'
     },
 
+    # valid since skylake only
     'fp_arith_inst_retired.128b_packed_single' =>
     {
         'universal' =>
@@ -105,6 +110,7 @@
         'group' => 'instruction'
     },
 
+    # valid since skylake only
     'fp_arith_inst_retired.256b_packed_double' =>
     {
         'universal' =>
@@ -117,6 +123,7 @@
         'group' => 'instruction'
     },
 
+    # valid since skylake only
     'fp_arith_inst_retired.256b_packed_single' =>
     {
         'universal' =>
@@ -326,6 +333,7 @@
         'group' => 'speculation'
     },
 
+    # officially available since skylake
     'int_misc.clear_resteer_cycles' =>
     {
         'sandybridge haswell skylake sunnycove' =>
@@ -425,6 +433,8 @@
         'group' => 'front-end'
     },
 
+    # officially available since skylake
+    # sunnycove doesn't show valid readings
     'inst.decoded.decoders' =>
     {
         'goldencove' =>
@@ -434,7 +444,6 @@
             'cmask'      => ''
         },
 
-        # officially available since skylake
         'sunnycove skylake haswell sandybridge' =>
         {
             'eventsel'   => '0x55',
@@ -493,6 +502,7 @@
         'group' => 'front-end'
     },
 
+    # skylake and sunnycove doesn't show valid readings
     'lsd.uops' =>
     {
         'universal' =>
@@ -524,22 +534,11 @@
         'group' => 'front-end'
     },
 
-    # 'icache.hit' =>
-    # {
-    #     # officially available since haswell 
-    #     'universal' =>
-    #     {
-    #         'eventsel'   => '0x80',
-    #         'umask'      => '0x01',
-    #         'cmask'      => ''
-    #     },
-
-    #     'group' => 'front-end'
-    # },
-
+    # haswell / goldencove has this counter
+    # while sandybridge / skylake / sunnycove doesn't
     'icache.misses' =>
     {
-        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
+        
         'universal' =>
         {
             'eventsel'   => '0x80',
@@ -550,9 +549,11 @@
         'group' => 'front-end'
     },
 
+    # haswell / goldencove has this counter
+    # while sandybridge / skylake / sunnycove doesn't
     'icache_accesses' =>
     {
-        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
+        
         'universal' =>
         {
             'eventsel'   => '0x80',
@@ -563,9 +564,11 @@
         'group' => 'front-end'
     },
 
+    # haswell / goldencove has this counter
+    # while sandybridge / skylake / sunnycove doesn't
     'icache_data.stalls' =>
     {
-        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
+        
         'universal' =>
         {
             'eventsel'   => '0x80',
@@ -576,9 +579,11 @@
         'group' => 'front-end'
     },
 
+    # haswell / goldencove has this counter
+    # while sandybridge / skylake / sunnycove doesn't
+    # haswell doesn't show valid readings
     'icache_tag.stalls' =>
     {
-        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'universal' =>
         {
             'eventsel'   => '0x83',
@@ -589,9 +594,11 @@
         'group' => 'front-end'
     },
 
+    # haswell / goldencove has this counter
+    # while sandybridge / skylake / sunnycove doesn't
     'dsb2mite_switches.penalty_cycles' =>
     {
-        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
+        
         'sandybridge haswell skylake sunnycove' =>
         {
             'eventsel'   => '0xab',
@@ -609,9 +616,10 @@
         'group' => 'front-end'
     },
 
+    # haswell / goldencove has this counter
+    # while sandybridge / skylake / sunnycove doesn't
     'itlb_misses.stlb_hit' =>
     {
-        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'sandybridge' =>
         {
             'eventsel'   => '0x85',
@@ -642,10 +650,11 @@
 
         'group' => 'front-end'
     },
-
+    
+    # haswell / goldencove has this counter
+    # while sandybridge / skylake / sunnycove doesn't
     'itlb_misses.walk_completed' =>
     {
-        # haswell / goldencove has this counter, while sandybridge / skylake / sunnycove doesn't
         'sandybridge' =>
         {
             'eventsel'   => '0x85',
@@ -748,6 +757,7 @@
         'group' => 'back-end'
     },
 
+    # haswell doesn't show valid readings
     'exe_activity.bound_on_stores' =>
     {
         'sunnycove goldencove' =>
@@ -928,6 +938,7 @@
     },
 
     # goldencove officially doesn't have this counter
+    # haswell doesn't show valid readings
     'cycle_activity.stalls_mem_any' =>
     {
         'universal' =>
