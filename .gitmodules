@@ -1,1 +1,4 @@
 
+[submodule "tools/FlameGraph"]
+	path = tools/FlameGraph
+	url = https://github.com/brendangregg/FlameGraph.git
