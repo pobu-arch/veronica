@@ -19,4 +19,4 @@ esac
 
 echo "Please add the following commands to your shrc file to make it effective everytime you login:"
 echo "export VERONICA=$DIR"
-echo "export PATH=\"\$VERONICA/perl/perf_wrapper:\$VERONICA/FlameGraph:\$VERONICA/bash:\$PATH\""
+echo "export PATH=\"\$VERONICA/tools/PerfWrapper:\$VERONICA/tools/FlameGraph:\$VERONICA/tools/Bash:\$VERONICA/tools/MacOSKpep:\$PATH\""
