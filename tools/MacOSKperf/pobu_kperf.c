@@ -4,13 +4,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <dlfcn.h>
-#include "kpep.h"
+#include <pthread.h>
+#include <pthread/qos.h>
+#include "kperf.h"
 
 // -----------------------------------------------------------------------------
 // Demo
 // -----------------------------------------------------------------------------
 
-#define CMD_LENGTH 16384
 #define EVENT_NAME_MAX 8
 typedef struct {
     const char *alias; /// name for print
@@ -34,9 +35,9 @@ static const event_alias profile_events[] = {
 // Configurable counters start here
     
     // Instruction
-    // {   "branches.retired", {
-    //         "INST_BRANCH"               // Apple, 3-bit
-    // }},
+    {   "branches.retired", {
+            "INST_BRANCH"               // Apple, 3-bit
+    }},
     // {   "alu_insts.retired", {
     //         "INST_INT_ALU"              // Apple, 1-bit
     // }},
@@ -46,9 +47,9 @@ static const event_alias profile_events[] = {
     // {   "simd_alu_insts.retired", {
     //         "INST_SIMD_ALU"             // Apple, 1-bit
     // }},
-    // {   "uops.retired", {
-    //         "RETIRE_UOP"                // Apple, 1-bit
-    // }},
+    {   "uops_retired", {
+            "RETIRE_UOP"                // Apple, 1-bit
+    }},
     
     // Speculation
     // {   "branches_conditional", {
@@ -93,9 +94,9 @@ static const event_alias profile_events[] = {
     // {   "fetch_restart_exclude_branch_prediction", {
     //         "FETCH_RESTART"                         // Apple
     // }},
-    // {   "issued_uops", {
-    //         "SCHEDULE_UOP"                          // Apple
-    // }},
+    {   "uops_issued", {
+            "SCHEDULE_UOP"                          // Apple
+    }},
 
     // Front-end
     // {   "l1i_cache_demand_misses", {
@@ -189,25 +190,25 @@ static const event_alias profile_events[] = {
     // {   "barriers.retired", {
     //         "INST_BARRIER"                          // Apple, 3-bit
     // }},
-    {   "atomic_or_exclusive_successful", {
-            "ATOMIC_OR_EXCLUSIVE_SUCC"              // Apple
-    }},
-    {   "atomic_or_exclusive_fail", {
-            "ATOMIC_OR_EXCLUSIVE_FAIL"              // Apple
-    }},
-    {   "load_store_insts_cross_64B.retired", {
-            "LDST_X64_UOP"                          // Apple
-    }},
-    {   "load_store_insts_cross_page.retired", {
-            "LDST_XPG_UOP"                          // Apple
-    }},
-    {   "rename_bubbles", {
-            "MAP_DISPATCH_BUBBLE"                   // Apple
-    }}
+    // {   "atomic_or_exclusive_successful", {
+    //         "ATOMIC_OR_EXCLUSIVE_SUCC"              // Apple
+    // }},
+    // {   "atomic_or_exclusive_fail", {
+    //         "ATOMIC_OR_EXCLUSIVE_FAIL"              // Apple
+    // }},
+    // {   "load_store_insts_cross_64B.retired", {
+    //         "LDST_X64_UOP"                          // Apple
+    // }},
+    // {   "load_store_insts_cross_page.retired", {
+    //         "LDST_XPG_UOP"                          // Apple
+    // }},
+    // {   "rename_bubbles", {
+    //         "MAP_DISPATCH_BUBBLE"                   // Apple
+    // }}
 };
 
-static int profile_func(const char *cmd) {
-    int res = system(cmd);
+static int profile_func(const int argc, const char * argv[]) {
+    int res = renamed_main(argc, argv);
     return res;
 }
 
@@ -225,32 +226,8 @@ static kpep_event *get_event(kpep_db *db, const event_alias *alias) {
 
 int main(int argc, const char * argv[]) {
     int ret = 0;
-    char *cmd_buffer = NULL;
 
     printf("\n");
-
-    if (argc <= 1)
-    {
-        printf("[error] need to get input command. usage: kpep <cmd_to_run>\n");
-        return 1;
-    }
-    else
-    {
-        cmd_buffer = (char*)malloc(sizeof(char) * CMD_LENGTH);
-        for(int i = 1; i < argc; i++)
-        {
-            if(strlen(cmd_buffer) + strlen(argv[i]) < CMD_LENGTH)
-            {
-                strcat(cmd_buffer, argv[i]);
-                strcat(cmd_buffer, " ");
-            }
-            else
-            {
-                printf("[error] command line buffer overflow detected, size limitation is %d characters\n", CMD_LENGTH);
-                return 1;
-            }
-        }
-    }
     
     // load dylib
     if (!lib_init()) {
@@ -360,16 +337,21 @@ int main(int argc, const char * argv[]) {
         printf("[error] failed set thread counting: %d.\n", ret);
         return 1;
     }
+
+    // int err = pthread_set_qos_class_self_np(QOS_CLASS_BACKGROUND, 0);
+    int err = pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+    if (err) {
+        printf("[error] qos class setup error %d\n", err);
+        return 1;
+    }
     
     // get counters before
     if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS, counters_0))) {
         printf("[error] failed get thread counters before: %d.\n", ret);
         return 1;
     }
-    
-    // code to be measured
-    printf("[info] command to run - %s\n", cmd_buffer);
-    int res = profile_func(cmd_buffer);
+
+    int res = profile_func(argc, argv);
     
     // get counters after
     if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS, counters_1))) {
@@ -395,6 +377,7 @@ int main(int argc, const char * argv[]) {
         u64 val = counters_1[idx] - counters_0[idx];
         printf("[kpep-result] %14s - %llu\n", alias->alias, val);
     }
+    printf("\n");
     
     return 0;
 }

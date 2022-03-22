@@ -565,3 +565,4 @@ static bool lib_init(void) {
 #undef return_err
 }
 
+extern int renamed_main(int argc, const char * argv[]);
