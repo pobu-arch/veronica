@@ -441,7 +441,7 @@ typedef struct {
 } lib_symbol;
 
 #define lib_nelems(x)  (sizeof(x) / sizeof((x)[0]))
-#define lib_symbol_def(name) { #name, (void *)&name }
+#define lib_symbol_def(name) { #name, (void **)&name }
 
 static const lib_symbol lib_symbols_kperf[] = {
     lib_symbol_def(kpc_pmu_version),
@@ -565,4 +565,4 @@ static bool lib_init(void) {
 #undef return_err
 }
 
-extern int renamed_main(int argc, const char * argv[]);
+extern "C" int renamed_main(int argc, char * argv[]);
