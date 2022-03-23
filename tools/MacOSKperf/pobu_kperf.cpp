@@ -4,13 +4,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <dlfcn.h>
-#include <pthread.h>
-#include <pthread/qos.h>
-#include "kperf.h"
+#include "pthread/qos.h"
+#include "pobu_kperf.h"
+//#include "pobu_kperf_patch.h"
 
 // -----------------------------------------------------------------------------
 // Demo
 // -----------------------------------------------------------------------------
+
+#if !defined PERFORMANCE && !defined EFFICIENCY
+#define PERFORMANCE
+#endif
 
 #define EVENT_NAME_MAX 8
 typedef struct {
@@ -117,7 +121,7 @@ static const event_alias profile_events[] = {
 
     // Back-end
     // {   "l1d_load_misses.retired", {
-    //         "L1D_CACHE_MISS_LD_NONSPEC"                // Apple, 3-bit
+    //         "L1D_CACHE_MISS_LD_NONSPEC"             // Apple, 3-bit
     // }},
     // {   "l1d_load_misses", {
     //         "L1D_CACHE_MISS_LD"                     // Apple
@@ -207,10 +211,27 @@ static const event_alias profile_events[] = {
     // }}
 };
 
-static int profile_func(const int argc, const char * argv[]) {
+extern "C" void ltmp0(int res);
+
+void ltmp0(int res)
+{
+    // asm volatile("dsb ld" : : : "memory");
+    // asm volatile("dsb ld" : : : "memory");
+    // asm volatile("dsb ld" : : : "memory");
+    // printf("[kperf-warning] exit code %d\n", res);
+    throw res;
+}
+
+int profile_func(int argc, char ** argv) {
     // if one changes this function name 'renamed_main' below
     // then the helper function within the benchmarks repo should be changed correspondingly
-    int res = renamed_main(argc, argv);
+    int res;
+    try {
+        res = renamed_main(argc, argv);
+    }catch(int res){
+        printf("[kperf-warning] return code profile_func from profile func is %d\n", res);
+        return res;
+    }
     return res;
 }
 
@@ -226,7 +247,7 @@ static kpep_event *get_event(kpep_db *db, const event_alias *alias) {
     return NULL;
 }
 
-int main(int argc, const char * argv[]) {
+int main(int argc, char ** argv) {
     int ret = 0;
 
     printf("\n");
@@ -340,21 +361,24 @@ int main(int argc, const char * argv[]) {
         return 1;
     }
 
-    // int err = pthread_set_qos_class_self_np(QOS_CLASS_BACKGROUND, 0);
-    int err = pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+    #if defined EFFICIENCY
+        int err = pthread_set_qos_class_self_np(QOS_CLASS_BACKGROUND, 0);
+    #elif defined PERFORMANCE
+        int err = pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+    #endif
     if (err) {
         printf("[kperf-error] qos class setup error %d\n", err);
         return 1;
     }
-    
+
     // get counters before
     if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS, counters_0))) {
         printf("[kperf-error] failed get thread counters before: %d.\n", ret);
         return 1;
     }
 
-    int res = profile_func(argc, argv);
-    
+    profile_func(argc, argv);
+
     // get counters after
     if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS, counters_1))) {
         printf("[kperf-error] failed get thread counters after: %d.\n", ret);
@@ -365,11 +389,6 @@ int main(int argc, const char * argv[]) {
     kpc_set_counting(0);
     kpc_set_thread_counting(0);
     kpc_force_all_ctrs_set(0);
-
-    if(res != 0)
-    {
-        printf("[kperf-error] return code from the command line is %d\n", res);
-    }
     
     // result
     printf("\n");
