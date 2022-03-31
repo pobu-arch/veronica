@@ -23,24 +23,23 @@ namespace veronica
         int fd = open(dev == NULL ? UNCACHED_DEV_PATH : dev, O_RDWR, 0);
         if (fd == -1)
         {
-            printf("[error] couldn't open device\n");
+            cout << "[error] couldn't open device" << endl;
             exit(-1);
         }
 
         unsigned int page_size = (unsigned int)get_page_size();
         unsigned int page_mask = (unsigned int)get_page_mask(); 
 
-        if (size & ~page_mask)
-                size = (size & page_mask) + page_size;
+        if (size & ~page_mask) size = (size & page_mask) + page_size;
 
         void *map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
         if (map == MAP_FAILED)
         {
-            printf("[error] mmap failed.\n");
+            cout << "[error] mmap has failed" << endl;
             exit(-1);
         }
 
-        printf("[info] mmap()'completed %s\n", dev);
+        cout << "[info] mmap has completed" << endl;
         return map;
 
         #else
@@ -59,13 +58,13 @@ namespace veronica
         {
             if (err == EINVAL)
             {
-                printf("[error] posix_memalign EINVAL\n");
+                cout << "[error] posix_memalign EINVAL" << endl;
             }
             else if (err == ENOMEM)
             {
-                printf("[error] posix_memalign ENOMEM\n");
+                cout << "[error] posix_memalign ENOMEM" << endl;
             }
-            exit(1);
+            exit(-1);
         }
 
         // printf("[info] posix_memalign ok, start_addr = %p\n", start_addr);

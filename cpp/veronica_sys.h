@@ -46,7 +46,7 @@ namespace veronica
             #error NOT SUPPORTED OS
         #endif
         {
-            printf("[error] execute command failed: %s\n", strerror(errno));
+            cout << "[error] execute command failed: " << strerror(errno) << endl;
             exit(-1);
         }
 
@@ -99,7 +99,7 @@ namespace veronica
             #error NOT SUPPORTED OS
         #endif
         {
-            printf("[Error] execute command failed: %s\n", strerror(errno));
+            cout << "[error] execute command failed: " << strerror(errno) << endl;
             exit(-1);
         }
 
@@ -122,6 +122,20 @@ namespace veronica
         return cache_line_size;
     }
 
+    void mlock_buffer(const void *addr, uint64 size)
+    {
+        if(mlock(addr, size) == -1)
+        {
+            cout << "[error] unable to pin memory pages" << endl;
+            exit(-1);
+        }
+        else
+        {
+            //cout << "[info] memory pages were pinned successfully" << endl;
+            return ;
+        }
+    }
+
     uint64 mem_addr_vir2phy(uint64 vir)
     {
         int fd;
@@ -131,32 +145,31 @@ namespace veronica
         uint64 pfn_item;
 
         fd = open(page_map_file, O_RDONLY);
-        if(fd<0)
+        if(fd < 0)
         {
-            printf("[error] open %s failed\n", page_map_file);
+            cout << "[error] open " << page_map_file << " failed" << endl;
             exit(-1);
         }
 
-        if((off_t)-1 == lseek(fd, pfn_item_offset, SEEK_SET))
+        if(lseek(fd, pfn_item_offset, SEEK_SET) == (off_t)-1)
         {
-            printf("[error] lseek %s failed\n", page_map_file);
+            cout << "[error] lseek " << page_map_file << " failed" << endl;
             exit(-1);
         }
 
-        if(sizeof(uint64) != read(fd, &pfn_item, sizeof(uint64)))
+        if(read(fd, &pfn_item, sizeof(uint64)) != sizeof(uint64))
         {
-            printf("[error] read %s failed for addr %llx\n", page_map_file, vir);
+            cout << "[error] read " << page_map_file << " for addr 0x" << hex << vir << " failed" << dec << endl;
             exit(-1);
         }
 
-        if(0==(pfn_item & PFN_PRESENT_FLAG))
+        if((pfn_item & PFN_PRESENT_FLAG) == 0)
         {
-            printf("[error] page is not present for addr %llx\n", vir);
+            cout << "[error] page is not present for addr 0x" << hex << vir << endl;
             exit(-1);
         }
-        uint64 phy = (pfn_item & PFN_MASK) * page_size + vir % page_size;
-        //printf("virtual-to-physical mapping found for %llx page -> addr %llx\n", vir, phy);
-        return phy;
+        close(fd);
+        return ((pfn_item & PFN_MASK) * page_size + vir % page_size);
     }
 
     // TODO

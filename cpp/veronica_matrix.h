@@ -19,23 +19,24 @@ namespace veronica
         {
             for (int j = 0; j < col; j++)
             {
-                printf("%f ", (double)matrix[i * col + j]);
+                cout << (double)matrix[i * col + j] << " ";
             }
-            printf("\n");
+            cout << endl;
         }
-        printf("\n");
+        cout << endl;
     }
 
     template <typename FP> void init_matrix(FP* matrix, const int row, const int col)
     {
-        printf("[info] init matrix addr %p with row = %d, col = %d\n", matrix, row, col);
+        cout << "[info] init matrix addr" << hex << (uint64)matrix
+             << " with row = " << row << ", col = " << col << endl;
         
         for (int i = 0; i < row; i++)
         {
             for (int j = 0; j < col; j++)
             {
-                matrix[i * col + j] = (float)rand() / (float)RAND_MAX;
-                // matrix[i * p + j] = (FP) i+j; // may be helpful for debugging
+                matrix[i * col + j] = (FP)rand() / (FP)RAND_MAX;
+                // matrix[i * col + j] = (FP) i+j; // may be helpful for debugging
             }
         }
     }
@@ -79,8 +80,8 @@ namespace veronica
                 if(error > max) max = error;
             }
         }
-        
-        printf("[info] Average error is: %e\n", total/(row * col));
-        printf("[info] Maximum error is: %e\n", max);
+
+        cout << "[info] average error is " << total/(row * col)
+             << ",  maximum error is " << max << endl;
     }
 }

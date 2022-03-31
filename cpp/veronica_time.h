@@ -42,7 +42,7 @@ namespace veronica
     {
         if(index >= MAX_NUM_TIMER)
         {
-            printf("[error] timer index is larger than MAX_NUM_TIMER %llu\n", MAX_NUM_TIMER);
+            cout << "[error] timer index is larger than MAX_NUM_TIMER " << MAX_NUM_TIMER << endl;
             exit(-1);
         }
     }
@@ -78,7 +78,7 @@ namespace veronica
         uint64 cpu_freq = get_cpu_freq();
         if(cpu_freq == 0)
         {
-            printf("[error] getting a 0 for cpu freq\n");
+            cout << "[error] getting a 0 for cpu freq" << endl;
             exit(-1);
         }
         double ns = pow(10.0, 9.0) * cycle / cpu_freq;
@@ -109,19 +109,19 @@ namespace veronica
 
         if(elapsed_time >= pow(10.0,6.0))
         {
-            double sec  = floor(elapsed_time / pow(10.0,6.0));
-            double msec = floor((elapsed_time - sec * pow(10.0,6.0)) / pow(10.0,3.0));
-            printf("[time] timer %s = %.0lf s %.0lf ms\n", name, sec, msec);
+            int64 sec  = floor(elapsed_time / pow(10.0,6.0));
+            int64 msec = floor((elapsed_time - sec * pow(10.0,6.0)) / pow(10.0,3.0));
+            cout << "[result] timer " << name << " = " << sec << " s " << msec << " ms" << endl;
         }
         else if(elapsed_time >= pow(10.0,3.0))
         {
-            double msec = floor(elapsed_time / pow(10.0,3.0));
-            double usec = floor((elapsed_time - msec * pow(10.0,3.0)));
-            printf("[time] timer %s = %.0lf ms %.0lf us\n", name, msec, usec);
+            int64 msec = floor(elapsed_time / pow(10.0,3.0));
+            int64 usec = floor((elapsed_time - msec * pow(10.0,3.0)));
+            cout << "[result] timer " << name << " = " << msec << " ms " << usec << " us" << endl;
         }
         else
         {
-            printf("[time] timer %s = %.0lf ns\n", name, elapsed_time * 1000);
+            cout << "[result] timer " << name << " = " << elapsed_time * 1000 << " ns " << endl;
         }
     }
 }
