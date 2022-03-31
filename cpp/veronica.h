@@ -1,5 +1,7 @@
 #pragma once
 
+using namespace std;
+
 #include "veronica_sys.h"
 #include "veronica_type.h"
 #include "veronica_hash.h"
