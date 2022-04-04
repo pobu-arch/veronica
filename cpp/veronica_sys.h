@@ -136,6 +136,7 @@ namespace veronica
         }
     }
 
+    // need to have sudo
     uint64 mem_addr_vir2phy(uint64 vir)
     {
         int fd;
@@ -169,7 +170,9 @@ namespace veronica
             exit(-1);
         }
         close(fd);
-        return ((pfn_item & PFN_MASK) * page_size + vir % page_size);
+        uint64 phy = (pfn_item & PFN_MASK) * page_size + vir % page_size;
+        //cout << "virtual-to-physical mapping found for 0x" << hex << vir << " -> 0x" << (pfn_item) << dec << endl;
+        return phy;
     }
 
     // TODO
