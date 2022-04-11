@@ -96,26 +96,30 @@ sub macosx_get_kperf_info
 sub macosx_inject_kperf
 {
     my @obj_files = @_;
-    my $objcopy_exist = (`which llvm-objcopy` !~ 'not found');
-    my $kperf_filename = macosx_get_kperf_filename();
+    my $objcopy_exist   = (`which llvm-objcopy` !~ 'not found');
+    my $kperf_filename  = macosx_get_kperf_filename();
+    my $os_type         = Veronica::System::get_os_type();
     
-    if(!$objcopy_exist)
+    if($os_type eq 'MACOSX')
     {
-        Veronica::Common::log_level("llvm-objcopy doesn't exist", -1);
-    } 
-    else
-    {
-        Veronica::Common::log_level("\n", 0);
-        foreach my $obj (@obj_files)
+        if(!$objcopy_exist)
         {
-            if($obj !~ $kperf_filename)
+            Veronica::Common::log_level("llvm-objcopy doesn't exist", -1);
+        } 
+        else
+        {
+            Veronica::Common::log_level("\n", 0);
+            foreach my $obj (@obj_files)
             {
-                Veronica::Common::log_level("processing $obj", 5);
-                system "llvm-objcopy --redefine-sym _main=_renamed_main $obj";
-                system "llvm-objcopy --redefine-sym _exit=_ltmp0 $obj";
+                if($obj !~ $kperf_filename)
+                {
+                    Veronica::Common::log_level("processing $obj", 5);
+                    system "llvm-objcopy --redefine-sym _main=_renamed_main $obj";
+                    system "llvm-objcopy --redefine-sym _exit=_ltmp0 $obj";
+                }
             }
+            
         }
-        
     }
 }
 1;
