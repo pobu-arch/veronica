@@ -6,9 +6,10 @@ use v5.10;
 use strict;
 use warnings;
 use threads;
+use threads 'exit' => 'threads_only';
+
 use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
-use threads 'exit' => 'threads_only';
 
 our $NUM_CORE_LIMIT    = 8;
 our $THREAD_JOIN_PAUSE = 0;
