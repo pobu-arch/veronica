@@ -40,19 +40,31 @@ static const event_alias profile_events[] = {
     
     // Instruction
     {   "branches.retired", {
-            "INST_BRANCH"               // Apple, 3-bit
+            "INST_BRANCH"                            // Apple, 3-bit
     }},
-    // {   "alu_insts.retired", {
-    //         "INST_INT_ALU"              // Apple, 1-bit
+    // {   "int_alu_insts.retired", {
+    //         "INST_INT_ALU"                           // Apple, 1-bit
+    // }},
+    // {   "int_load_insts.retired", {
+    //         "INST_INT_LD"                            // Apple, 3-bit
+    // }},
+    // {   "int_store_insts.retired", {
+    //         "INST_INT_ST"                            // Apple, 1-bit
     // }},
     // {   "load_store_insts.retired", {
-    //         "INST_LDST"                 // Apple, 1-bit
+    //         "INST_LDST"                              // Apple, 1-bit
     // }},
     // {   "simd_alu_insts.retired", {
-    //         "INST_SIMD_ALU"             // Apple, 1-bit
+    //         "INST_SIMD_ALU"                          // Apple, 1-bit
+    // }},
+    // {   "simd_loads.retired", {
+    //         "INST_SIMD_LD"                           // Apple, 3-bit
+    // }},
+    // {   "simd_stores.retired", {
+    //         "INST_SIMD_ST"                           // Apple, 3-bit
     // }},
     {   "uops_retired", {
-            "RETIRE_UOP"                // Apple, 1-bit
+            "RETIRE_UOP"                             // Apple, 1-bit
     }},
     
     // Speculation
@@ -72,7 +84,7 @@ static const event_alias profile_events[] = {
     //         "INST_BRANCH_INDIR"                     // Apple, 3-bit
     // }},
     {   "branches_mispredicted.retired", {
-            "BRANCH_MISPRED_NONSPEC"                   // Apple A7-A15, 3-bit, since iOS 15, macOS 12
+            "BRANCH_MISPRED_NONSPEC"                // Apple A7-A15, since iOS 15, macOS 12, 3-bit
     }},
     // {   "branches_conditional_mispredicted.retired", {
     //         "BRANCH_COND_MISPRED_NONSPEC"           // Apple, 3-bit
@@ -86,37 +98,37 @@ static const event_alias profile_events[] = {
     // {   "indir_branches_mispredicted.retired", {
     //         "BRANCH_INDIR_MISPRED_NONSPEC"          // Apple, 3-bit
     // }},
-    // {   "store_mem_violation.retired", {
-    //         "ST_MEMORY_ORDER_VIOLATION_NONSPEC"     // Apple, 3-bit
-    // }},
-    // {   "rename_rewinding_cycles", {
-    //         "MAP_REWIND"                            // Apple
-    // }},
-    // {   "rename_stall_cycles", {
-    //         "MAP_STALL"                             // Apple
-    // }},
     // {   "fetch_restart_exclude_branch_prediction", {
     //         "FETCH_RESTART"                         // Apple
     // }},
+    // {   "store_mem_violation.retired", {
+    //         "ST_MEMORY_ORDER_VIOLATION_NONSPEC"     // Apple, 3-bit
+    // }},
+    {   "rename_rewinding_cycles", {
+            "MAP_REWIND"                            // Apple
+    }},
+    {   "rename_stall_cycles", {
+            "MAP_STALL"                             // Apple
+    }},
     {   "uops_issued", {
-            "SCHEDULE_UOP"                            // Apple
+            "SCHEDULE_UOP"                          // Apple
     }},
 
     // Front-end
-    {   "l1i_cache_demand_misses", {
-            "L1I_CACHE_MISS_DEMAND"                 // Apple
-    }},
-    {   "l1i_tlb_refills", {
-            "L1I_TLB_FILL"                          // Apple
-    }},
-    {   "l1i_tlb_demand_misses", {
-            "L1I_TLB_MISS_DEMAND"                   // Apple
-    }},
-    {   "l2_tlb_misses_inst", {
-            "L2_TLB_MISS_INSTRUCTION"               // Apple
-    }},
+    // {   "l1i_cache_demand_misses", {
+    //         "L1I_CACHE_MISS_DEMAND"                 // Apple
+    // }},
+    // {   "l1i_tlb_refills", {
+    //         "L1I_TLB_FILL"                          // Apple
+    // }},
+    // {   "l1i_tlb_demand_misses", {
+    //         "L1I_TLB_MISS_DEMAND"                   // Apple
+    // }},
+    // {   "l2_tlb_misses_inst", {
+    //         "L2_TLB_MISS_INSTRUCTION"               // Apple
+    // }},
     // {   "page_table_walk_inst", {
-    //         "MMU_TABLE_WALK_INSTRUCTION"             // Apple
+    //         "MMU_TABLE_WALK_INSTRUCTION"            // Apple
     // }},
 
     // Back-end
@@ -156,9 +168,15 @@ static const event_alias profile_events[] = {
     // {   "rename_stalls_due_to_dispatch", {
     //         "MAP_STALL_DISPATCH"                    // Apple
     // }},
-    // {   "rename_int_insts", {
+    // {   "rename_int_uops.speculative", {
     //         "MAP_INT_UOP"                           // Apple
-    // }}
+    // }},
+    // {   "map_load_store_uops.speculative", {
+    //         "MAP_LDST_UOP"                          // Apple
+    // }},
+    // {   "rename_bubbles", {
+    //         "MAP_DISPATCH_BUBBLE"                   // Apple
+    // }},
 
     // Others
     // {   "page_fault.retired", {
@@ -167,21 +185,24 @@ static const event_alias profile_events[] = {
     // {   "map_simd_uops.speculative", {
     //         "MAP_SIMD_UOP"                          // Apple
     // }},
-    // {   "map_load_store_uops.speculative", {
-    //         "MAP_LDST_UOP"                          // Apple
-    // }},
-    // {   "load_uops.speculative", {
-    //         "LD_UNIT_UOP"                           // Apple
-    // }},
-    // {   "store_uops.speculative", {
-    //         "ST_UNIT_UOP"                           // Apple
-    // }},
+    {   "load_uops.speculative", {
+            "LD_UNIT_UOP"                           // Apple
+    }},
+    {   "store_uops.speculative", {
+            "ST_UNIT_UOP"                           // Apple
+    }},
     // {   "non_temporal_store_uops.speculative", {
     //         "ST_NT_UOP"                             // Apple
     // }},
     // {   "non_temporal_load_uops.speculative", {
     //         "LD_NT_UOP"                             // Apple
     // }},
+    // {   "load_store_uops_cross_64B.retired", {
+    //         "LDST_X64_UOP"                          // Apple
+    // }},
+    // {   "load_store_uops_cross_page.retired", {
+    //         "LDST_XPG_UOP"                          // Apple
+    // }}
     // {   "other_flushes", {
     //         "FLUSH_RESTART_OTHER_NONSPEC"           // Apple
     // }},
@@ -199,15 +220,6 @@ static const event_alias profile_events[] = {
     // }},
     // {   "atomic_or_exclusive_fail", {
     //         "ATOMIC_OR_EXCLUSIVE_FAIL"              // Apple
-    // }},
-    // {   "load_store_insts_cross_64B.retired", {
-    //         "LDST_X64_UOP"                          // Apple
-    // }},
-    // {   "load_store_insts_cross_page.retired", {
-    //         "LDST_XPG_UOP"                          // Apple
-    // }},
-    // {   "rename_bubbles", {
-    //         "MAP_DISPATCH_BUBBLE"                   // Apple
     // }}
 };
 
