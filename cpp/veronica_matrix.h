@@ -7,7 +7,7 @@
 #include <type_traits>
 #include "veronica_type.h"
 
-#if defined(INTEL_MKL)
+#if defined INTEL_MKL
     #include "mkl.h"
 #endif
 
