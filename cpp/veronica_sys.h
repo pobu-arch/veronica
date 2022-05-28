@@ -68,17 +68,6 @@ namespace veronica
         return freq;
     }
 
-    uint64 get_page_size()
-    {
-        return (uint64)getpagesize();
-    }
-
-    uint64 get_page_mask()
-    {
-        uint64 page_size = get_page_size();
-        return (~(page_size-1));
-    }
-
     uint64 get_cache_line_size()
     {
         uint64 cache_line_size = 0;
@@ -115,5 +104,16 @@ namespace veronica
 
         // it could be returning 0
         return cache_line_size;
+    }
+
+    uint64 get_page_size()
+    {
+        return (uint64)getpagesize();
+    }
+
+    uint64 get_page_mask()
+    {
+        uint64 page_size = get_page_size();
+        return (~(page_size-1));
     }
 }

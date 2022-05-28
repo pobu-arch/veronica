@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdio>
+#include <iostream>
 #include <cmath>
 #include <chrono>
 #include <sys/time.h>
@@ -11,122 +11,95 @@ using namespace std;
 
 namespace veronica
 {
-    const uint64 MAX_NUM_TIMER = 16;
-          uint64 CPU_FREQ      = 0;
+    uint64 CPU_FREQ = 0;
 
-    // generic timer
-    struct time_pair
+    class timer
     {
-        #if defined ISA_X86_64
-            chrono::time_point<chrono::steady_clock> start;
-            chrono::time_point<chrono::steady_clock> end;
-        #else
-            struct timeval start;
-            struct timeval end;
-        #endif
-    }time_pair_array[MAX_NUM_TIMER];
-
-    void check_timer_index(const int index)
-    {
-        if(index >= MAX_NUM_TIMER)
-        {
-            cout << "[error] timer index is larger than MAX_NUM_TIMER " << MAX_NUM_TIMER << endl;
-            exit(-1);
-        }
-    }
-
-    void set_timer_start(const int index)
-    {
-        check_timer_index(index);
-        
-        #if defined ISA_X86_64
-            MFENCE;
-            time_pair_array[index].start = std::chrono::steady_clock::now();
-        #else
-            #if defined ISA_ARM64
-                asm volatile("dmb ish": : :"memory");
+        private:
+            
+            #if defined ISA_X86_64
+                chrono::time_point<chrono::steady_clock> tick;
+            #else
+                struct timeval tick;
             #endif
-            gettimeofday(&(time_pair_array[index].start), NULL);
-        #endif
-    }
-
-    void set_timer_end(const int index)
-    {
-        check_timer_index(index);
-        #if defined ISA_X86_64
-            MFENCE;
-            time_pair_array[index].end = std::chrono::steady_clock::now();
-        #else
-            #if defined ISA_ARM64
-                asm volatile("dmb ish": : :"memory");
-            #endif
-            gettimeofday(&(time_pair_array[index].end), NULL);
-        #endif
-    }
-
-    double nsec_to_cycle(const double nano_secs)
-    {
-        if(CPU_FREQ == 0)
-        {
-            CPU_FREQ = get_cpu_freq();
-            if(CPU_FREQ == 0)
-            {
-                cout << "[error] getting a 0 for cpu freq" << endl;
-                exit(-1);
-            }
-            else
-            {
-                //cout << "[info] cpu freq is " << cpu_freq << endl;
-            }
-        }
         
-        double cycles = nano_secs * CPU_FREQ / pow(10.0, 9.0);
-        return cycles;
+            double nsec_to_cycle(const double &nano_secs)
+            {
+                return nano_secs / pow(10.0, 9.0) * CPU_FREQ;
+            }
+        
+        public:
+            timer()
+            {
+                #if defined ISA_X86_64
+                    MFENCE;
+                    tick = std::chrono::steady_clock::now();
+                #else
+                    #if defined ISA_ARM64
+                        asm volatile("dmb ish": : :"memory");
+                    #endif
+                    gettimeofday(&tick, NULL);
+                #endif
+
+                if(CPU_FREQ == 0)
+                {
+                    CPU_FREQ = get_cpu_freq();
+                    if(CPU_FREQ == 0)
+                    {
+                        cout << "[error] timer cpu freq is 0" << endl;
+                        exit(-1);
+                    }
+                    else
+                    {
+                        //cout << "[veronica] timer set for cpu freq " << CPU_FREQ / 1000 << " MHz" << endl;
+                    }
+                }
+            }
+
+            friend double get_elapsed_time_in_cycle(timer& begin, timer& end);
+            friend double get_elapsed_time_in_nsec(timer& begin, timer& end);
+            friend double get_elapsed_time_in_usec(timer& begin, timer& end);
+            friend double get_elapsed_time_in_msec(timer& begin, timer& end);
+            friend double get_elapsed_time_in_sec(timer& begin, timer& end);
+    };
+
+    // depends on get_elapsed_time_in_nsec() for non-x64 architecture
+    // due to the inaccuracy of get_cpu_freq() and DVFS, the cycles reading could be inaccurate
+    double get_elapsed_time_in_cycle(timer& begin, timer& end)
+    {
+        return end.nsec_to_cycle(get_elapsed_time_in_nsec(begin, end));
     }
 
-    double get_elapsed_time_in_cycle(const int index)
-    {
-        check_timer_index(index);
-        #if defined ISA_X86_64
-            double nano_secs = chrono::duration_cast<chrono::nanoseconds>(time_pair_array[index].end - 
-                                                                          time_pair_array[index].start).count();
-            return nsec_to_cycle(nano_secs);
-        #endif
-    }
-
-    double get_elapsed_time_in_usec(const int index)
+    double get_elapsed_time_in_nsec(timer& begin, timer& end)
     {
         #if defined ISA_X86_64
-            return chrono::duration_cast<chrono::microseconds>(time_pair_array[index].end - 
-                                                               time_pair_array[index].start).count();
+            return chrono::duration_cast<chrono::nanoseconds>(end.tick - begin.tick).count();
         #else
-            timeval* tv       = &(time_pair_array[index].start);
-            double start_time = tv->tv_sec * pow(10.0,6.0) + tv->tv_usec;
-                     tv       = &(time_pair_array[index].end);
-            double end_time   = tv->tv_sec * pow(10.0,6.0) + tv->tv_usec;
-            return end_time - start_time;
+            return get_elapsed_time_in_usec(begin, end) * 1000;
         #endif
     }
 
-    void print_timer(const int index, const char* name)
+    // depends on get_elapsed_time_in_nsec() for non-x64 architecture
+    double get_elapsed_time_in_usec(timer& begin, timer& end)
     {
-        double elapsed_time = get_elapsed_time_in_usec(index);
+        #if defined ISA_X86_64
+            return get_elapsed_time_in_nsec(begin, end) / pow(10.0, 3.0);
+        #else
+            double begin_time = begin.tick.tv_sec * pow(10.0,6.0) + begin.tick.tv_usec;
+            double end_time   = end.tick.tv_sec   * pow(10.0,6.0) + end.tick.tv_usec;
+            return end_time - begin_time;
+        #endif
+    }
 
-        if(elapsed_time >= pow(10.0,6.0))
-        {
-            int64 sec  = floor(elapsed_time / pow(10.0,6.0));
-            int64 msec = floor((elapsed_time - sec * pow(10.0,6.0)) / pow(10.0,3.0));
-            cout << "[result] timer " << name << " = " << sec << " s " << msec << " ms" << endl;
-        }
-        else if(elapsed_time >= pow(10.0,3.0))
-        {
-            int64 msec = floor(elapsed_time / pow(10.0,3.0));
-            int64 usec = floor((elapsed_time - msec * pow(10.0,3.0)));
-            cout << "[result] timer " << name << " = " << msec << " ms " << usec << " us" << endl;
-        }
-        else
-        {
-            cout << "[result] timer " << name << " = " << elapsed_time * 1000 << " ns " << endl;
-        }
+    // depends on get_elapsed_time_in_usec() for non-x64 architecture
+    double get_elapsed_time_in_msec(timer& begin, timer& end)
+    {
+        return get_elapsed_time_in_usec(begin, end) / pow(10.0, 3.0);
+    }
+
+    // depends on get_elapsed_time_in_usec() for non-x64 architecture
+    double get_elapsed_time_in_sec(timer& begin, timer& end)
+    {
+        return get_elapsed_time_in_usec(begin, end) / pow(10.0, 6.0);
     }
 }
