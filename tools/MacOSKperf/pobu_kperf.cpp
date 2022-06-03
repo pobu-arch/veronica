@@ -12,6 +12,8 @@
 // Demo
 // -----------------------------------------------------------------------------
 
+#define EFFICIENCY
+
 #if !defined PERFORMANCE && !defined EFFICIENCY
 #define PERFORMANCE
 #endif
