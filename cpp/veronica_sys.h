@@ -26,6 +26,7 @@ namespace veronica
         #endif
     }
 
+    // return CPU Freq in Hz
     uint64 get_cpu_freq()
     {
         uint64 freq = 0;
@@ -33,8 +34,10 @@ namespace veronica
         char readbuf[64];
         memset(readbuf, 0, sizeof(readbuf));
         
+        // TODO: CPU freq only works with apple silicon and it is preset
         #if defined __APPLE__
-            if(NULL == (fstream = popen("sysctl hw.cpufrequency", "r")))
+            //if(NULL == (fstream = popen("sysctl hw.cpufrequency", "r")))
+            return 3226ULL * 1000 * 1000;
         #elif defined __linux__
             if(NULL == (fstream = popen("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r")))
         #else
@@ -60,7 +63,7 @@ namespace veronica
                 freq        = strtoull(start, &end, 10);
                 pclose(fstream);
                 #if defined __linux__
-                    freq *= 1000; // linux is counting freq in KHz
+                    freq *= 1000; // linux is counting freq in KHz, covert it to MHz
                 #endif
             #endif
         }

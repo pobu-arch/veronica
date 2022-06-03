@@ -19,6 +19,8 @@ namespace veronica
             
             #if defined ISA_X86_64
                 chrono::time_point<chrono::steady_clock> tick;
+            #elif defined ISA_ARM64
+                chrono::time_point<chrono::steady_clock> tick;
             #else
                 struct timeval tick;
             #endif
@@ -34,10 +36,10 @@ namespace veronica
                 #if defined ISA_X86_64
                     MFENCE;
                     tick = std::chrono::steady_clock::now();
+                #elif defined ISA_ARM64
+                    MFENCE;
+                    tick = std::chrono::steady_clock::now();
                 #else
-                    #if defined ISA_ARM64
-                        asm volatile("dmb ish": : :"memory");
-                    #endif
                     gettimeofday(&tick, NULL);
                 #endif
 
@@ -51,7 +53,7 @@ namespace veronica
                     }
                     else
                     {
-                        //cout << "[veronica] timer set for cpu freq " << CPU_FREQ / 1000 << " MHz" << endl;
+                        cout << "[veronica] timer set for cpu freq " << CPU_FREQ / 1000 / 1000 << " MHz" << endl;
                     }
                 }
             }
@@ -74,6 +76,8 @@ namespace veronica
     {
         #if defined ISA_X86_64
             return chrono::duration_cast<chrono::nanoseconds>(end.tick - begin.tick).count();
+        #elif defined ISA_ARM64
+            return chrono::duration_cast<chrono::nanoseconds>(end.tick - begin.tick).count();
         #else
             return get_elapsed_time_in_usec(begin, end) * 1000;
         #endif
@@ -83,6 +87,8 @@ namespace veronica
     double get_elapsed_time_in_usec(timer& begin, timer& end)
     {
         #if defined ISA_X86_64
+            return get_elapsed_time_in_nsec(begin, end) / pow(10.0, 3.0);
+        #elif defined ISA_ARM64
             return get_elapsed_time_in_nsec(begin, end) / pow(10.0, 3.0);
         #else
             double begin_time = begin.tick.tv_sec * pow(10.0,6.0) + begin.tick.tv_usec;

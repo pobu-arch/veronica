@@ -23,8 +23,12 @@ namespace veronica
         #define NOP_32          {NOP_16 NOP_16}
         #define NOP_64          {NOP_32 NOP_32}
 
-        #define MFENCE       asm volatile("mfence\n\t");
+        #define MFENCE          asm volatile("mfence\n\t");
     #endif // ISA_X86_64
+
+    #if defined ISA_ARM64
+        #define MFENCE          asm volatile("dmb ish": : :"memory");
+    #endif
 
     void stream_load(void* start_addr)
     {
