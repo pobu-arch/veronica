@@ -115,7 +115,7 @@ sub macosx_inject_kperf
                 {
                     Veronica::Common::log_level("processing $obj", 5);
                     system "llvm-objcopy --redefine-sym _main=_renamed_main $obj";
-                    system "llvm-objcopy --redefine-sym _exit=_ltmp0 $obj";
+                    system "llvm-objcopy --redefine-sym _exit=_renamed_exit $obj";
                 }
             }
             

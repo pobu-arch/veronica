@@ -112,7 +112,7 @@ sub mkdir_or_die
 
     mkdir $dirpath if !-e $dirpath;
     
-    log_level("fail to create dir at $dirpath due to $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    &Veronica::Common::log_level("fail to create dir at $dirpath due to $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
     if !-e $dirpath;
 }
 
@@ -121,7 +121,7 @@ sub open_or_die
 {
     my ($file_to_open, $die_msg) = @_;
 
-    log_level("fail to open $file_to_open" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    &Veronica::Common::log_level("fail to open $file_to_open" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
     if !open my $FILE_HANDLE, "$file_to_open";
 
     return $FILE_HANDLE;
@@ -134,7 +134,7 @@ sub read_filelist
     
     if(-e $filelist_path)
     {
-        my $filelist_handle = Veronica::Common::open_or_die("<$filelist_path");
+        my $filelist_handle = &Veronica::Common::open_or_die("<$filelist_path");
         my $filenum = 0;
 
         while(my $line = <$filelist_handle>)
@@ -150,16 +150,16 @@ sub read_filelist
             }
             else
             {
-                Veronica::Common::log_level("file $line doesn't exist at $overall_path", -1);
+                &Veronica::Common::log_level("file $line doesn't exist at $overall_path", -1);
             }
         }
         close $filelist_handle;
 
-        Veronica::Common::log_level("filelist contains " . (scalar keys %filelist). " files for $name ...", 5);
+        &Veronica::Common::log_level("filelist contains " . (scalar keys %filelist). " files for $name ...", 5);
     }
     else
     {
-        Veronica::Common::log_level("filelist doesn't exist at $filelist_path", -1);
+        &Veronica::Common::log_level("filelist doesn't exist at $filelist_path", -1);
     }
 
     return %filelist;
