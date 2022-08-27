@@ -21,7 +21,7 @@ sub set_num_core
     my ($num) = @_;
     $num = &Veronica::System::get_num_physical_core_per_socket() if $num eq 0;
     $NUM_CORE_LIMIT = $num;
-    Veronica::Common::log_level("already set the num core limit to be $NUM_CORE_LIMIT", 5);
+    &Veronica::Common::log_level("already set the num core limit to be $NUM_CORE_LIMIT", 5);
 }
 
 sub get_num_core
@@ -84,7 +84,7 @@ sub join_n_thread_with_log
                 if(exists $THREAD_POOL{$thread->tid()}{'logfile'})
                 {
                     my $logfile    = $THREAD_POOL{$thread->tid()}{'logfile'};
-                    my $log_handle = Veronica::Common::open_or_die($logfile);
+                    my $log_handle = &Veronica::Common::open_or_die($logfile);
                     
                     print $log_handle "\n\n";
                     print $log_handle $THREAD_POOL{$thread->tid()}{'info'} . "  --  ";
@@ -97,13 +97,13 @@ sub join_n_thread_with_log
 
                 $freed_slot++;
                 $return_value = $THREAD_POOL{$thread->tid()}{'status'};
-                Veronica::Common::log_level("\n",0);
+                &Veronica::Common::log_level("\n",0);
                 if($return_value)
                 {
-                    Veronica::Common::log_level('Thread ID '.$thread->tid().
+                    &Veronica::Common::log_level('Thread ID '.$thread->tid().
                                                 ' detected error with info - '.
                                                 $THREAD_POOL{$thread->tid()}{'info'}, 1);
-                    Veronica::Common::log_level('Thread ID '.$thread->tid().
+                    &Veronica::Common::log_level('Thread ID '.$thread->tid().
                                                 ' error message is - '.
                                                 $THREAD_POOL{$thread->tid()}{'result'}, 1) 
                                                 if exists $THREAD_POOL{$thread->tid()}{'result'};
@@ -111,7 +111,7 @@ sub join_n_thread_with_log
                 }
                 else
                 {
-                    Veronica::Common::log_level('Thread ID '.
+                    &Veronica::Common::log_level('Thread ID '.
                                                 $thread->tid().
                                                 ' succeessfully joined with info - '.
                                                 $THREAD_POOL{$thread->tid()}{'info'}, 5);
@@ -122,7 +122,7 @@ sub join_n_thread_with_log
 
         if($error)
         {
-            Veronica::Common::log_level('Evicting all the threads due to previous detected error', 1);
+            &Veronica::Common::log_level('Evicting all the threads due to previous detected error', 1);
             
             # empty the thread pool
             while(scalar threads->list())
@@ -159,8 +159,8 @@ sub thread_start
     $THREAD_POOL{$thread->tid()}{'parameters'}  = "@parameters";
     $THREAD_POOL{$thread->tid()}{'logfile'}     = $logfile if $logfile ne '';
     
-    Veronica::Common::log_level("\n",0);
-    Veronica::Common::log_level('Thread ID '.$thread->tid().' launched with info - '.$info, 5);
+    &Veronica::Common::log_level("\n",0);
+    &Veronica::Common::log_level('Thread ID '.$thread->tid().' launched with info - '.$info, 5);
 
     return $error;
 }
