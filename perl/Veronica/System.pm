@@ -73,7 +73,11 @@ sub get_target_isa_type
     my $isa    = '';
 
     # detect compiler info
-    if($result =~ /--target=(?<isa>\w+)/g)
+    if($result =~ /--build=(?<isa>\w+)/g)
+    {
+        $isa = $+{isa};
+    }
+    elsif($result =~ /--target=(?<isa>\w+)/g)
     {
         $isa = $+{isa};
     }
