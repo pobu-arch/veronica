@@ -12,7 +12,7 @@
 // Demo
 // -----------------------------------------------------------------------------
 
-#define EFFICIENCY
+#define PERFORMANCE
 
 #if !defined PERFORMANCE && !defined EFFICIENCY
 #define PERFORMANCE
@@ -26,7 +26,7 @@ typedef struct {
 
 /// Event names from /usr/share/kpep/<name>.plist
 static const event_alias profile_events[] = {
-    
+
 // Fixed counters start here
     {   "cycles", {
             "FIXED_CYCLES"                 // Apple A7-A15
@@ -70,6 +70,12 @@ static const event_alias profile_events[] = {
     }},
     
     // Speculation
+    {   "uops_issued", {
+            "SCHEDULE_UOP"                          // Apple
+    }},
+    {   "branches_mispredicted.retired", {
+            "BRANCH_MISPRED_NONSPEC"                // Apple A7-A15, since iOS 15, macOS 12, 3-bit
+    }},
     // {   "branches_conditional", {
     //         "INST_BRANCH_COND"                      // Apple, 3-bit
     // }},
@@ -85,9 +91,6 @@ static const event_alias profile_events[] = {
     // {   "indir_branches.retired", {
     //         "INST_BRANCH_INDIR"                     // Apple, 3-bit
     // }},
-    {   "branches_mispredicted.retired", {
-            "BRANCH_MISPRED_NONSPEC"                // Apple A7-A15, since iOS 15, macOS 12, 3-bit
-    }},
     // {   "branches_conditional_mispredicted.retired", {
     //         "BRANCH_COND_MISPRED_NONSPEC"           // Apple, 3-bit
     // }},
@@ -106,29 +109,35 @@ static const event_alias profile_events[] = {
     // {   "store_mem_violation.retired", {
     //         "ST_MEMORY_ORDER_VIOLATION_NONSPEC"     // Apple, 3-bit
     // }},
-    {   "rename_rewinding_cycles", {
+    {   "map_rewinding_cycles", {
             "MAP_REWIND"                            // Apple
     }},
-    {   "rename_stall_cycles", {
-            "MAP_STALL"                             // Apple
-    }},
-    {   "uops_issued", {
-            "SCHEDULE_UOP"                          // Apple
-    }},
+    // {   "map_int_uops.speculative", {
+    //         "MAP_INT_UOP"                           // Apple
+    // }},
+    // {   "map_load_store_uops.speculative", {
+    //         "MAP_LDST_UOP"                          // Apple
+    // }},
+    // {   "load_uops.speculative", {
+    //         "LD_UNIT_UOP"                           // Apple
+    // }},
+    // {   "store_uops.speculative", {
+    //         "ST_UNIT_UOP"                           // Apple
+    // }},
 
     // Front-end
-    // {   "l1i_cache_demand_misses", {
-    //         "L1I_CACHE_MISS_DEMAND"                 // Apple
-    // }},
+    {   "l1i_cache_demand_misses", {
+            "L1I_CACHE_MISS_DEMAND"                 // Apple
+    }},
     // {   "l1i_tlb_refills", {
     //         "L1I_TLB_FILL"                          // Apple
     // }},
-    // {   "l1i_tlb_demand_misses", {
-    //         "L1I_TLB_MISS_DEMAND"                   // Apple
-    // }},
-    // {   "l2_tlb_misses_inst", {
-    //         "L2_TLB_MISS_INSTRUCTION"               // Apple
-    // }},
+    {   "l1i_tlb_demand_misses", {
+            "L1I_TLB_MISS_DEMAND"                   // Apple
+    }},
+    {   "l2_tlb_misses_inst", {
+            "L2_TLB_MISS_INSTRUCTION"               // Apple
+    }},
     // {   "page_table_walk_inst", {
     //         "MMU_TABLE_WALK_INSTRUCTION"            // Apple
     // }},
@@ -167,17 +176,14 @@ static const event_alias profile_events[] = {
     // {   "page_table_walk_data", {
     //         "MMU_TABLE_WALK_DATA"                   // Apple
     // }},
-    // {   "rename_stalls_due_to_dispatch", {
-    //         "MAP_STALL_DISPATCH"                    // Apple
-    // }},
-    // {   "rename_int_uops.speculative", {
-    //         "MAP_INT_UOP"                           // Apple
-    // }},
-    // {   "map_load_store_uops.speculative", {
-    //         "MAP_LDST_UOP"                          // Apple
-    // }},
-    // {   "rename_bubbles", {
+    // {   "map_bubbles", {
     //         "MAP_DISPATCH_BUBBLE"                   // Apple
+    // }},
+    // {   "map_stall_cycles", {
+    //         "MAP_STALL"                             // Apple
+    // }},
+    // {   "map_stalls_due_to_dispatch", {
+    //         "MAP_STALL_DISPATCH"                    // Apple
     // }},
 
     // Others
@@ -187,12 +193,6 @@ static const event_alias profile_events[] = {
     // {   "map_simd_uops.speculative", {
     //         "MAP_SIMD_UOP"                          // Apple
     // }},
-    {   "load_uops.speculative", {
-            "LD_UNIT_UOP"                           // Apple
-    }},
-    {   "store_uops.speculative", {
-            "ST_UNIT_UOP"                           // Apple
-    }},
     // {   "non_temporal_store_uops.speculative", {
     //         "ST_NT_UOP"                             // Apple
     // }},
@@ -224,17 +224,6 @@ static const event_alias profile_events[] = {
     //         "ATOMIC_OR_EXCLUSIVE_FAIL"              // Apple
     // }}
 };
-
-extern "C" void ltmp0(int res);
-
-void ltmp0(int res)
-{
-    // asm volatile("dsb ld" : : : "memory");
-    // asm volatile("dsb ld" : : : "memory");
-    // asm volatile("dsb ld" : : : "memory");
-    // printf("[kperf-warning] exit code %d\n", res);
-    throw res;
-}
 
 int profile_func(int argc, char ** argv) {
     // if one changes this function name 'renamed_main' below
