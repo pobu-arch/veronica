@@ -1,8 +1,9 @@
 // =============================================================================
 // XNU kperf/kpc demo
-// Available for Intel/Apple M1, macOS/iOS, with root privileges
+// Available for 64-bit Intel/Apple Silicon, macOS/iOS, with root privileges
 //
-// Usage:
+//
+// Demo 1 (profile a function in current thread):
 // 1. Open directory '/usr/share/kpep/', find your CPU PMC database.
 //    For M1 (Pro/Max), the database file is '/usr/share/kpep/a14.plist'.
 // 2. Select a few events that you are interested in,
@@ -11,12 +12,21 @@
 // 4. Compile and run with root (sudo).
 //
 //
-// Relevant information:
+// Demo 2 (profile a select process):
+// Replace step 3 with: set `target_pid` and `total_profile_time`.
+// Use main2() as the entry function.
+//
+//
+// References:
 //
 // XNU source (since xnu 2422.1.72):
 // https://github.com/apple/darwin-xnu/blob/main/osfmk/kern/kpc.h
 // https://github.com/apple/darwin-xnu/blob/main/bsd/kern/kern_kpc.c
 //
+// Lightweight PET (Profile Every Thread, since xnu 3789.1.32):
+// https://github.com/apple/darwin-xnu/blob/main/osfmk/kperf/pet.c
+// https://github.com/apple/darwin-xnu/blob/main/osfmk/kperf/kperf_kpc.c
+// 
 // System Private frameworks (since macOS 10.11, iOS 8.0):
 // /System/Library/PrivateFrameworks/kperf.framework
 // /System/Library/PrivateFrameworks/kperfdata.framework

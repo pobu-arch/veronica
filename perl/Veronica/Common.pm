@@ -121,7 +121,7 @@ sub open_or_die
 {
     my ($file_to_open, $die_msg) = @_;
 
-    &Veronica::Common::log_level("fail to open $file_to_open" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    &Veronica::Common::log_level("fail to open $file_to_open, $!, " . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
     if !open my $FILE_HANDLE, "$file_to_open";
 
     return $FILE_HANDLE;
