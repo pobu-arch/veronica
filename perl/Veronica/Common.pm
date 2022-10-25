@@ -112,7 +112,7 @@ sub mkdir_or_die
 
     mkdir $dirpath if !-e $dirpath;
     
-    &Veronica::Common::log_level("fail to create dir at $dirpath due to $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    &Veronica::Common::log_level("failed to create dir at $dirpath due to $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
     if !-e $dirpath;
 }
 
@@ -121,7 +121,7 @@ sub open_or_die
 {
     my ($file_to_open, $die_msg) = @_;
 
-    &Veronica::Common::log_level("fail to open $file_to_open, $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
+    &Veronica::Common::log_level("failed to open $file_to_open, $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
     if !open my $FILE_HANDLE, "$file_to_open";
 
     return $FILE_HANDLE;
