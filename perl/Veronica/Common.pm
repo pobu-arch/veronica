@@ -109,6 +109,7 @@ sub log_level
 sub mkdir_or_die
 {
     my ($dirpath, $die_msg) = @_;
+    $die_msg = '' if !defined $die_msg;
 
     mkdir $dirpath if !-e $dirpath;
     
@@ -120,6 +121,7 @@ sub mkdir_or_die
 sub open_or_die
 {
     my ($file_to_open, $die_msg) = @_;
+    $die_msg = '' if !defined $die_msg;
 
     &Veronica::Common::log_level("failed to open $file_to_open, $!" . ($die_msg ne '' ? ", $die_msg" : '' ), -1)
     if !open my $FILE_HANDLE, "$file_to_open";
