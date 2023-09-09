@@ -30,6 +30,7 @@ namespace veronica
         #define MFENCE          asm volatile("dmb ish": : :"memory");
     #endif
 
+/*
     void stream_load(void* start_addr)
     {
         #if defined ISA_X86_64
@@ -334,4 +335,5 @@ namespace veronica
             #error "NOT SUPPORTED ISA"
         #endif // ISA
     }
+*/
 }
