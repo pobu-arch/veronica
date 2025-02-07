@@ -173,4 +173,11 @@ sub override_symbol_link
     system "rm -irf $dest_link" if -e $dest_link;
     system "ln -s $src_file $dest_link";
 }
+
+sub remove_tailing_blank_char
+{
+    my ($string) = @_;
+    chomp $string; $string =~ s/\s+$//;
+    return $string;
+}
 1;
