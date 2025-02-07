@@ -176,7 +176,9 @@ sub override_symbol_link
 
 sub remove_tailing_blank_char
 {
-    my ($string) = @_;
+    my ($string) = @_; 
+    return '' if !defined $string or $string eq '';
+    
     chomp $string; $string =~ s/\s+$//;
     return $string;
 }
