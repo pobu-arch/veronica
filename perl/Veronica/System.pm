@@ -87,7 +87,7 @@ sub get_target_isa_type
     }
     else
     {
-        &Veronica::Common::log_level("compiler info is : $result", 1);
+        &Veronica::Common::log_level("compiler info is : $result", 3);
         &Veronica::Common::log_level('unsupported compiler info format', -1);
 
     }
@@ -210,11 +210,11 @@ sub print_sys_info
     my $num_threads_per_core    = get_threads_per_core();
 
     &Veronica::Common::log_level("\n", 0);
-    &Veronica::Common::log_level("this machine is $endian-endian", 5);
-    &Veronica::Common::log_level("transparent huge page status is $thp_status", 5);
-    &Veronica::Common::log_level("page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 5);
-    &Veronica::Common::log_level("host OS is $os_type, host ISA is $host_isa_type, target ISA is $target_isa_type", 5);
-    &Veronica::Common::log_level("there are $num_physical_core physical cores per socket, and $num_threads_per_core threads per physical core", 5);
+    &Veronica::Common::log_level("this machine is $endian-endian", 3);
+    &Veronica::Common::log_level("transparent huge page status is $thp_status", 3);
+    &Veronica::Common::log_level("page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 3);
+    &Veronica::Common::log_level("host OS is $os_type, host ISA is $host_isa_type, target ISA is $target_isa_type", 3);
+    &Veronica::Common::log_level("there are $num_physical_core physical cores per socket, and $num_threads_per_core threads per physical core", 3);
     &Veronica::Common::log_level("\n", 0);
 }
 1;
