@@ -21,7 +21,7 @@ sub set_num_core
     my ($num) = @_;
     $num = &Veronica::System::get_num_physical_core_per_socket() if $num eq 0;
     $NUM_CORE_LIMIT = $num;
-    &Veronica::Common::log_level("already set the num core limit to be $NUM_CORE_LIMIT", 5);
+    &Veronica::Common::log_level("already set the num core limit to be $NUM_CORE_LIMIT", 3);
 }
 
 sub get_num_core
@@ -97,7 +97,7 @@ sub join_n_thread_with_log
 
                 $freed_slot++;
                 $return_value = $THREAD_POOL{$thread->tid()}{'status'};
-                &Veronica::Common::log_level("\n",0);
+                &Veronica::Common::log_level("\n", 0);
                 if($return_value)
                 {
                     &Veronica::Common::log_level('Thread ID '.$thread->tid().
@@ -114,7 +114,7 @@ sub join_n_thread_with_log
                     &Veronica::Common::log_level('Thread ID '.
                                                 $thread->tid().
                                                 ' succeessfully joined with info - '.
-                                                $THREAD_POOL{$thread->tid()}{'info'}, 5);
+                                                $THREAD_POOL{$thread->tid()}{'info'}, 3);
                 }
                 delete $THREAD_POOL{$thread->tid()};
             }
@@ -160,7 +160,7 @@ sub thread_start
     $THREAD_POOL{$thread->tid()}{'logfile'}     = $logfile if $logfile ne '';
     
     &Veronica::Common::log_level("\n",0);
-    &Veronica::Common::log_level('Thread ID '.$thread->tid().' launched with info - '.$info, 5);
+    &Veronica::Common::log_level('Thread ID '.$thread->tid().' launched with info - '.$info, 3);
 
     return $error;
 }

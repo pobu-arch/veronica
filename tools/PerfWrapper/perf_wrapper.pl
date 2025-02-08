@@ -30,7 +30,7 @@ our @INTEL_MICRO_ARCH_ARRAY = ('sandybridge', 'haswell', 'skylake', 'sunnycove',
 
 sub cmd_parse()
 {
-    Veronica::Common::log_level("parsing arguments ...", 5);
+    Veronica::Common::log_level("parsing arguments ...", 3);
 
     if(@ARGV < 1)
     {
@@ -56,7 +56,7 @@ sub cmd_parse()
     Veronica::Common::log_level("please specify the microarchitecture", -1) if $MICROARCH eq '';
 
     Veronica::Common::log_level("the selected microarchitecture is $MICROARCH".
-                                ", metrics group is $COUNTER_GROUP", 5);
+                                ", metrics group is $COUNTER_GROUP", 3);
 }
 
 
@@ -151,7 +151,7 @@ sub cmd_gen
         }
     }
 
-    Veronica::Common::log_level("It has $event_count counters in total", 5);
+    Veronica::Common::log_level("It has $event_count counters in total", 3);
     Veronica::Common::log_level("\n", 0);
     Veronica::Common::log_level($perf_cmd, 0);
     Veronica::Common::log_level("\n", 0);

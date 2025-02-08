@@ -11,7 +11,7 @@ use Cwd 'abs_path';
 use Carp qw/cluck/;
 use Time::HiRes qw(gettimeofday tv_interval);
 
-our $LOG_LEVEL = 5;
+our $LOG_LEVEL = 4;
 
 ####################################################################################################
 
@@ -55,32 +55,27 @@ sub log_level
 {
     my ($string, $level) = @_;
 
-    if($level <= $LOG_LEVEL && $string ne '')
+    $level = 4 if !defined $level;
+    die "[ERROR-Script] log level is $level, which can NOT larger than 4\n\n" if $level > 4;
+
+    if($level <= $LOG_LEVEL && defined $string && $string ne '')
     {
         my $prefix = '';
-        if($level == 6)
+        if($level == 4)
         {
             $prefix = '[DEBUG-Script] ';
         }
-        elsif($level == 5)
+        elsif($level == 3)
         {
             $prefix = '[INFO-Script] ';
         }
-        elsif($level == 4)
-        {
-            $prefix = '[UNINPLEMENTED-Script] ';
-        }
-        elsif($level == 3)
+        elsif($level == 2)
         {
             $prefix = '[WARNING-Script] ';
         }
-        elsif($level == 2)
-        {
-            $prefix = '[CRITICAL-Script] ';
-        }
         elsif($level == 1)
         {
-            $prefix = '[ERROR-Script] ';
+            $prefix = '[CRITICAL-Script] ';
         }
         elsif($level == 0)
         {
@@ -157,7 +152,7 @@ sub read_filelist
         }
         close $filelist_handle;
 
-        &Veronica::Common::log_level("filelist contains " . (scalar keys %filelist). " files for $name ...", 5);
+        &Veronica::Common::log_level("filelist contains " . (scalar keys %filelist). " files for $name ...", 3);
     }
     else
     {
