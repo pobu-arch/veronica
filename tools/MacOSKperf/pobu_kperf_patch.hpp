@@ -1,5 +1,4 @@
 extern void renamed_exit(int res);
-extern void renamed_exit(int res);
 
 void renamed_exit(int res)
 {

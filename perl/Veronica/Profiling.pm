@@ -19,7 +19,6 @@ use Veronica::System;
 sub macosx_powermetrics_thread_launch
 {
     my ($flag_file, $result_log_file) = @_;
-    #my ($flag_file, $result_log_file) = split '--pobu--', $input_string;
     my $sampling_time_in_ms = 1000;
     my $sampling_count      = 1;
     
@@ -95,31 +94,27 @@ sub macosx_get_kperf_info
 
 sub macosx_inject_kperf
 {
-    my @obj_files = @_;
-    my $objcopy_exist   = (`which llvm-objcopy` !~ 'not found');
+    my ($obcopy, @obj_files) = @_;
+
     my $kperf_filename  = macosx_get_kperf_filename();
     my $os_type         = Veronica::System::get_os_type();
     
     if($os_type eq 'MACOSX')
     {
-        if(!$objcopy_exist)
+        Veronica::Common::log_level("\n", 0);
+        foreach my $obj (@obj_files)
         {
-            Veronica::Common::log_level("llvm-objcopy doesn't exist", -1);
-        } 
-        else
-        {
-            Veronica::Common::log_level("\n", 0);
-            foreach my $obj (@obj_files)
+            if($obj !~ $kperf_filename)
             {
-                if($obj !~ $kperf_filename)
-                {
-                    Veronica::Common::log_level("processing $obj", 3);
-                    system "llvm-objcopy --redefine-sym _main=_renamed_main $obj";
-                    system "llvm-objcopy --redefine-sym _exit=_renamed_exit $obj";
-                }
+                Veronica::Common::log_level("processing $obj", 3);
+                system "$obcopy --redefine-sym _main=_renamed_main $obj";
+                system "$obcopy --redefine-sym _exit=_renamed_exit $obj";
             }
-            
         }
+    }
+    else
+    {
+        Veronica::Common::log_level("kperf injection is MacOSX only \n", -1);
     }
 }
 1;
