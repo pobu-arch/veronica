@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 #include "pthread/qos.h"
-#include "pobu_kperf.h"
-//#include "pobu_kperf_patch.h"
+#include "pobu_kperf.hpp"
+//#include "pobu_kperf_patch.hpp"
 
 // -----------------------------------------------------------------------------
 // Demo

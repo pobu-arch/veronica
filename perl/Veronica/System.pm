@@ -32,6 +32,24 @@ sub get_os_type
     }
 }
 
+sub get_compiler_type
+{
+    my ($compiler) = @_;
+    my $result = `$compiler -v 2>&1`;
+    if($result =~ m/clang\s+version/)
+    {
+        return 'CLANG';
+    }
+    elsif($result =~ m/gcc\s+version/)
+    {
+        return 'GCC';
+    }
+    else
+    {
+        &Veronica::Common::log_level("unsupported compiler $compiler - $result", -1);
+    }
+}
+
 sub parse_isa_type
 {
     my ($string) = @_;
@@ -87,9 +105,9 @@ sub get_target_isa_type
     }
     else
     {
+        &Veronica::Common::log_level("\n", 0);
         &Veronica::Common::log_level("compiler info is : $result", 3);
         &Veronica::Common::log_level('unsupported compiler info format', -1);
-
     }
 
     return parse_isa_type($isa);
@@ -131,6 +149,10 @@ sub get_cache_line_size
         my $path = "/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size";
         $result = `cat $path` if -e $path;
     }
+    else
+    {
+        &Veronica::Common::log_level('unsupported OS', -1);
+    }
     
     return $+{num} if($result =~ /(?<num>\d+)/);
     return 0; # default value
@@ -160,6 +182,10 @@ sub get_threads_per_core
            $threads_per_core = $+{num} if ($result =~ /Thread\(s\)\s+per\s+core\:\s+(?<num>\d+)/g);
         return $threads_per_core;
     }
+    else
+    {
+        &Veronica::Common::log_level('unsupported OS', -1);
+    }
 }
 
 sub get_num_physical_core_per_socket
@@ -177,6 +203,10 @@ sub get_num_physical_core_per_socket
         return $+{num} if($result =~ /Core\(s\)\s+per\s+socket\:\s+(?<num>\d+)/g);
         return 0; # default value
     }
+    else
+    {
+        &Veronica::Common::log_level('unsupported OS', -1);
+    }
 }
 
 sub get_num_logical_core_per_socket
@@ -192,6 +222,10 @@ sub get_num_logical_core_per_socket
     {
         return (&Veronica::Common::get_threads_per_core() * 
                 &Veronica::Common::get_num_physical_core_per_socket());
+    }
+    else
+    {
+        &Veronica::Common::log_level('unsupported OS', -1);
     }
 }
 
