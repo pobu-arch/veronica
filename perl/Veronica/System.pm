@@ -220,8 +220,8 @@ sub get_num_logical_core_per_socket
     }
     elsif($os_type eq 'LINUX')
     {
-        return (&Veronica::Common::get_threads_per_core() * 
-                &Veronica::Common::get_num_physical_core_per_socket());
+        return (&Veronica::System::get_threads_per_core() * 
+                &Veronica::System::get_num_physical_core_per_socket());
     }
     else
     {
