@@ -56,7 +56,7 @@ sub log_level
     my ($string, $level) = @_;
 
     $level = 4 if !defined $level;
-    die "[ERROR-Script] log level is $level, which can NOT larger than 4\n\n" if $level > 4;
+    die "[ERROR-Script] log level is $level, which should NOT be larger than 4\n\n" if $level > 4;
 
     if($level <= $LOG_LEVEL && defined $string && $string ne '')
     {
