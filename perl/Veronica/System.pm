@@ -57,19 +57,19 @@ sub parse_isa_type
     # detect target ISA type from compiler info
     if($string =~ 'x86_64')
     {
-        return 'X86_64';
+        return 'X64';
     }
     elsif($string =~ 'aarch64|ARM64|arm64')
     {
-        return 'ARM64';
+        return 'AARCH64';
     }
     elsif($string =~ 'riscv64')
     {
-        return 'RISCV64';
+        return 'RV64';
     }
     elsif($string =~ 'riscv32')
     {
-        return 'RISCV32';
+        return 'RV32';
     }
     else
     {
