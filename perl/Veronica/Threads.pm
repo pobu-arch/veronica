@@ -14,14 +14,18 @@ use Veronica::Common;
 our $NUM_CORE_LIMIT    = 8;
 our $THREAD_JOIN_PAUSE = 0;
 our %THREAD_POOL       = ();
-our $PLACE_HOLDER      = '--VERONICA--';
+our %PARAMETER_INFO    = ();
 
+sub get_place_holder
+{
+    return '--VERONICA--';
+}
 sub set_num_core
 {
     my ($num) = @_;
     $num = &Veronica::System::get_num_physical_core_per_socket() if $num eq 0;
     $NUM_CORE_LIMIT = $num;
-    &Veronica::Common::log_level("already set the num core limit to be $NUM_CORE_LIMIT", 3);
+    #&Veronica::Common::log_level("already set the num core limit to be $NUM_CORE_LIMIT", 3);
 }
 
 sub get_num_core
@@ -40,13 +44,32 @@ sub clear_thread_join_pause
     $THREAD_JOIN_PAUSE = 0;
 }
 
-sub system_entry
+sub thread_parameter_handler
 {
     my (@parameters) = @_;
     
-    #$SIG{'KILL'} = sub{ threads->exit() };
+    # EXCEPTIONS : the first parameter might be a dir path should be passed to chdir()
+    # The format is "CHDIR$PLACE_HOLDER$dir_path"
+    my $place_holder = &get_place_holder();
+    if(defined $parameters[0] and $parameters[0] =~ $place_holder)
+    {
+        my @split_output = split $place_holder, $parameters[0];
+        $PARAMETER_INFO{'cd'} = $split_output[1] if $split_output[0] eq 'cd';
+    }
+    my $prefix_cmd = (exists $PARAMETER_INFO{'cd'} ? "cd $PARAMETER_INFO{'cd'};" : '');
+    return $prefix_cmd;
+}
 
-    return system "@parameters";
+sub system_entry
+{
+    my (@parameters) = @_;
+    #$SIG{'KILL'} = sub{ threads->exit() };
+    
+    # remove the first parameter if it is a dir path
+    my $prefix_cmd = &thread_parameter_handler(@parameters);
+    shift @parameters if($prefix_cmd ne '');
+
+    return system $prefix_cmd." @parameters";
 }
 
 sub backquote_entry
@@ -55,10 +78,16 @@ sub backquote_entry
 
     #$SIG{'KILL'} = sub{ threads->exit() };
 
+    # remove the first parameter if it is a dir path
+    my $prefix_cmd = &thread_parameter_handler(@parameters);
+    shift @parameters if($prefix_cmd ne '');
+    
+    my $place_holder = &get_place_holder();
+
     my $thread = threads->self();
-    my $result = `@parameters 2>&1`;
+    my $result = `$prefix_cmd @parameters 2>&1`;
     my $status = $?;
-    return "$status"."$PLACE_HOLDER"."$result";
+    return "$status"."$place_holder"."$result";
 }
 
 sub join_n_thread_with_log
@@ -76,8 +105,9 @@ sub join_n_thread_with_log
         {
             if($thread->is_joinable())
             {
+                my $place_holder = &get_place_holder();
                 my $return = $thread->join();
-                my @split_output = split $PLACE_HOLDER, $return;
+                my @split_output = split $place_holder, $return;
                 $THREAD_POOL{$thread->tid()}{'status'} = $split_output[0];
                 $THREAD_POOL{$thread->tid()}{'result'} = $split_output[1] if defined $split_output[1];
 
