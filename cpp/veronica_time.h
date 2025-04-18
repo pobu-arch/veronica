@@ -17,9 +17,9 @@ namespace veronica
     {
         private:
             
-            #if defined ISA_X86_64
+            #if defined ISA_X64
                 chrono::time_point<chrono::steady_clock> tick;
-            #elif defined ISA_ARM64
+            #elif defined ISA_AARCH64
                 chrono::time_point<chrono::steady_clock> tick;
             #else
                 struct timeval tick;
@@ -33,10 +33,10 @@ namespace veronica
         public:
             timer()
             {
-                #if defined ISA_X86_64
+                #if defined ISA_X64
                     MFENCE;
                     tick = std::chrono::steady_clock::now();
-                #elif defined ISA_ARM64
+                #elif defined ISA_AARCH64
                     MFENCE;
                     tick = std::chrono::steady_clock::now();
                 #else
@@ -74,9 +74,9 @@ namespace veronica
 
     double get_elapsed_time_in_nsec(timer& begin, timer& end)
     {
-        #if defined ISA_X86_64
+        #if defined ISA_X64
             return chrono::duration_cast<chrono::nanoseconds>(end.tick - begin.tick).count();
-        #elif defined ISA_ARM64
+        #elif defined ISA_AARCH64
             return chrono::duration_cast<chrono::nanoseconds>(end.tick - begin.tick).count();
         #else
             return get_elapsed_time_in_usec(begin, end) * 1000;
@@ -86,9 +86,9 @@ namespace veronica
     // depends on get_elapsed_time_in_nsec() for non-x64 architecture
     double get_elapsed_time_in_usec(timer& begin, timer& end)
     {
-        #if defined ISA_X86_64
+        #if defined ISA_X64
             return get_elapsed_time_in_nsec(begin, end) / pow(10.0, 3.0);
-        #elif defined ISA_ARM64
+        #elif defined ISA_AARCH64
             return get_elapsed_time_in_nsec(begin, end) / pow(10.0, 3.0);
         #else
             double begin_time = begin.tick.tv_sec * pow(10.0,6.0) + begin.tick.tv_usec;
