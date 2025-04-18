@@ -14,7 +14,7 @@ namespace veronica
         #define unlikely(x)     (!!x)
     #endif
 
-    #if defined ISA_X86_64
+    #if defined ISA_X64
         #define NOP_1           asm volatile("nop\n\t");
         #define NOP_2           {NOP_1 NOP_1}
         #define NOP_4           {NOP_2 NOP_2}
@@ -24,16 +24,16 @@ namespace veronica
         #define NOP_64          {NOP_32 NOP_32}
 
         #define MFENCE          asm volatile("mfence\n\t");
-    #endif // ISA_X86_64
+    #endif // ISA_X64
 
-    #if defined ISA_ARM64
+    #if defined ISA_AARCH64
         #define MFENCE          asm volatile("dmb ish": : :"memory");
     #endif
 
 /*
     void stream_load(void* start_addr)
     {
-        #if defined ISA_X86_64
+        #if defined ISA_X64
             // AVX2 insts
             // every single inst should bring a new cache line
             // stride is pre-set to be 64 bytes, as most of the x86 CPUs have 64-byte cache line
@@ -77,7 +77,7 @@ namespace veronica
                 #error "NOT SUPPORTED CACHE_LINE_SIZE"
             #endif // CACHE_LINE_SIZE
 
-        #elif defined ISA_ARM64
+        #elif defined ISA_AARCH64
             #if CACHE_LINE_SIZE == 64
                 asm volatile("ldr x7, [%0, #0]\n\t"
                             "ldr x7, [%0, #64]\n\t"
@@ -139,7 +139,7 @@ namespace veronica
                 #error "NOT SUPPORTED CACHE_LINE_SIZE"
             #endif // CACHE_LINE_SIZE
 
-        #elif defined ISA_RISCV64
+        #elif defined ISA_RV64
             #if CACHE_LINE_SIZE == 64
                 asm volatile("ld t7, 0(%0)\n\t"
                             "ld t7, 64(%0)\n\t"
@@ -186,7 +186,7 @@ namespace veronica
 
     void stream_store(void* start_addr)
     {
-        #if defined ISA_X86_64
+        #if defined ISA_X64
             #if CACHE_LINE_SIZE == 64
                 // AVX2 insts
                 asm volatile("movdqa %%xmm0, 0(%0)\n\t"
@@ -228,7 +228,7 @@ namespace veronica
                 #error "NOT SUPPORTED CACHE_LINE_SIZE"
             #endif // CACHE_LINE_SIZE
 
-        #elif defined ISA_ARM64
+        #elif defined ISA_AARCH64
             #if CACHE_LINE_SIZE == 64
                 asm volatile("str x7, [%0, #0]\n\t"
                             "str x7, [%0, #64]\n\t"
@@ -291,7 +291,7 @@ namespace veronica
                 #error "NOT SUPPORTED CACHE_LINE_SIZE"
             #endif // CACHE_LINE_SIZE
 
-        #elif defined ISA_RISCV64
+        #elif defined ISA_RV64
             #if CACHE_LINE_SIZE == 64
                 asm volatile("sd t7,  0(%0)\n\t"
                             "sd t7,  64(%0)\n\t"

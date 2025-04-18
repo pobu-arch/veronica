@@ -36,7 +36,6 @@ namespace veronica
         
         // TODO: CPU freq only works with apple silicon and it is preset
         #if defined __APPLE__
-            //if(NULL == (fstream = popen("sysctl hw.cpufrequency", "r")))
             return 4400ULL * 1000 * 1000;
         #elif defined __linux__
             if(NULL == (fstream = popen("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r")))
