@@ -44,6 +44,14 @@ sub get_compiler_type
     {
         return 'GCC';
     }
+    elsif($result =~ m/icc\s+version/)
+    {
+        return 'ICC';
+    }
+    elsif($result =~ m/oneAPI\s+DPC\+\+/)
+    {
+        return 'ICX';
+    }
     else
     {
         &Veronica::Common::log_level("unsupported compiler $compiler - $result", -1);
