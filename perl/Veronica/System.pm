@@ -95,11 +95,16 @@ sub get_target_isa_type
 {
     my ($compiler) = @_;
 
+    my $compiler_type = get_compiler_type($compiler);
     my $result = `$compiler -v 2>&1`;
     my $isa    = '';
 
     # detect compiler info
-    if($result =~ /--build=(?<isa>\w+)/g)
+    if($compiler_type eq 'ICC' or $compiler_type eq 'ICX')
+    {
+        $isa = 'x86_64'
+    }
+    elsif($result =~ /--build=(?<isa>\w+)/g)
     {
         $isa = $+{isa};
     }
