@@ -36,21 +36,21 @@ sub get_compiler_type
 {
     my ($compiler) = @_;
     my $result = `$compiler -v 2>&1`;
-    if($result =~ m/clang\s+version/)
-    {
-        return 'CLANG';
-    }
-    elsif($result =~ m/gcc\s+version/)
-    {
-        return 'GCC';
-    }
-    elsif($result =~ m/icc\s+version/)
+    if($result =~ m/icc\s+version/)
     {
         return 'ICC';
     }
     elsif($result =~ m/oneAPI\s+DPC\+\+/)
     {
         return 'ICX';
+    }
+    elsif($result =~ m/clang\s+version/)
+    {
+        return 'CLANG';
+    }
+    elsif($result =~ m/gcc\s+version/)
+    {
+        return 'GCC';
     }
     else
     {
