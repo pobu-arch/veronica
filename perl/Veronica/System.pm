@@ -40,6 +40,10 @@ sub get_compiler_type
     {
         return 'ICC';
     }
+    elsif($result =~ m/ifort\s+version\s+\d+/)
+    {
+        return 'IFORT';
+    }
     elsif($result =~ m/oneAPI\s+DPC\+\+/)
     {
         return 'ICX';
