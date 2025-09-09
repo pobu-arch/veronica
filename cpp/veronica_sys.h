@@ -22,7 +22,7 @@ namespace veronica
         #elif defined __linux__
             return "LINUX";
         #else
-            #error "NOT SUPPORTED OS"
+            #error "[ERROR-Veronica] NOT SUPPORTED OS"
         #endif
     }
 
@@ -40,10 +40,10 @@ namespace veronica
         #elif defined __linux__
             if(NULL == (fstream = popen("cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r")))
         #else
-            #error NOT SUPPORTED OS
+            #error "[ERROR-Veronica] NOT SUPPORTED OS"
         #endif
         {
-            cout << "[error] execute command failed: " << strerror(errno) << endl;
+            cout << "[ERROR-Veronica] execute command failed: " << strerror(errno) << endl;
             exit(-1);
         }
 
@@ -54,7 +54,7 @@ namespace veronica
             #elif defined __linux__
                 char* start = readbuf;
             #else
-                #error NOT SUPPORTED OS
+                #error "[ERROR-Veronica] NOT SUPPORTED OS"
             #endif
 
             #if defined __APPLE__ || defined __linux__
@@ -82,10 +82,10 @@ namespace veronica
         #elif defined __linux__
             if(NULL == (fstream = popen("getconf LEVEL1_DCACHE_LINESIZE", "r")))
         #else
-            #error NOT SUPPORTED OS
+            #error "[ERROR-Veronica] NOT SUPPORTED OS"
         #endif
         {
-            cout << "[error] execute command failed: " << strerror(errno) << endl;
+            cout << "[ERROR-Veronica] execute command failed: " << strerror(errno) << endl;
             exit(-1);
         }
 
@@ -96,7 +96,7 @@ namespace veronica
             #elif defined __linux__
                 cache_line_size = atoi(readbuf);
             #else
-                #error NOT SUPPORTED OS
+                #error "[ERROR-Veronica] NOT SUPPORTED OS"
             #endif
 
             #if defined __APPLE__ || defined __linux__

@@ -18,7 +18,7 @@ using namespace std;
 
 namespace veronica
 {
-    #define PATH_UNCACHED_DEV "/home/bowen/uncached_mem_dev"
+    #define PATH_UNCACHED_DEV "/home/pobu/uncached_mem_dev"
     #define PATH_PAGE_MAP     "/proc/self/pagemap"
 
     const uint64 PFN_MASK         = ((((uint64)1)<<55)-1);
@@ -30,7 +30,7 @@ namespace veronica
             int fd = open(dev == NULL ? PATH_UNCACHED_DEV : dev, O_RDWR, 0);
             if (fd == -1)
             {
-                cout << "[error] couldn't open device" << endl;
+                cout << "[ERROR-Veronica] couldn't open device" << endl;
                 exit(-1);
             }
 
@@ -42,11 +42,11 @@ namespace veronica
             void *map = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
             if (map == MAP_FAILED)
             {
-                cout << "[error] mmap has failed" << endl;
+                cout << "[ERROR-Veronica] mmap has failed" << endl;
                 exit(-1);
             }
 
-            cout << "[info] mmap has completed" << endl;
+            cout << "[[INFO-Veronica]] mmap has completed" << endl;
             return map;
         #else
             //#error "NOT SUPPORTED OS"
@@ -58,12 +58,12 @@ namespace veronica
     {
         if(mlock(addr, size) == -1)
         {
-            cout << "[error] unable to pin memory pages" << endl;
+            cout << "[ERROR-Veronica] unable to pin memory pages" << endl;
             exit(-1);
         }
         else
         {
-            //cout << "[info] memory pages were pinned successfully" << endl;
+            //cout << "[[INFO-Veronica]] memory pages were pinned successfully" << endl;
             return;
         }
     }
@@ -80,25 +80,25 @@ namespace veronica
         fd = open(PATH_PAGE_MAP, O_RDONLY);
         if(fd < 0)
         {
-            cout << "[error] open " << PATH_PAGE_MAP << " failed" << endl;
+            cout << "[ERROR-Veronica] open " << PATH_PAGE_MAP << " failed" << endl;
             exit(-1);
         }
 
         if(lseek(fd, pfn_item_offset, SEEK_SET) == (off_t)-1)
         {
-            cout << "[error] lseek " << PATH_PAGE_MAP << " failed" << endl;
+            cout << "[ERROR-Veronica] lseek " << PATH_PAGE_MAP << " failed" << endl;
             exit(-1);
         }
 
         if(read(fd, &pfn_item, sizeof(uint64)) != sizeof(uint64))
         {
-            cout << "[error] read " << PATH_PAGE_MAP << " for addr 0x" << hex << vir << " failed" << dec << endl;
+            cout << "[ERROR-Veronica] read " << PATH_PAGE_MAP << " for addr 0x" << hex << vir << " failed" << dec << endl;
             exit(-1);
         }
 
         if((pfn_item & PFN_PRESENT_FLAG) == 0)
         {
-            cout << "[error] page is not present for addr 0x" << hex << vir << endl;
+            cout << "[ERROR-Veronica] page is not present for addr 0x" << hex << vir << endl;
             exit(-1);
         }
         close(fd);
@@ -116,16 +116,16 @@ namespace veronica
         {
             if (err == EINVAL)
             {
-                cout << "[error] posix_memalign EINVAL" << endl;
+                cout << "[ERROR-Veronica] posix_memalign EINVAL" << endl;
             }
             else if (err == ENOMEM)
             {
-                cout << "[error] posix_memalign ENOMEM" << endl;
+                cout << "[ERROR-Veronica] posix_memalign ENOMEM" << endl;
             }
             exit(-1);
         }
 
-        // printf("[info] posix_memalign ok, start_addr = %p\n", start_addr);
+        // printf("[[INFO-Veronica]] posix_memalign ok, start_addr = %p\n", start_addr);
         return start_addr;
     }
 
@@ -170,7 +170,7 @@ namespace veronica
         }
         else
         {
-            cout << "[error] detected cache line size is " << cache_line_size << endl;
+            cout << "[ERROR-Veronica] detected cache line size is " << cache_line_size << endl;
             exit(-1);
         }
     }

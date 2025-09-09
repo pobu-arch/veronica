@@ -134,7 +134,7 @@ sub join_n_thread_with_log
                                                 ' detected error with info - '.
                                                 $THREAD_POOL{$thread->tid()}{'info'}, 1);
                     &Veronica::Common::log_level('Thread ID '.$thread->tid().
-                                                ' error message is - '.
+                                                " error message is - \n\n".
                                                 $THREAD_POOL{$thread->tid()}{'result'}, 1) 
                                                 if exists $THREAD_POOL{$thread->tid()}{'result'};
                     $error = 1;
