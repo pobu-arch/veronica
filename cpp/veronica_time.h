@@ -17,9 +17,9 @@ namespace veronica
     {
         private:
             
-            #if defined ISA_X64
+            #if defined ISA == X64
                 chrono::time_point<chrono::steady_clock> tick;
-            #elif defined ISA_AARCH64
+            #elif defined ISA == AARCH64
                 chrono::time_point<chrono::steady_clock> tick;
             #else
                 struct timeval tick;
@@ -48,12 +48,12 @@ namespace veronica
                     CPU_FREQ = get_cpu_freq();
                     if(CPU_FREQ == 0)
                     {
-                        cout << "[error] timer cpu freq is 0" << endl;
+                        cout << "[ERROR-Veronica] timer cpu freq is 0" << endl;
                         exit(-1);
                     }
                     else
                     {
-                        cout << "[veronica] timer set for cpu freq " << CPU_FREQ / 1000 / 1000 << " MHz" << endl;
+                        cout << "[WARNING-Veronica] timer set for cpu freq " << CPU_FREQ / 1000 / 1000 << " MHz" << endl;
                     }
                 }
             }
