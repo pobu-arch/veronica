@@ -232,7 +232,7 @@ int profile_func(int argc, char ** argv) {
     try {
         res = renamed_main(argc, argv);
     }catch(int res){
-        printf("[kperf-warning] return code profile_func from profile func is %d\n", res);
+        printf("[WARNING-KPerf] return code profile_func from profile func is %d\n", res);
         return res;
     }
     return res;
@@ -257,7 +257,7 @@ int main(int argc, char ** argv) {
     
     // load dylib
     if (!lib_init()) {
-        printf("[kperf-error] %s\n", lib_err_msg);
+        printf("[ERROR-KPerf] %s\n", lib_err_msg);
         return 1;
     }
     
@@ -265,29 +265,29 @@ int main(int argc, char ** argv) {
     // check permission
     int force_ctrs = 0;
     if (kpc_force_all_ctrs_get(&force_ctrs)) {
-        printf("[kperf-error] Permission denied, xnu/kpc requires root privileges.\n");
+        printf("[ERROR-KPerf] Permission denied, xnu/kpc requires root privileges.\n");
         return 1;
     }
     
     // load pmc db
     kpep_db *db = NULL;
     if ((ret = kpep_db_create(NULL, &db))) {
-        printf("[kperf-error] cannot load pmc database: %d.\n", ret);
+        printf("[ERROR-KPerf] cannot load pmc database: %d.\n", ret);
         return 1;
     }
-    printf("[kperf-info] loaded db: %s (%s)\n", db->name, db->marketing_name);
-    printf("[kperf-info] number of fixed counters: %zu\n", db->fixed_counter_count);
-    printf("[kperf-info] number of configurable counters: %zu\n", db->config_counter_count);
+    printf("[INFO-KPerf] loaded db: %s (%s)\n", db->name, db->marketing_name);
+    printf("[INFO-KPerf] number of fixed counters: %zu\n", db->fixed_counter_count);
+    printf("[INFO-KPerf] number of configurable counters: %zu\n", db->config_counter_count);
     
     // create a config
     kpep_config *cfg = NULL;
     if ((ret = kpep_config_create(db, &cfg))) {
-        printf("[kperf-error] failed to create kpep config: %d (%s).\n",
+        printf("[ERROR-KPerf] Failed to create kpep config: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
         return 1;
     }
     if ((ret = kpep_config_force_counters(cfg))) {
-        printf("[kperf-error] failed to force counters: %d (%s).\n",
+        printf("[ERROR-KPerf] Failed to force counters: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
         return 1;
     }
@@ -299,7 +299,7 @@ int main(int argc, char ** argv) {
         const event_alias *alias = profile_events + i;
         ev_arr[i] = get_event(db, alias);
         if (!ev_arr[i]) {
-            printf("[kperf-error] cannot find event: %s.\n", alias->alias);
+            printf("[ERROR-KPerf] Cannot find event: %s.\n", alias->alias);
             return 1;
         }
     }
@@ -308,7 +308,7 @@ int main(int argc, char ** argv) {
     for (usize i = 0; i < ev_count; i++) {
         kpep_event *ev = ev_arr[i];
         if ((ret = kpep_config_add_event(cfg, &ev, 0, NULL))) {
-            printf("[kperf-error] failed to add event: %d (%s).\n",
+            printf("[ERROR-KPerf] Failed to add event: %d (%s).\n",
                    ret, kpep_config_error_desc(ret));
             return 1;
         }
@@ -322,61 +322,51 @@ int main(int argc, char ** argv) {
     u64 counters_0[KPC_MAX_COUNTERS] = { 0 };
     u64 counters_1[KPC_MAX_COUNTERS] = { 0 };
     if ((ret = kpep_config_kpc_classes(cfg, &classes))) {
-        printf("[kperf-error] failed get kpc classes: %d (%s).\n",
+        printf("[ERROR-KPerf] Failed get kpc classes: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
         return 1;
     }
     if ((ret = kpep_config_kpc_count(cfg, &reg_count))) {
-        printf("[kperf-error] failed get kpc count: %d (%s).\n",
+        printf("[ERROR-KPerf] Failed get kpc count: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
         return 1;
     }
     if ((ret = kpep_config_kpc_map(cfg, counter_map, sizeof(counter_map)))) {
-        printf("[kperf-error] failed get kpc map: %d (%s).\n",
+        printf("[ERROR-KPerf] Failed get kpc map: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
         return 1;
     }
     if ((ret = kpep_config_kpc(cfg, regs, sizeof(regs)))) {
-        printf("[kperf-error] failed get kpc registers: %d (%s).\n",
+        printf("[ERROR-KPerf] Failed get kpc registers: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
         return 1;
     }
     
     // set config to kernel
     if ((ret = kpc_force_all_ctrs_set(1))) {
-        printf("[kperf-error] failed force all ctrs: %d.\n", ret);
+        printf("[ERROR-KPerf] Failed force all ctrs: %d.\n", ret);
         return 1;
     }
     if ((classes & KPC_CLASS_CONFIGURABLE_MASK) && reg_count) {
         if ((ret = kpc_set_config(classes, regs))) {
-            printf("[kperf-error] failed set kpc config: %d.\n", ret);
+            printf("[ERROR-KPerf] Failed set kpc config: %d.\n", ret);
             return 1;
         }
     }
     
     // start counting
     if ((ret = kpc_set_counting(classes))) {
-        printf("[kperf-error] failed set counting: %d.\n", ret);
+        printf("[ERROR-KPerf] Failed set counting: %d.\n", ret);
         return 1;
     }
     if ((ret = kpc_set_thread_counting(classes))) {
-        printf("[kperf-error] failed set thread counting: %d.\n", ret);
+        printf("[ERROR-KPerf] Failed set thread counting: %d.\n", ret);
         return 1;
     }
-
-    #if defined EFFICIENCY
-        int err = pthread_set_qos_class_self_np(QOS_CLASS_BACKGROUND, 0);
-    #elif defined PERFORMANCE
-        int err = pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
-    #endif
-    if (err) {
-        printf("[kperf-error] qos class setup error %d\n", err);
-        return 1;
-    }
-
+    
     // get counters before
     if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS, counters_0))) {
-        printf("[kperf-error] failed get thread counters before: %d.\n", ret);
+        printf("[ERROR-KPerf] Failed get thread counters before: %d.\n", ret);
         return 1;
     }
 
@@ -384,7 +374,7 @@ int main(int argc, char ** argv) {
 
     // get counters after
     if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS, counters_1))) {
-        printf("[kperf-error] failed get thread counters after: %d.\n", ret);
+        printf("[ERROR-KPerf] Failed get thread counters after: %d.\n", ret);
         return 1;
     }
     
@@ -399,7 +389,7 @@ int main(int argc, char ** argv) {
         const event_alias *alias = profile_events + i;
         usize idx = counter_map[i];
         u64 val = counters_1[idx] - counters_0[idx];
-        printf("[kperf-result] %s - %llu\n", alias->alias, val);
+        printf("[RESULT-KPerf] %s - %llu\n", alias->alias, val);
     }
     printf("\n");
     

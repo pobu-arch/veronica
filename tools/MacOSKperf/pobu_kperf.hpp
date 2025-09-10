@@ -5,7 +5,11 @@
 //
 // Demo 1 (profile a function in current thread):
 // 1. Open directory '/usr/share/kpep/', find your CPU PMC database.
-//    For M1 (Pro/Max), the database file is '/usr/share/kpep/a14.plist'.
+//    M1 (Pro/Max/Ultra): /usr/share/kpep/a14.plist
+//    M2 (Pro/Max):       /usr/share/kpep/a15.plist
+//    M3:                 /usr/share/kpep/as1.plist
+//    M3 (Pro/Max):       /usr/share/kpep/as3.plist
+//    M4:                 /usr/share/kpep/as4.plist
 // 2. Select a few events that you are interested in,
 //    add their names to the `profile_events` array below.
 // 3. Put your code in `profile_func` function below.
@@ -26,7 +30,7 @@
 // Lightweight PET (Profile Every Thread, since xnu 3789.1.32):
 // https://github.com/apple/darwin-xnu/blob/main/osfmk/kperf/pet.c
 // https://github.com/apple/darwin-xnu/blob/main/osfmk/kperf/kperf_kpc.c
-// 
+//
 // System Private frameworks (since macOS 10.11, iOS 8.0):
 // /System/Library/PrivateFrameworks/kperf.framework
 // /System/Library/PrivateFrameworks/kperfdata.framework
@@ -41,6 +45,8 @@
 //     /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform
 //     /DeviceSupport/<version>/DeveloperDiskImage.dmg/usr/share/kpep/<name>.plist
 //
+// Use this shell command to get plist file name for the current host:
+// printf "cpu_%s_%s_%s.plist\n" $(sysctl -nx hw.cputype hw.cpusubtype hw.cpufamily) | sed -E 's/0x0*//g'
 //
 // Created by YaoYuan <ibireme@gmail.com> on 2021.
 // Released into the public domain (unlicense.org).
@@ -50,7 +56,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <dlfcn.h>
+#include <string.h>
+
+#include <unistd.h>         // for usleep()
+#include <dlfcn.h>          // for dlopen() and dlsym()
+#include <sys/sysctl.h>     // for sysctl()
+#include <sys/kdebug.h>     // for kdebug trace decode
+#include <mach/mach_time.h> // for mach_absolute_time()
 
 typedef float       f32;
 typedef double      f64;
@@ -95,6 +107,29 @@ typedef size_t      usize;
 // ARM64: FIXED: 2, CONFIGURABLE: CORE_NCTRS - FIXED (6 or 8)
 // x86: 32
 #define KPC_MAX_COUNTERS 32
+
+// Bits for defining what to do on an action.
+// Defined in https://github.com/apple/darwin-xnu/blob/main/osfmk/kperf/action.h
+#define KPERF_SAMPLER_TH_INFO       (1U << 0)
+#define KPERF_SAMPLER_TH_SNAPSHOT   (1U << 1)
+#define KPERF_SAMPLER_KSTACK        (1U << 2)
+#define KPERF_SAMPLER_USTACK        (1U << 3)
+#define KPERF_SAMPLER_PMC_THREAD    (1U << 4)
+#define KPERF_SAMPLER_PMC_CPU       (1U << 5)
+#define KPERF_SAMPLER_PMC_CONFIG    (1U << 6)
+#define KPERF_SAMPLER_MEMINFO       (1U << 7)
+#define KPERF_SAMPLER_TH_SCHEDULING (1U << 8)
+#define KPERF_SAMPLER_TH_DISPATCH   (1U << 9)
+#define KPERF_SAMPLER_TK_SNAPSHOT   (1U << 10)
+#define KPERF_SAMPLER_SYS_MEM       (1U << 11)
+#define KPERF_SAMPLER_TH_INSCYC     (1U << 12)
+#define KPERF_SAMPLER_TK_INFO       (1U << 13)
+
+// Maximum number of kperf action ids.
+#define KPERF_ACTION_MAX (32)
+
+// Maximum number of kperf timer ids.
+#define KPERF_TIMER_MAX (8)
 
 // x86/arm config registers are 64-bit
 typedef u64 kpc_config_t;
@@ -203,9 +238,96 @@ static int (*kpc_force_all_ctrs_set)(int val);
 /// @details sysctl get(kpc.force_all_ctrs)
 static int (*kpc_force_all_ctrs_get)(int *val_out);
 
+/// Set number of actions, should be `KPERF_ACTION_MAX`.
+/// @details sysctl set(kperf.action.count)
+static int (*kperf_action_count_set)(u32 count);
+
+/// Get number of actions.
+/// @details sysctl get(kperf.action.count)
+static int (*kperf_action_count_get)(u32 *count);
+
+/// Set what to sample when a trigger fires an action, e.g. `KPERF_SAMPLER_PMC_CPU`.
+/// @details sysctl set(kperf.action.samplers)
+static int (*kperf_action_samplers_set)(u32 actionid, u32 sample);
+
+/// Get what to sample when a trigger fires an action.
+/// @details sysctl get(kperf.action.samplers)
+static int (*kperf_action_samplers_get)(u32 actionid, u32 *sample);
+
+/// Apply a task filter to the action, -1 to disable filter.
+/// @details sysctl set(kperf.action.filter_by_task)
+static int (*kperf_action_filter_set_by_task)(u32 actionid, i32 port);
+
+/// Apply a pid filter to the action, -1 to disable filter.
+/// @details sysctl set(kperf.action.filter_by_pid)
+static int (*kperf_action_filter_set_by_pid)(u32 actionid, i32 pid);
+
+/// Set number of time triggers, should be `KPERF_TIMER_MAX`.
+/// @details sysctl set(kperf.timer.count)
+static int (*kperf_timer_count_set)(u32 count);
+
+/// Get number of time triggers.
+/// @details sysctl get(kperf.timer.count)
+static int (*kperf_timer_count_get)(u32 *count);
+
+/// Set timer number and period.
+/// @details sysctl set(kperf.timer.period)
+static int (*kperf_timer_period_set)(u32 actionid, u64 tick);
+
+/// Get timer number and period.
+/// @details sysctl get(kperf.timer.period)
+static int (*kperf_timer_period_get)(u32 actionid, u64 *tick);
+
+/// Set timer number and actionid.
+/// @details sysctl set(kperf.timer.action)
+static int (*kperf_timer_action_set)(u32 actionid, u32 timerid);
+
+/// Get timer number and actionid.
+/// @details sysctl get(kperf.timer.action)
+static int (*kperf_timer_action_get)(u32 actionid, u32 *timerid);
+
+/// Set which timer ID does PET (Profile Every Thread).
+/// @details sysctl set(kperf.timer.pet_timer)
+static int (*kperf_timer_pet_set)(u32 timerid);
+
+/// Get which timer ID does PET (Profile Every Thread).
+/// @details sysctl get(kperf.timer.pet_timer)
+static int (*kperf_timer_pet_get)(u32 *timerid);
+
+/// Enable or disable sampling.
+/// @details sysctl set(kperf.sampling)
+static int (*kperf_sample_set)(u32 enabled);
+
+/// Get is currently sampling.
+/// @details sysctl get(kperf.sampling)
+static int (*kperf_sample_get)(u32 *enabled);
+
 /// Reset kperf: stop sampling, kdebug, timers and actions.
 /// @return 0 for success.
 static int (*kperf_reset)(void);
+
+/// Nanoseconds to CPU ticks.
+static u64 (*kperf_ns_to_ticks)(u64 ns);
+
+/// CPU ticks to nanoseconds.
+static u64 (*kperf_ticks_to_ns)(u64 ticks);
+
+/// CPU ticks frequency (mach_absolute_time).
+static u64 (*kperf_tick_frequency)(void);
+
+/// Get lightweight PET mode (not in kperf.framework).
+static int kperf_lightweight_pet_get(u32 *enabled) {
+    if (!enabled) return -1;
+    usize size = 4;
+    return sysctlbyname("kperf.lightweight_pet", enabled, &size, NULL, 0);
+}
+
+/// Set lightweight PET mode (not in kperf.framework).
+static int kperf_lightweight_pet_set(u32 enabled) {
+    return sysctlbyname("kperf.lightweight_pet", NULL, NULL, &enabled, 4);
+}
+
+
 
 // -----------------------------------------------------------------------------
 // <kperfdata.framework> header (reverse engineered)
@@ -468,7 +590,26 @@ static const lib_symbol lib_symbols_kperf[] = {
     lib_symbol_def(kpc_get_thread_counters),
     lib_symbol_def(kpc_force_all_ctrs_set),
     lib_symbol_def(kpc_force_all_ctrs_get),
+    lib_symbol_def(kperf_action_count_set),
+    lib_symbol_def(kperf_action_count_get),
+    lib_symbol_def(kperf_action_samplers_set),
+    lib_symbol_def(kperf_action_samplers_get),
+    lib_symbol_def(kperf_action_filter_set_by_task),
+    lib_symbol_def(kperf_action_filter_set_by_pid),
+    lib_symbol_def(kperf_timer_count_set),
+    lib_symbol_def(kperf_timer_count_get),
+    lib_symbol_def(kperf_timer_period_set),
+    lib_symbol_def(kperf_timer_period_get),
+    lib_symbol_def(kperf_timer_action_set),
+    lib_symbol_def(kperf_timer_action_get),
+    lib_symbol_def(kperf_sample_set),
+    lib_symbol_def(kperf_sample_get),
     lib_symbol_def(kperf_reset),
+    lib_symbol_def(kperf_timer_pet_set),
+    lib_symbol_def(kperf_timer_pet_get),
+    lib_symbol_def(kperf_ns_to_ticks),
+    lib_symbol_def(kperf_ticks_to_ns),
+    lib_symbol_def(kperf_tick_frequency),
 };
 
 static const lib_symbol lib_symbols_kperfdata[] = {
@@ -573,6 +714,155 @@ static bool lib_init(void) {
     return true;
     
 #undef return_err
+}
+
+// -----------------------------------------------------------------------------
+// kdebug private structs
+// https://github.com/apple/darwin-xnu/blob/main/bsd/sys_private/kdebug_private.h
+// -----------------------------------------------------------------------------
+
+/*
+ * Ensure that both LP32 and LP64 variants of arm64 use the same kd_buf
+ * structure.
+ */
+#if defined(__arm64__)
+typedef uint64_t kd_buf_argtype;
+#else
+typedef uintptr_t kd_buf_argtype;
+#endif
+
+typedef struct {
+    uint64_t timestamp;
+    kd_buf_argtype arg1;
+    kd_buf_argtype arg2;
+    kd_buf_argtype arg3;
+    kd_buf_argtype arg4;
+    kd_buf_argtype arg5; /* the thread ID */
+    uint32_t debugid; /* see <sys/kdebug.h> */
+    
+/*
+ * Ensure that both LP32 and LP64 variants of arm64 use the same kd_buf
+ * structure.
+ */
+#if defined(__LP64__) || defined(__arm64__)
+    uint32_t cpuid; /* cpu index, from 0 */
+    kd_buf_argtype unused;
+#endif
+} kd_buf;
+
+/* bits for the type field of kd_regtype */
+#define KDBG_CLASSTYPE  0x10000
+#define KDBG_SUBCLSTYPE 0x20000
+#define KDBG_RANGETYPE  0x40000
+#define KDBG_TYPENONE   0x80000
+#define KDBG_CKTYPES    0xF0000
+
+/* only trace at most 4 types of events, at the code granularity */
+#define KDBG_VALCHECK         0x00200000U
+
+typedef struct {
+    unsigned int type;
+    unsigned int value1;
+    unsigned int value2;
+    unsigned int value3;
+    unsigned int value4;
+} kd_regtype;
+
+typedef struct {
+    /* number of events that can fit in the buffers */
+    int nkdbufs;
+    /* set if trace is disabled */
+    int nolog;
+    /* kd_ctrl_page.flags */
+    unsigned int flags;
+    /* number of threads in thread map */
+    int nkdthreads;
+    /* the owning pid */
+    int bufid;
+} kbufinfo_t;
+
+
+
+// -----------------------------------------------------------------------------
+// kdebug utils
+// -----------------------------------------------------------------------------
+
+/// Clean up trace buffers and reset ktrace/kdebug/kperf.
+/// @return 0 on success.
+static int kdebug_reset(void) {
+    int mib[3] = { CTL_KERN, KERN_KDEBUG, KERN_KDREMOVE };
+    return sysctl(mib, 3, NULL, NULL, NULL, 0);
+}
+
+/// Disable and reinitialize the trace buffers.
+/// @return 0 on success.
+static int kdebug_reinit(void) {
+    int mib[3] = { CTL_KERN, KERN_KDEBUG, KERN_KDSETUP };
+    return sysctl(mib, 3, NULL, NULL, NULL, 0);
+}
+
+/// Set debug filter.
+static int kdebug_setreg(kd_regtype *kdr) {
+    int mib[3] = { CTL_KERN, KERN_KDEBUG, KERN_KDSETREG };
+    usize size = sizeof(kd_regtype);
+    return sysctl(mib, 3, kdr, &size, NULL, 0);
+}
+
+/// Set maximum number of trace entries (kd_buf).
+/// Only allow allocation up to half the available memory (sane_size).
+/// @return 0 on success.
+static int kdebug_trace_setbuf(int nbufs) {
+    int mib[4] = { CTL_KERN, KERN_KDEBUG, KERN_KDSETBUF, nbufs };
+    return sysctl(mib, 4, NULL, NULL, NULL, 0);
+}
+
+/// Enable or disable kdebug trace.
+/// Trace buffer must already be initialized.
+/// @return 0 on success.
+static int kdebug_trace_enable(bool enable) {
+    int mib[4] = { CTL_KERN, KERN_KDEBUG, KERN_KDENABLE, enable };
+    return sysctl(mib, 4, NULL, 0, NULL, 0);
+}
+
+/// Retrieve trace buffer information from kernel.
+/// @return 0 on success.
+static int kdebug_get_bufinfo(kbufinfo_t *info) {
+    if (!info) return -1;
+    int mib[3] = { CTL_KERN, KERN_KDEBUG, KERN_KDGETBUF };
+    size_t needed = sizeof(kbufinfo_t);
+    return sysctl(mib, 3, info, &needed, NULL, 0);
+}
+
+/// Retrieve trace buffers from kernel.
+/// @param buf Memory to receive buffer data, array of `kd_buf`.
+/// @param len Length of `buf` in bytes.
+/// @param count Number of trace entries (kd_buf) obtained.
+/// @return 0 on success.
+static int kdebug_trace_read(void *buf, usize len, usize *count) {
+    if (count) *count = 0;
+    if (!buf || !len) return -1;
+    
+    // Note: the input and output units are not the same.
+    // input: bytes
+    // output: number of kd_buf
+    int mib[3] = { CTL_KERN, KERN_KDEBUG, KERN_KDREADTR };
+    int ret = sysctl(mib, 3, buf, &len, NULL, 0);
+    if (ret != 0) return ret;
+    *count = len;
+    return 0;
+}
+
+/// Block until there are new buffers filled or `timeout_ms` have passed.
+/// @param timeout_ms timeout milliseconds, 0 means wait forever.
+/// @param suc set true if new buffers filled.
+/// @return 0 on success.
+static int kdebug_wait(usize timeout_ms, bool *suc) {
+    if (timeout_ms == 0) return -1;
+    int mib[3] = { CTL_KERN, KERN_KDEBUG, KERN_KDBUFWAIT };
+    usize val = timeout_ms;
+    int ret = sysctl(mib, 3, NULL, &val, NULL, 0);
+    if (suc) *suc = !!val;
+    return ret;
 }
 
 extern "C" int renamed_main(int argc, char * argv[]);
