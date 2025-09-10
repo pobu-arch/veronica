@@ -114,7 +114,7 @@ sub macosx_inject_kperf
     }
     else
     {
-        Veronica::Common::log_level("kperf injection is MacOSX only \n", -1);
+        Veronica::Common::log_level("kperf injection is MacOSX-Only \n", -1);
     }
 }
 1;

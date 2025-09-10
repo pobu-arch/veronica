@@ -43,6 +43,7 @@ namespace veronica
                     gettimeofday(&tick, NULL);
                 #endif
 
+                // TODO : get cpu ticks
                 if(CPU_FREQ == 0)
                 {
                     CPU_FREQ = get_cpu_freq();
