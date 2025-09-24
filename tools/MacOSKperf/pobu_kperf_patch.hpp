@@ -1,10 +1,15 @@
-extern void renamed_exit(int res);
+#pragma once
+#include <stdlib.h>
+#include <stdio.h>
 
-void renamed_exit(int res)
-{
-    // asm volatile("dsb ld" : : : "memory");
-    // asm volatile("dsb ld" : : : "memory");
-    // asm volatile("dsb ld" : : : "memory");
-    // printf("[kperf-warning] exit code %d\n", res);
-    throw res;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define exit(status) renamed_exit(status)
+
+void renamed_exit(int res);
+
+#ifdef __cplusplus
 }
+#endif

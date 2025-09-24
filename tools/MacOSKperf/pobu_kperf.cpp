@@ -6,7 +6,9 @@
 #include <dlfcn.h>
 #include "pthread/qos.h"
 #include "pobu_kperf.hpp"
-//#include "pobu_kperf_patch.hpp"
+#include "pobu_kperf_patch.hpp"
+
+#define KPERF_LOG_FILE "kperf.log"
 
 // -----------------------------------------------------------------------------
 // Demo
@@ -28,18 +30,21 @@ typedef struct {
 static const event_alias profile_events[] = {
 
 // Fixed counters start here
+    {   "instructions", {
+            "FIXED_INSTRUCTIONS"           // Apple A7-A15
+           // "INST_RETIRED.ANY"           // Intel Yonah, Merom, Core 1th-10th
+    }},    
     {   "cycles", {
             "FIXED_CYCLES"                 // Apple A7-A15
             //"CPU_CLK_UNHALTED.THREAD",   // Intel Core 1th-10th
             //"CPU_CLK_UNHALTED.CORE",     // Intel Yonah, Merom
     }},
-    {   "instructions", {
-            "FIXED_INSTRUCTIONS"           // Apple A7-A15
-           // "INST_RETIRED.ANY"           // Intel Yonah, Merom, Core 1th-10th
-    }},
     
 // Configurable counters start here
-    
+    {   "core_active_cycles", {
+            "CORE_ACTIVE_CYCLE"                     // Apple
+    }},
+
     // Instruction
     {   "branches.retired", {
             "INST_BRANCH"                            // Apple, 3-bit
@@ -68,10 +73,16 @@ static const event_alias profile_events[] = {
     {   "uops_retired", {
             "RETIRE_UOP"                             // Apple, 1-bit
     }},
+    {   "insts_retired", {
+            "INST_ALL"                             // Apple, 3-bit
+    }},
     
     // Speculation
+    // {   "uops_issued", {
+    //         "SCHEDULE_UOP"                          // Apple
+    // }},
     {   "uops_issued", {
-            "SCHEDULE_UOP"                          // Apple
+            "MAP_UOP"                               // Apple
     }},
     {   "branches_mispredicted.retired", {
             "BRANCH_MISPRED_NONSPEC"                // Apple A7-A15, since iOS 15, macOS 12, 3-bit
@@ -126,18 +137,18 @@ static const event_alias profile_events[] = {
     // }},
 
     // Front-end
-    {   "l1i_cache_demand_misses", {
-            "L1I_CACHE_MISS_DEMAND"                 // Apple
-    }},
+    // {   "l1i_cache_demand_misses", {
+    //         "L1I_CACHE_MISS_DEMAND"                 // Apple
+    // }},
     // {   "l1i_tlb_refills", {
     //         "L1I_TLB_FILL"                          // Apple
     // }},
-    {   "l1i_tlb_demand_misses", {
-            "L1I_TLB_MISS_DEMAND"                   // Apple
-    }},
-    {   "l2_tlb_misses_inst", {
-            "L2_TLB_MISS_INSTRUCTION"               // Apple
-    }},
+    // {   "l1i_tlb_demand_misses", {
+    //         "L1I_TLB_MISS_DEMAND"                   // Apple
+    // }},
+    // {   "l2_tlb_misses_inst", {
+    //         "L2_TLB_MISS_INSTRUCTION"               // Apple
+    // }},
     // {   "page_table_walk_inst", {
     //         "MMU_TABLE_WALK_INSTRUCTION"            // Apple
     // }},
@@ -185,6 +196,9 @@ static const event_alias profile_events[] = {
     // {   "map_stalls_due_to_dispatch", {
     //         "MAP_STALL_DISPATCH"                    // Apple
     // }},
+    // {   "map_bubbles.l1i", {
+    //         "MAP_DISPATCH_BUBBLE_IC"               // Apple
+    // }},
 
     // Others
     // {   "page_fault.retired", {
@@ -211,9 +225,6 @@ static const event_alias profile_events[] = {
     // {   "cycles_with_pending_interrupt", {
     //         "INTERRUPT_PENDING"                     // Apple
     // }},
-    // {   "core_active_cycles", {
-    //         "CORE_ACTIVE_CYCLE"                     // Apple
-    // }},
     // {   "barriers.retired", {
     //         "INST_BARRIER"                          // Apple, 3-bit
     // }},
@@ -225,14 +236,20 @@ static const event_alias profile_events[] = {
     // }}
 };
 
-int profile_func(int argc, char ** argv) {
+int profile_func(int argc, char ** argv, FILE *kperf_log_fh) {
     // if one changes this function name 'renamed_main' below
     // then the helper function within the benchmarks repo should be changed correspondingly
     int res;
     try {
         res = renamed_main(argc, argv);
     }catch(int res){
-        printf("[WARNING-KPerf] return code profile_func from profile func is %d\n", res);
+        if(res != 0)
+        {
+            fprintf(kperf_log_fh, "[WARNING-KPerf] return code from profile func is %d\n", res);
+        }else{
+            fprintf(kperf_log_fh, "[INFO-KPerf] return code from profile func is %d\n", res);
+        }
+        fflush(kperf_log_fh);
         return res;
     }
     return res;
@@ -253,11 +270,18 @@ static kpep_event *get_event(kpep_db *db, const event_alias *alias) {
 int main(int argc, char ** argv) {
     int ret = 0;
 
-    printf("\n");
+    FILE *kperf_log_fh = fopen(KPERF_LOG_FILE, "w");
+    if(kperf_log_fh == NULL)
+    {
+        printf("[Error-KPerf] Cannot open log file %s to write.\n", KPERF_LOG_FILE);
+        return 1;
+    }
     
     // load dylib
     if (!lib_init()) {
-        printf("[ERROR-KPerf] %s\n", lib_err_msg);
+        fprintf(kperf_log_fh, "[ERROR-KPerf] %s\n", lib_err_msg);
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     
@@ -265,30 +289,38 @@ int main(int argc, char ** argv) {
     // check permission
     int force_ctrs = 0;
     if (kpc_force_all_ctrs_get(&force_ctrs)) {
-        printf("[ERROR-KPerf] Permission denied, xnu/kpc requires root privileges.\n");
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Permission denied, xnu/kpc requires root privileges.\n");
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     
     // load pmc db
     kpep_db *db = NULL;
     if ((ret = kpep_db_create(NULL, &db))) {
-        printf("[ERROR-KPerf] cannot load pmc database: %d.\n", ret);
+        fprintf(kperf_log_fh, "[ERROR-KPerf] cannot load pmc database: %d.\n", ret);
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
-    printf("[INFO-KPerf] loaded db: %s (%s)\n", db->name, db->marketing_name);
-    printf("[INFO-KPerf] number of fixed counters: %zu\n", db->fixed_counter_count);
-    printf("[INFO-KPerf] number of configurable counters: %zu\n", db->config_counter_count);
+    fprintf(kperf_log_fh, "[INFO-KPerf] loaded db: %s (%s)\n", db->name, db->marketing_name);
+    fprintf(kperf_log_fh, "[INFO-KPerf] number of fixed counters: %zu\n", db->fixed_counter_count);
+    fprintf(kperf_log_fh, "[INFO-KPerf] number of configurable counters: %zu\n", db->config_counter_count);
     
     // create a config
     kpep_config *cfg = NULL;
     if ((ret = kpep_config_create(db, &cfg))) {
-        printf("[ERROR-KPerf] Failed to create kpep config: %d (%s).\n",
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed to create kpep config: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     if ((ret = kpep_config_force_counters(cfg))) {
-        printf("[ERROR-KPerf] Failed to force counters: %d (%s).\n",
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed to force counters: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     
@@ -299,7 +331,9 @@ int main(int argc, char ** argv) {
         const event_alias *alias = profile_events + i;
         ev_arr[i] = get_event(db, alias);
         if (!ev_arr[i]) {
-            printf("[ERROR-KPerf] Cannot find event: %s.\n", alias->alias);
+            fprintf(kperf_log_fh, "[ERROR-KPerf] Cannot find event: %s.\n", alias->alias);
+            fflush(kperf_log_fh);
+            fclose(kperf_log_fh);
             return 1;
         }
     }
@@ -308,8 +342,10 @@ int main(int argc, char ** argv) {
     for (usize i = 0; i < ev_count; i++) {
         kpep_event *ev = ev_arr[i];
         if ((ret = kpep_config_add_event(cfg, &ev, 0, NULL))) {
-            printf("[ERROR-KPerf] Failed to add event: %d (%s).\n",
+            fprintf(kperf_log_fh, "[ERROR-KPerf] Failed to add event: %d (%s).\n",
                    ret, kpep_config_error_desc(ret));
+            fflush(kperf_log_fh);
+            fclose(kperf_log_fh);
             return 1;
         }
     }
@@ -322,59 +358,79 @@ int main(int argc, char ** argv) {
     u64 counters_0[KPC_MAX_COUNTERS] = { 0 };
     u64 counters_1[KPC_MAX_COUNTERS] = { 0 };
     if ((ret = kpep_config_kpc_classes(cfg, &classes))) {
-        printf("[ERROR-KPerf] Failed get kpc classes: %d (%s).\n",
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed get kpc classes: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     if ((ret = kpep_config_kpc_count(cfg, &reg_count))) {
-        printf("[ERROR-KPerf] Failed get kpc count: %d (%s).\n",
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed get kpc count: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     if ((ret = kpep_config_kpc_map(cfg, counter_map, sizeof(counter_map)))) {
-        printf("[ERROR-KPerf] Failed get kpc map: %d (%s).\n",
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed get kpc map: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     if ((ret = kpep_config_kpc(cfg, regs, sizeof(regs)))) {
-        printf("[ERROR-KPerf] Failed get kpc registers: %d (%s).\n",
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed get kpc registers: %d (%s).\n",
                ret, kpep_config_error_desc(ret));
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     
     // set config to kernel
     if ((ret = kpc_force_all_ctrs_set(1))) {
-        printf("[ERROR-KPerf] Failed force all ctrs: %d.\n", ret);
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed force all ctrs: %d.\n", ret);
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     if ((classes & KPC_CLASS_CONFIGURABLE_MASK) && reg_count) {
         if ((ret = kpc_set_config(classes, regs))) {
-            printf("[ERROR-KPerf] Failed set kpc config: %d.\n", ret);
+            fprintf(kperf_log_fh, "[ERROR-KPerf] Failed set kpc config: %d.\n", ret);
+            fflush(kperf_log_fh);
+            fclose(kperf_log_fh);
             return 1;
         }
     }
     
     // start counting
     if ((ret = kpc_set_counting(classes))) {
-        printf("[ERROR-KPerf] Failed set counting: %d.\n", ret);
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed set counting: %d.\n", ret);
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     if ((ret = kpc_set_thread_counting(classes))) {
-        printf("[ERROR-KPerf] Failed set thread counting: %d.\n", ret);
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed set thread counting: %d.\n", ret);
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     
     // get counters before
     if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS, counters_0))) {
-        printf("[ERROR-KPerf] Failed get thread counters before: %d.\n", ret);
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed get thread counters before: %d.\n", ret);
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
 
-    profile_func(argc, argv);
+    profile_func(argc, argv, kperf_log_fh);
 
     // get counters after
     if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS, counters_1))) {
-        printf("[ERROR-KPerf] Failed get thread counters after: %d.\n", ret);
+        fprintf(kperf_log_fh, "[ERROR-KPerf] Failed get thread counters after: %d.\n", ret);
+        fflush(kperf_log_fh);
+        fclose(kperf_log_fh);
         return 1;
     }
     
@@ -382,16 +438,29 @@ int main(int argc, char ** argv) {
     kpc_set_counting(0);
     kpc_set_thread_counting(0);
     kpc_force_all_ctrs_set(0);
-    
+
     // result
-    printf("\n");
     for (usize i = 0; i < ev_count; i++) {
-        const event_alias *alias = profile_events + i;
-        usize idx = counter_map[i];
-        u64 val = counters_1[idx] - counters_0[idx];
-        printf("[RESULT-KPerf] %s - %llu\n", alias->alias, val);
+            const event_alias *alias = profile_events + i;
+            usize idx = counter_map[i];
+            u64 val = counters_1[idx] - counters_0[idx];
+            fprintf(kperf_log_fh, "[RESULT-KPerf] %s - %llu\n", alias->alias, val);
     }
-    printf("\n");
-    
+    fflush(kperf_log_fh);
+    fclose(kperf_log_fh);
     return 0;
+}
+
+#ifdef __cplusplus
+extern "C"
+#endif
+
+void renamed_exit(int res)
+{
+    // asm volatile("dsb ld" ::: "memory");
+    #ifdef __cplusplus
+        throw res;
+    #else
+        return res;
+    #endif
 }
