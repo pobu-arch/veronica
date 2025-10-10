@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include "pthread.h"
 #include "pthread/qos.h"
 #include "pobu_kperf.hpp"
 #include "pobu_kperf_patch.hpp"
@@ -15,6 +16,7 @@
 // -----------------------------------------------------------------------------
 
 #define PERFORMANCE
+//#define EFFICIENCY
 
 #if !defined PERFORMANCE && !defined EFFICIENCY
 #define PERFORMANCE
@@ -178,10 +180,33 @@ static const event_alias profile_events[] = {
     // { "st_sme_nt_uop",                           { "ST_SME_NT_UOP" }}
 };
 
+static void apply_core_bias(FILE* kperf_log_fh) {
+
+    qos_class_t cls = QOS_CLASS_DEFAULT;
+#ifdef PERFORMANCE
+    cls = QOS_CLASS_USER_INTERACTIVE;
+#else
+    cls = QOS_CLASS_BACKGROUND;
+#endif
+    
+    pthread_set_qos_class_self_np(cls, 0);
+    int rel = 0;
+    qos_class_t cur = QOS_CLASS_UNSPECIFIED;
+    (void)pthread_get_qos_class_np(pthread_self(), &cur, &rel);
+#ifdef PERFORMANCE    
+    fprintf(kperf_log_fh, "[INFO-KPerf] set QoS to %d (rel %d) PERFORMANCE\n", cur, rel);
+#else
+    fprintf(kperf_log_fh, "[INFO-KPerf] set QoS to %d (rel %d) EFFICIENCY\n", cur, rel);
+#endif
+    
+    fflush(kperf_log_fh);
+}
+
 int profile_func(int argc, char ** argv, FILE *kperf_log_fh) {
     // if one changes this function name 'renamed_main' below
     // then the helper function within the benchmarks repo should be changed correspondingly
     int res;
+    apply_core_bias(kperf_log_fh);
     try {
         res = renamed_main(argc, argv);
     }catch(int res){
