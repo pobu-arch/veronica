@@ -29,211 +29,153 @@ typedef struct {
 /// Event names from /usr/share/kpep/<name>.plist
 static const event_alias profile_events[] = {
 
-// Fixed counters start here
-    {   "instructions", {
-            "FIXED_INSTRUCTIONS"           // Apple A7-A15
-           // "INST_RETIRED.ANY"           // Intel Yonah, Merom, Core 1th-10th
-    }},    
-    {   "cycles", {
-            "FIXED_CYCLES"                 // Apple A7-A15
-            //"CPU_CLK_UNHALTED.THREAD",   // Intel Core 1th-10th
-            //"CPU_CLK_UNHALTED.CORE",     // Intel Yonah, Merom
-    }},
-    
-// Configurable counters start here
-    {   "core_active_cycles", {
-            "CORE_ACTIVE_CYCLE"                     // Apple
-    }},
+    // -------------------------------------------------------------------------
+    // Fixed counters
+    // -------------------------------------------------------------------------
+    { "instructions",        { "FIXED_INSTRUCTIONS" }},
+    { "cycles",              { "FIXED_CYCLES" }},
 
-    // Instruction
-    {   "branches.retired", {
-            "INST_BRANCH"                            // Apple, 3-bit
-    }},
-    // {   "int_alu_insts.retired", {
-    //         "INST_INT_ALU"                           // Apple, 1-bit
-    // }},
-    // {   "int_load_insts.retired", {
-    //         "INST_INT_LD"                            // Apple, 3-bit
-    // }},
-    // {   "int_store_insts.retired", {
-    //         "INST_INT_ST"                            // Apple, 1-bit
-    // }},
-    // {   "load_store_insts.retired", {
-    //         "INST_LDST"                              // Apple, 1-bit
-    // }},
-    // {   "simd_alu_insts.retired", {
-    //         "INST_SIMD_ALU"                          // Apple, 1-bit
-    // }},
-    // {   "simd_loads.retired", {
-    //         "INST_SIMD_LD"                           // Apple, 3-bit
-    // }},
-    // {   "simd_stores.retired", {
-    //         "INST_SIMD_ST"                           // Apple, 3-bit
-    // }},
-    {   "uops_retired", {
-            "RETIRE_UOP"                             // Apple, 1-bit
-    }},
-    {   "insts_retired", {
-            "INST_ALL"                             // Apple, 3-bit
-    }},
-    
+    // -------------------------------------------------------------------------
+    // Configurable counters
+    // -------------------------------------------------------------------------
+    { "core_active_cycles",                  { "CORE_ACTIVE_CYCLE" }},
+
+    // -------------------------------------------------------------------------
+    // ARM Stall
+    // -------------------------------------------------------------------------
+    // { "arm_stall",                               { "ARM_STALL" }},
+     { "arm_stall.frontend",                      { "ARM_STALL_FRONTEND" }},
+     { "arm_stall.backend",                       { "ARM_STALL_BACKEND" }},
+    // { "arm_stall_slot",                          { "ARM_STALL_SLOT" }},
+    // { "arm_stall_slot.frontend",                 { "ARM_STALL_SLOT_FRONTEND" }},
+    // { "arm_stall_slot.backend",                  { "ARM_STALL_SLOT_BACKEND" }},
+    // { "map_idle",                                { "MAP_DISPATCH_BUBBLE" }},
+    // { "map_stall_cycles",                        { "MAP_STALL" }},
+    // { "map_stalls.dispatch",                     { "MAP_STALL_DISPATCH" }},
+    // { "map_stalls.l1i",                          { "MAP_DISPATCH_BUBBLE_IC" }},
+    // { "map_stalls.itlb",                         { "MAP_DISPATCH_BUBBLE_ITLB" }},
+    // { "map_stalls.slot",                         { "MAP_DISPATCH_BUBBLE_SLOT" }},
+    // { "map_stalls.recovery",                     { "MAP_RECOVERY" }},
+    // { "map_stalls.nonrecovery",                  { "MAP_STALL_NONRECOVERY" }},
+    // { "schedule.empty",                          { "SCHEDULE_EMPTY" }},
+    // { "schedule_duty",                           { "SCHEDULE_UOP_ANY" }},
+
+    // -------------------------------------------------------------------------
+    // Instructions 
+    // -------------------------------------------------------------------------
+    { "insts_retired",                      { "INST_ALL" }},        // counters_mask = 252
+    // { "uops_retired",                       { "RETIRE_UOP" }},      // counters_mask = 128
+    // { "branches.retired",                   { "INST_BRANCH" }},     // counters_mask = 252
+    // { "int_alu_insts.retired",              { "INST_INT_ALU" }},             // counters_mask = 128
+    { "int_load_insts.retired",             { "INST_INT_LD" }},              // counters_mask = 252
+    { "int_store_insts.retired",            { "INST_INT_ST" }},              // counters_mask = 128
+    // { "load_store_insts.retired",           { "INST_LDST" }},                // counters_mask = 128
+    // { "simd_alu_insts.retired",             { "INST_SIMD_ALU" }},            // counters_mask = 128
+    // { "simd_loads.retired",                 { "INST_SIMD_LD" }},             // counters_mask = 252
+    // { "simd_stores.retired",                { "INST_SIMD_ST" }},             // counters_mask = 252
+    // { "inst_sme.alu",                       { "INST_SME_ENGINE_ALU" }},      // counters_mask = 252
+    // { "inst_sme.st",                        { "INST_SME_ENGINE_ST" }},       // counters_mask = 252
+    // { "inst_sme.ld",                        { "INST_SME_ENGINE_LD" }},       // counters_mask = 252
+    // { "inst_sme.scalarfp",                  { "INST_SME_ENGINE_SCALARFP" }}, // counters_mask = 252
+    // { "inst_sme.packing_fused",             { "INST_SME_ENGINE_PACKING_FUSED" }},
+    // { "inst_simd_alu.vec",                  { "INST_SIMD_ALU_VEC" }},        // counters_mask = 128
+
+    // -------------------------------------------------------------------------
     // Speculation
-    // {   "uops_issued", {
-    //         "SCHEDULE_UOP"                          // Apple
-    // }},
-    {   "uops_issued", {
-            "MAP_UOP"                               // Apple
-    }},
-    {   "branches_mispredicted.retired", {
-            "BRANCH_MISPRED_NONSPEC"                // Apple A7-A15, since iOS 15, macOS 12, 3-bit
-    }},
-    // {   "branches_conditional", {
-    //         "INST_BRANCH_COND"                      // Apple, 3-bit
-    // }},
-    // {   "branches_taken", {
-    //         "INST_BRANCH_TAKEN"                     // Apple, 3-bit
-    // }},
-    // {   "call_branches.retired", {
-    //         "INST_BRANCH_CALL"                      // Apple, 3-bit
-    // }},
-    // {   "return_branches.retired", {
-    //         "INST_BRANCH_RET"                       // Apple, 3-bit
-    // }},
-    // {   "indir_branches.retired", {
-    //         "INST_BRANCH_INDIR"                     // Apple, 3-bit
-    // }},
-    // {   "branches_conditional_mispredicted.retired", {
-    //         "BRANCH_COND_MISPRED_NONSPEC"           // Apple, 3-bit
-    // }},
-    // {   "indir_calls_mispredicted.retired", {
-    //         "BRANCH_CALL_INDIR_MISPRED_NONSPEC"     // Apple, 3-bit
-    // }},
-    // {   "returns_mispredicted.retired", {
-    //         "BRANCH_RET_INDIR_MISPRED_NONSPEC"      // Apple, 3-bit
-    // }},
-    // {   "indir_branches_mispredicted.retired", {
-    //         "BRANCH_INDIR_MISPRED_NONSPEC"          // Apple, 3-bit
-    // }},
-    // {   "fetch_restart_exclude_branch_prediction", {
-    //         "FETCH_RESTART"                         // Apple
-    // }},
-    // {   "store_mem_violation.retired", {
-    //         "ST_MEMORY_ORDER_VIOLATION_NONSPEC"     // Apple, 3-bit
-    // }},
-    {   "map_rewinding_cycles", {
-            "MAP_REWIND"                            // Apple
-    }},
-    // {   "map_int_uops.speculative", {
-    //         "MAP_INT_UOP"                           // Apple
-    // }},
-    // {   "map_load_store_uops.speculative", {
-    //         "MAP_LDST_UOP"                          // Apple
-    // }},
-    // {   "load_uops.speculative", {
-    //         "LD_UNIT_UOP"                           // Apple
-    // }},
-    // {   "store_uops.speculative", {
-    //         "ST_UNIT_UOP"                           // Apple
-    // }},
+    // -------------------------------------------------------------------------
+    // { "arm_br_pred",                        { "ARM_BR_PRED" }},
+    // { "arm_br_mis_pred",                    { "ARM_BR_MIS_PRED" }},
+    // { "branches_mispredicted.retired",      { "BRANCH_MISPRED_NONSPEC" }},
+    // { "uops_issued",                        { "MAP_UOP" }},
+    // { "map_rewinding_cycles",               { "MAP_REWIND" }},
+    // { "branches.cond",                      { "INST_BRANCH_COND" }},         // counters_mask = 252
+    // { "branches.taken",                     { "INST_BRANCH_TAKEN" }},        // counters_mask = 252
+    // { "branches.call",                      { "INST_BRANCH_CALL" }},         // counters_mask = 252
+    // { "branches.ret",                       { "INST_BRANCH_RET" }},          // counters_mask = 252
+    // { "branches.indir",                     { "INST_BRANCH_INDIR" }},        // counters_mask = 252
+    // { "mispred.cond",                       { "BRANCH_COND_MISPRED_NONSPEC" }}, // counters_mask = 252
+    // { "mispred.call.indir",                 { "BRANCH_CALL_INDIR_MISPRED_NONSPEC" }}, // counters_mask = 252
+    // { "mispred.ret.indir",                  { "BRANCH_RET_INDIR_MISPRED_NONSPEC" }},  // counters_mask = 252
+    // { "mispred.indir",                      { "BRANCH_INDIR_MISPRED_NONSPEC" }},      // counters_mask = 252
+    // { "map_int_uops.speculative",           { "MAP_INT_UOP" }},
+    // { "map_load_store_uops.speculative",    { "MAP_LDST_UOP" }},
+    // { "load_uops.speculative",              { "LD_UNIT_UOP" }},
+    // { "store_uops.speculative",             { "ST_UNIT_UOP" }},
 
-    // Front-end
-    // {   "l1i_cache_demand_misses", {
-    //         "L1I_CACHE_MISS_DEMAND"                 // Apple
-    // }},
-    // {   "l1i_tlb_refills", {
-    //         "L1I_TLB_FILL"                          // Apple
-    // }},
-    // {   "l1i_tlb_demand_misses", {
-    //         "L1I_TLB_MISS_DEMAND"                   // Apple
-    // }},
-    // {   "l2_tlb_misses_inst", {
-    //         "L2_TLB_MISS_INSTRUCTION"               // Apple
-    // }},
-    // {   "page_table_walk_inst", {
-    //         "MMU_TABLE_WALK_INSTRUCTION"            // Apple
-    // }},
+    // -------------------------------------------------------------------------
+    // Frontend
+    // -------------------------------------------------------------------------
+    // { "fetch_restart_exclude_branch_prediction", { "FETCH_RESTART" }},
+    // { "l1i_cache_demand_misses",                 { "L1I_CACHE_MISS_DEMAND" }},
+    // { "l1i_tlb_refills",                         { "L1I_TLB_FILL" }},
+    // { "l1i_tlb_demand_misses",                   { "L1I_TLB_MISS_DEMAND" }},
+    // { "l2_tlb_misses_inst",                      { "L2_TLB_MISS_INSTRUCTION" }},
+    // { "page_table_walk_inst",                    { "MMU_TABLE_WALK_INSTRUCTION" }},
 
-    // Back-end
-    // {   "l1d_load_misses.retired", {
-    //         "L1D_CACHE_MISS_LD_NONSPEC"             // Apple, 3-bit
-    // }},
-    // {   "l1d_load_misses", {
-    //         "L1D_CACHE_MISS_LD"                     // Apple
-    // }},
-    // {   "l1d_store_misses.retired", {
-    //         "L1D_CACHE_MISS_ST_NONSPEC"             // Apple, 3-bit
-    // }},
-    // {   "l1d_sotre_misses", {
-    //         "L1D_CACHE_MISS_ST"                     // Apple
-    // }},
-    // {   "l1d_writeback", {
-    //         "L1D_CACHE_WRITEBACK"                   // Apple
-    // }},
-    // {   "l1d_tlb_accesses", {
-    //         "L1D_TLB_ACCESS"                        // Apple
-    // }},
-    // {   "l1d_tlb_refills", {
-    //         "L1D_TLB_FILL"                          // Apple
-    // }},
-    // {   "l1d_tlb_misses.retired", {
-    //         "L1D_TLB_MISS_NONSPEC"                  // Apple, 3-bit
-    // }},
-    // {   "l1d_tlb_misses", {
-    //         "L1D_TLB_MISS"                          // Apple
-    // }},
-    // {   "l2_tlb_misses_data", {
-    //         "L2_TLB_MISS_DATA"                      // Apple
-    // }},
-    // {   "page_table_walk_data", {
-    //         "MMU_TABLE_WALK_DATA"                   // Apple
-    // }},
-    // {   "map_bubbles", {
-    //         "MAP_DISPATCH_BUBBLE"                   // Apple
-    // }},
-    // {   "map_stall_cycles", {
-    //         "MAP_STALL"                             // Apple
-    // }},
-    // {   "map_stalls_due_to_dispatch", {
-    //         "MAP_STALL_DISPATCH"                    // Apple
-    // }},
-    // {   "map_bubbles.l1i", {
-    //         "MAP_DISPATCH_BUBBLE_IC"               // Apple
-    // }},
+    // -------------------------------------------------------------------------
+    // Backend
+    // -------------------------------------------------------------------------
+    // { "arm_l1d_cache",                           { "ARM_L1D_CACHE" }},
+    // { "arm_l1d_cache.rd",                        { "ARM_L1D_CACHE_RD" }},
+    // { "arm_l1d_cache_refill",                    { "ARM_L1D_CACHE_REFILL" }},
+    // { "arm_l1d_cache_lmiss.rd",                  { "ARM_L1D_CACHE_LMISS_RD" }},
+    // { "l1d_load_misses.retired",                 { "L1D_CACHE_MISS_LD_NONSPEC" }},   // counters_mask = 252
+    // { "l1d_load_misses",                         { "L1D_CACHE_MISS_LD" }},
+    // { "l1d_store_misses.retired",                { "L1D_CACHE_MISS_ST_NONSPEC" }},   // counters_mask = 252
+    // { "l1d_store_misses",                        { "L1D_CACHE_MISS_ST" }},
+    // { "l1d_writeback",                           { "L1D_CACHE_WRITEBACK" }},
+    // { "l1d_tlb_accesses",                        { "L1D_TLB_ACCESS" }},
+    // { "l1d_tlb_refills",                         { "L1D_TLB_FILL" }},
+    // { "l1d_tlb_misses.retired",                  { "L1D_TLB_MISS_NONSPEC" }},        // counters_mask = 252
+    // { "l1d_tlb_misses",                          { "L1D_TLB_MISS" }},
+    // { "l2_tlb_misses_data",                      { "L2_TLB_MISS_DATA" }},
+    // { "page_table_walk_data",                    { "MMU_TABLE_WALK_DATA" }},
+    // { "store_mem_violation.retired",             { "ST_MEMORY_ORDER_VIOLATION_NONSPEC" }},   // counters_mask = 252
+    // { "st_mem_order_viol_ld.retired",            { "ST_MEM_ORDER_VIOL_LD_NONSPEC" }}
 
+    // -------------------------------------------------------------------------
     // Others
-    // {   "page_fault.retired", {
-    //         "MMU_VIRTUAL_MEMORY_FAULT_NONSPEC"      // Apple
-    // }},
-    // {   "map_simd_uops.speculative", {
-    //         "MAP_SIMD_UOP"                          // Apple
-    // }},
-    // {   "non_temporal_store_uops.speculative", {
-    //         "ST_NT_UOP"                             // Apple
-    // }},
-    // {   "non_temporal_load_uops.speculative", {
-    //         "LD_NT_UOP"                             // Apple
-    // }},
-    // {   "load_store_uops_cross_64B.retired", {
-    //         "LDST_X64_UOP"                          // Apple
-    // }},
-    // {   "load_store_uops_cross_page.retired", {
-    //         "LDST_XPG_UOP"                          // Apple
-    // }}
-    // {   "other_flushes", {
-    //         "FLUSH_RESTART_OTHER_NONSPEC"           // Apple
-    // }},
-    // {   "cycles_with_pending_interrupt", {
-    //         "INTERRUPT_PENDING"                     // Apple
-    // }},
-    // {   "barriers.retired", {
-    //         "INST_BARRIER"                          // Apple, 3-bit
-    // }},
-    // {   "atomic_or_exclusive_successful", {
-    //         "ATOMIC_OR_EXCLUSIVE_SUCC"              // Apple
-    // }},
-    // {   "atomic_or_exclusive_fail", {
-    //         "ATOMIC_OR_EXCLUSIVE_FAIL"              // Apple
-    // }}
+    // -------------------------------------------------------------------------
+    // { "page_fault.retired",                      { "MMU_VIRTUAL_MEMORY_FAULT_NONSPEC" }},
+    // { "map_simd_uops.speculative",               { "MAP_SIMD_UOP" }},
+    // { "non_temporal_store_uops.speculative",     { "ST_NT_UOP" }},
+    // { "non_temporal_load_uops.speculative",      { "LD_NT_UOP" }},
+    // { "load_store_uops_cross_64B.retired",       { "LDST_X64_UOP" }},
+    // { "load_store_uops_cross_page.retired",      { "LDST_XPG_UOP" }},
+    // { "other_flushes",                           { "FLUSH_RESTART_OTHER_NONSPEC" }},
+    // { "cycles_with_pending_interrupt",           { "INTERRUPT_PENDING" }},
+    // { "barriers.retired",                        { "INST_BARRIER" }},              // counters_mask = 252
+    // { "atomic_or_exclusive_successful",          { "ATOMIC_OR_EXCLUSIVE_SUCC" }},
+    // { "atomic_or_exclusive_fail",                { "ATOMIC_OR_EXCLUSIVE_FAIL" }},
+
+    // -------------------------------------------------------------------------
+    // Load / Store waiting
+    // -------------------------------------------------------------------------
+    // { "ld_unit.wait_young_l1d_miss",             { "LD_UNIT_WAITING_YOUNG_L1D_CACHE_MISS" }},
+    // { "ldst_unit.old_l1d_miss",                  { "LDST_UNIT_OLD_L1D_CACHE_MISS" }},
+    // { "ldst_unit.wait_old_l1d_miss",             { "LDST_UNIT_WAITING_OLD_L1D_CACHE_MISS" }},
+    // { "ldst_unit.wait_sme_instq_full",           { "LDST_UNIT_WAITING_SME_ENGINE_INST_QUEUE_FULL" }},
+    // { "ldst_unit.wait_sme_mem_data",             { "LDST_UNIT_WAITING_SME_ENGINE_MEM_DATA" }},
+    // { "st_barrier.blocked_by_sme_ldst",          { "ST_BARRIER_BLOCKED_BY_SME_LDST" }},
+    // { "ld_blocked_by_sme_ldst",                  { "LD_BLOCKED_BY_SME_LDST" }},
+
+    // -------------------------------------------------------------------------
+    // SME Engine
+    // -------------------------------------------------------------------------
+    // { "sme_engine.sm_enable",                    { "SME_ENGINE_SM_ENABLE" }},
+    // { "sme_engine.sm_za_enable",                 { "SME_ENGINE_SM_ZA_ENABLE" }},
+    // { "sme_engine.za_enabled_sm_disabled",       { "SME_ENGINE_ZA_ENABLED_SM_DISABLED" }},
+
+    // -------------------------------------------------------------------------
+    // SME uop
+    // -------------------------------------------------------------------------
+    // { "map_int_sme_uop",                         { "MAP_INT_SME_UOP" }},
+    // { "ldst_sme_xpg_uop",                        { "LDST_SME_XPG_UOP" }},
+    // { "ldst_sme_pred_inactive",                  { "LDST_SME_PRED_INACTIVE" }},
+    // { "ld_sme_normal_uop",                       { "LD_SME_NORMAL_UOP" }},
+    // { "ld_sme_nt_uop",                           { "LD_SME_NT_UOP" }},
+    // { "st_sme_normal_uop",                       { "ST_SME_NORMAL_UOP" }},
+    // { "st_sme_nt_uop",                           { "ST_SME_NT_UOP" }}
 };
 
 int profile_func(int argc, char ** argv, FILE *kperf_log_fh) {

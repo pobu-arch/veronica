@@ -54,7 +54,7 @@ namespace veronica
                     }
                     else
                     {
-                        cout << "[WARNING-Veronica] timer set for cpu freq " << CPU_FREQ / 1000 / 1000 << " MHz" << endl;
+                        // cout << "[WARNING-Veronica] timer set for cpu freq " << CPU_FREQ / 1000 / 1000 << " MHz" << endl;
                     }
                 }
             }
