@@ -65,12 +65,12 @@ static const event_alias profile_events[] = {
     // -------------------------------------------------------------------------
     // Instructions 
     // -------------------------------------------------------------------------
-    { "insts_retired",                      { "INST_ALL" }},        // counters_mask = 252
+    // { "insts_retired",                      { "INST_ALL" }},        // counters_mask = 252
     // { "uops_retired",                       { "RETIRE_UOP" }},      // counters_mask = 128
     // { "branches.retired",                   { "INST_BRANCH" }},     // counters_mask = 252
     // { "int_alu_insts.retired",              { "INST_INT_ALU" }},             // counters_mask = 128
-    { "int_load_insts.retired",             { "INST_INT_LD" }},              // counters_mask = 252
-    { "int_store_insts.retired",            { "INST_INT_ST" }},              // counters_mask = 128
+    // { "int_load_insts.retired",             { "INST_INT_LD" }},              // counters_mask = 252
+    // { "int_store_insts.retired",            { "INST_INT_ST" }},              // counters_mask = 128
     // { "load_store_insts.retired",           { "INST_LDST" }},                // counters_mask = 128
     // { "simd_alu_insts.retired",             { "INST_SIMD_ALU" }},            // counters_mask = 128
     // { "simd_loads.retired",                 { "INST_SIMD_LD" }},             // counters_mask = 252
@@ -108,11 +108,11 @@ static const event_alias profile_events[] = {
     // Frontend
     // -------------------------------------------------------------------------
     // { "fetch_restart_exclude_branch_prediction", { "FETCH_RESTART" }},
-    // { "l1i_cache_demand_misses",                 { "L1I_CACHE_MISS_DEMAND" }},
-    // { "l1i_tlb_refills",                         { "L1I_TLB_FILL" }},
-    // { "l1i_tlb_demand_misses",                   { "L1I_TLB_MISS_DEMAND" }},
-    // { "l2_tlb_misses_inst",                      { "L2_TLB_MISS_INSTRUCTION" }},
-    // { "page_table_walk_inst",                    { "MMU_TABLE_WALK_INSTRUCTION" }},
+    { "l1i_cache_demand_misses",                 { "L1I_CACHE_MISS_DEMAND" }},
+    { "l1i_tlb_refills",                         { "L1I_TLB_FILL" }},
+    { "l1i_tlb_demand_misses",                   { "L1I_TLB_MISS_DEMAND" }},
+    { "l2_tlb_misses_inst",                      { "L2_TLB_MISS_INSTRUCTION" }},
+    { "page_table_walk_inst",                    { "MMU_TABLE_WALK_INSTRUCTION" }},
 
     // -------------------------------------------------------------------------
     // Backend
@@ -411,7 +411,7 @@ int main(int argc, char ** argv) {
             const event_alias *alias = profile_events + i;
             usize idx = counter_map[i];
             u64 val = counters_1[idx] - counters_0[idx];
-            fprintf(kperf_log_fh, "[RESULT-KPerf] %s - %llu\n", alias->alias, val);
+            fprintf(kperf_log_fh, "[RESULT-KPerf]\t%s\t-\t%llu\n", alias->alias, val);
     }
     fflush(kperf_log_fh);
     fclose(kperf_log_fh);
