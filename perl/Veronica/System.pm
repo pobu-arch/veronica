@@ -62,6 +62,36 @@ sub get_compiler_type
     }
 }
 
+sub get_compiler_version
+{
+    my ($compiler) = @_;
+    my $result = `$compiler -v 2>&1`;
+    if($result =~ m/icc\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    elsif($result =~ m/ifort\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    elsif($result =~ m/oneAPI\s+DPC\+\+\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    elsif($result =~ m/clang\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    elsif($result =~ m/gcc\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    else
+    {
+        &Veronica::Common::log_level("unsupported compiler $compiler - $result", -1);
+    }
+}
+
 sub parse_isa_type
 {
     my ($string) = @_;
@@ -252,6 +282,7 @@ sub print_sys_info
 
     my $os_type                 = get_os_type();
     my $compiler_type           = get_compiler_type($compiler);
+    my $compiler_version        = get_compiler_version($compiler);
     my $host_isa_type           = get_host_isa_type();
     my $target_isa_type         = get_target_isa_type($compiler);
     my $endian                  = get_endian();
@@ -267,7 +298,7 @@ sub print_sys_info
     &Veronica::Common::log_level("basic page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 3);
     &Veronica::Common::log_level("host OS is $os_type, host ISA is $host_isa_type, target ISA is $target_isa_type", 3);
     &Veronica::Common::log_level("there are $num_physical_core physical cores per socket, and $num_threads_per_core threads per physical core", 3);
-    &Veronica::Common::log_level("using $compiler_type for compilation", 3);
+    &Veronica::Common::log_level("using $compiler_type $compiler_version for compilation", 3);
     &Veronica::Common::log_level("\n", 0);
 }
 1;
