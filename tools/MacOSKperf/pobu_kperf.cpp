@@ -46,8 +46,8 @@ static const event_alias profile_events[] = {
     // ARM Stall
     // -------------------------------------------------------------------------
     // { "arm_stall",                               { "ARM_STALL" }},
-     { "arm_stall.frontend",                      { "ARM_STALL_FRONTEND" }},
-     { "arm_stall.backend",                       { "ARM_STALL_BACKEND" }},
+    // { "arm_stall.frontend",                      { "ARM_STALL_FRONTEND" }},
+    // { "arm_stall.backend",                       { "ARM_STALL_BACKEND" }},
     // { "arm_stall_slot",                          { "ARM_STALL_SLOT" }},
     // { "arm_stall_slot.frontend",                 { "ARM_STALL_SLOT_FRONTEND" }},
     // { "arm_stall_slot.backend",                  { "ARM_STALL_SLOT_BACKEND" }},
@@ -65,7 +65,7 @@ static const event_alias profile_events[] = {
     // -------------------------------------------------------------------------
     // Instructions 
     // -------------------------------------------------------------------------
-      { "insts_retired",                      { "INST_ALL" }},        // counters_mask = 252
+    //  { "insts_retired",                      { "INST_ALL" }},        // counters_mask = 252
     // { "uops_retired",                       { "RETIRE_UOP" }},      // counters_mask = 128
     // { "branches.retired",                   { "INST_BRANCH" }},     // counters_mask = 252
     // { "int_alu_insts.retired",              { "INST_INT_ALU" }},             // counters_mask = 128
@@ -88,7 +88,7 @@ static const event_alias profile_events[] = {
     // { "arm_br_pred",                        { "ARM_BR_PRED" }},
     // { "arm_br_mis_pred",                    { "ARM_BR_MIS_PRED" }},
     // { "branches_mispredicted.retired",      { "BRANCH_MISPRED_NONSPEC" }},
-    //  { "uops_issued",                        { "MAP_UOP" }},
+    // { "uops_issued",                        { "MAP_UOP" }},
     // { "map_rewinding_cycles",               { "MAP_REWIND" }},
     // { "branches.cond",                      { "INST_BRANCH_COND" }},         // counters_mask = 252
     // { "branches.taken",                     { "INST_BRANCH_TAKEN" }},        // counters_mask = 252
