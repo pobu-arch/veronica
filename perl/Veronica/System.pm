@@ -15,10 +15,140 @@ use lib "$ENV{'VERONICA'}/perl";
 use Veronica::Common;
 use Veronica::Threads;
 
+sub _read_first_line
+{
+    my ($path) = @_;
+    return undef if !defined $path || !-e $path;
+
+    open my $fh, '<', $path or return undef;
+    my $line = <$fh>;
+    close $fh;
+
+    return undef if !defined $line;
+    chomp $line;
+    return $line;
+}
+
+sub get_compiler_type
+{
+    my ($compiler) = @_;
+    my $result = `$compiler -v 2>&1`;
+    if($result =~ m/icc\s+version/)
+    {
+        return 'ICC';
+    }
+    elsif($result =~ m/ifort\s+version\s+\d+/)
+    {
+        return 'IFORT';
+    }
+    elsif($result =~ m/oneAPI\s+DPC\+\+/)
+    {
+        return 'ICX';
+    }
+    elsif($result =~ m/clang\s+version/)
+    {
+        return 'CLANG';
+    }
+    elsif($result =~ m/gcc\s+version/)
+    {
+        return 'GCC';
+    }
+    else
+    {
+        &Veronica::Common::log_level("unsupported compiler $compiler - $result", -1);
+    }
+}
+
+sub get_compiler_version
+{
+    my ($compiler) = @_;
+    my $result = `$compiler -v 2>&1`;
+    if($result =~ m/icc\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    elsif($result =~ m/ifort\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    elsif($result =~ m/oneAPI\s+DPC\+\+\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    elsif($result =~ m/clang\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    elsif($result =~ m/gcc\s+version\s+(?<ver>[\d\.]+)/)
+    {
+        return $+{ver};
+    }
+    else
+    {
+        &Veronica::Common::log_level("unsupported compiler $compiler - $result", -1);
+    }
+}
+
 sub get_endian
 {
     my $result = `echo -n I | od -o | head -n1 | cut -f2 -d" " | cut -c6`;
     return $result ? 'little' : 'big';
+}
+
+sub get_perf_governor
+{
+    return `cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor 2>/dev/null | sort -u | tr '\n' ' ' ; echo`;
+}
+
+# return examples
+#   enabled=3 total=5 enabled_states=C1,C6,PC8
+# or
+#   cpuidle=unavailable
+sub get_cpuidle_states
+{
+    my $base = "/sys/devices/system/cpu/cpu0/cpuidle";
+    return "cpuidle=unavailable" if !-d $base;
+
+    my @states = sort glob("$base/state*");
+    return "cpuidle=unavailable" if !@states;
+
+    my $total   = 0;
+    my $enabled = 0;
+    my @enabled_names;
+
+    for my $s (@states)
+    {
+        next if !-d $s;
+        $total++;
+
+        my $disable = _read_first_line("$s/disable");
+        my $name    = _read_first_line("$s/name");
+
+        # generate a default name if not exists
+        if(!defined $name || $name eq '')
+        {
+            if($s =~ /state(\d+)/)
+            {
+                $name = "state$1";
+            }
+            else
+            {
+                $name = "state";
+            }
+        }
+
+        # disable: 0 - enable, 1 - disable
+        if(defined $disable && $disable =~ /^\s*0\s*$/)
+        {
+            $enabled++;
+            push @enabled_names, $name;
+        }
+    }
+
+    my $names = join(",", @enabled_names);
+    return sprintf("enabled=%d total=%d%s",
+                   $enabled, $total,
+                   ($names ne '' ? " enabled_states=$names" : ""));
 }
 
 sub get_thp_status
@@ -55,7 +185,7 @@ sub get_cache_line_size
     {
         &Veronica::Common::log_level('unsupported OS', -1);
     }
-    
+
     return $+{num} if($result =~ /(?<num>\d+)/);
     return 0; # default value
 }
@@ -122,7 +252,7 @@ sub get_num_logical_core_per_socket
     }
     elsif($os_type eq 'LINUX')
     {
-        return (&Veronica::System::get_threads_per_core() * 
+        return (&Veronica::System::get_threads_per_core() *
                 &Veronica::System::get_num_physical_core_per_socket());
     }
     else
@@ -145,67 +275,6 @@ sub get_os_type
     else
     {
         &Veronica::Common::log_level('unsupported OS', -1);
-    }
-}
-
-
-sub get_compiler_type
-{
-    my ($compiler) = @_;
-    my $result = `$compiler -v 2>&1`;
-    if($result =~ m/icc\s+version/)
-    {
-        return 'ICC';
-    }
-    elsif($result =~ m/ifort\s+version\s+\d+/)
-    {
-        return 'IFORT';
-    }
-    elsif($result =~ m/oneAPI\s+DPC\+\+/)
-    {
-        return 'ICX';
-    }
-    elsif($result =~ m/clang\s+version/)
-    {
-        return 'CLANG';
-    }
-    elsif($result =~ m/gcc\s+version/)
-    {
-        return 'GCC';
-    }
-    else
-    {
-        &Veronica::Common::log_level("unsupported compiler $compiler - $result", -1);
-    }
-}
-
-sub get_compiler_version
-{
-    my ($compiler) = @_;
-    my $result = `$compiler -v 2>&1`;
-    if($result =~ m/icc\s+version\s+(?<ver>[\d\.]+)/)
-    {
-        return $+{ver};
-    }
-    elsif($result =~ m/ifort\s+version\s+(?<ver>[\d\.]+)/)
-    {
-        return $+{ver};
-    }
-    elsif($result =~ m/oneAPI\s+DPC\+\+\s+version\s+(?<ver>[\d\.]+)/)
-    {
-        return $+{ver};
-    }
-    elsif($result =~ m/clang\s+version\s+(?<ver>[\d\.]+)/)
-    {
-        return $+{ver};
-    }
-    elsif($result =~ m/gcc\s+version\s+(?<ver>[\d\.]+)/)
-    {
-        return $+{ver};
-    }
-    else
-    {
-        &Veronica::Common::log_level("unsupported compiler $compiler - $result", -1);
     }
 }
 
@@ -277,11 +346,6 @@ sub get_target_isa_type
     return parse_isa_type($isa);
 }
 
-sub get_perf_governor
-{
-    return `cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor 2>/dev/null | sort -u | tr '\n' ' ' ; echo`;
-}
-
 sub print_sys_info
 {
     my ($compiler) = @_;
@@ -290,6 +354,7 @@ sub print_sys_info
     my $compiler_version        = get_compiler_version($compiler);
     my $endian                  = get_endian();
     my $perf_governor           = get_perf_governor();
+    my $cpuidle_states          = get_cpuidle_states();
     my $thp_status              = get_thp_status();
     my $page_size               = get_page_size();
     my $cache_line_size         = get_cache_line_size();
@@ -303,11 +368,12 @@ sub print_sys_info
     &Veronica::Common::log_level("using $compiler_type $compiler_version for compilation", 3);
     &Veronica::Common::log_level("this machine is $endian-endian", 3);
     &Veronica::Common::log_level("performance governor is $perf_governor", 3) if $os_type eq 'LINUX';
+    &Veronica::Common::log_level("cpuidle states are $cpuidle_states", 3) if $os_type eq 'LINUX';
     &Veronica::Common::log_level("transparent huge page status is $thp_status", 3) if $os_type eq 'LINUX';
     &Veronica::Common::log_level("basic page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 3);
     &Veronica::Common::log_level("host OS is $os_type, host ISA is $host_isa_type, target ISA is $target_isa_type", 3);
     &Veronica::Common::log_level("there are $num_physical_core physical cores per socket, and $num_threads_per_core threads per physical core", 3);
-    
+
     &Veronica::Common::log_level("\n", 0);
 }
 1;
