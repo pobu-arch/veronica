@@ -101,16 +101,16 @@ sub get_perf_governor
 }
 
 # return examples
-#   enabled=3 total=5 enabled_states=C1,C6,PC8
+#   enabled 3 out of 5 states, enabled_states=C1,C6,PC8
 # or
-#   cpuidle=unavailable
+#   cpuidle is NOT available
 sub get_cpuidle_states
 {
     my $base = "/sys/devices/system/cpu/cpu0/cpuidle";
-    return "cpuidle=unavailable" if !-d $base;
+    return "cpuidle is NOT available" if !-d $base;
 
-    my @states = sort glob("$base/state*");
-    return "cpuidle=unavailable" if !@states;
+    my @states = sort grep { -d $_ } glob("$base/state*");
+    return "cpuidle is NOT available" if !@states;
 
     my $total   = 0;
     my $enabled = 0;
@@ -118,16 +118,15 @@ sub get_cpuidle_states
 
     for my $s (@states)
     {
-        next if !-d $s;
         $total++;
 
         my $disable = _read_first_line("$s/disable");
         my $name    = _read_first_line("$s/name");
 
-        # generate a default name if not exists
+        # name 兜底：stateN
         if(!defined $name || $name eq '')
         {
-            if($s =~ /state(\d+)/)
+            if($s =~ /state(\d+)\z/)
             {
                 $name = "state$1";
             }
@@ -145,10 +144,9 @@ sub get_cpuidle_states
         }
     }
 
-    my $names = join(",", @enabled_names);
-    return sprintf("enable %d out of %d states%s",
-                   $enabled, $total,
-                   ($names ne '' ? ", enabled_states=$names" : ""));
+    my $names = join(",", @enabled_names); # 允许为空，输出 enabled_states=
+    return sprintf("enabled %d out of %d states, enabled_states=%s",
+                   $enabled, $total, $names);
 }
 
 sub get_thp_status
@@ -367,9 +365,9 @@ sub print_sys_info
     &Veronica::Common::log_level("\n", 0);
     &Veronica::Common::log_level("using $compiler_type $compiler_version for compilation", 3);
     &Veronica::Common::log_level("this machine is $endian-endian", 3);
-    &Veronica::Common::log_level("performance governor is $perf_governor", 3) if $os_type eq 'LINUX';
-    &Veronica::Common::log_level("cpuidle states are $cpuidle_states", 3) if $os_type eq 'LINUX';
-    &Veronica::Common::log_level("transparent huge page status is $thp_status", 3) if $os_type eq 'LINUX';
+    &Veronica::Common::log_level("performance governor(s) : $perf_governor", 3) if $os_type eq 'LINUX';
+    &Veronica::Common::log_level("cpuidle states : $cpuidle_states", 3) if $os_type eq 'LINUX';
+    &Veronica::Common::log_level("transparent huge page status : $thp_status", 3) if $os_type eq 'LINUX';
     &Veronica::Common::log_level("basic page size is ".($page_size/1024)." KB, cache line size is $cache_line_size bytes", 3);
     &Veronica::Common::log_level("host OS is $os_type, host ISA is $host_isa_type, target ISA is $target_isa_type", 3);
     &Veronica::Common::log_level("there are $num_physical_core physical cores per socket, and $num_threads_per_core threads per physical core", 3);
