@@ -146,9 +146,9 @@ sub get_cpuidle_states
     }
 
     my $names = join(",", @enabled_names);
-    return sprintf("enabled=%d total=%d%s",
+    return sprintf("enable %d out of %d states%s",
                    $enabled, $total,
-                   ($names ne '' ? " enabled_states=$names" : ""));
+                   ($names ne '' ? ", enabled_states=$names" : ""));
 }
 
 sub get_thp_status
