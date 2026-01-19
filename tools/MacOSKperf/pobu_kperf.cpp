@@ -34,13 +34,14 @@ static const event_alias profile_events[] = {
     // -------------------------------------------------------------------------
     // Fixed counters
     // -------------------------------------------------------------------------
-    //{ "instructions",        { "FIXED_INSTRUCTIONS" }},
+    // { "instructions",        { "FIXED_INSTRUCTIONS" }},
     // { "cycles",              { "FIXED_CYCLES" }},
 
     // -------------------------------------------------------------------------
     // Configurable counters
     // -------------------------------------------------------------------------
     { "core_active_cycles",                  { "CORE_ACTIVE_CYCLE" }},
+    { "insts_retired",                       { "INST_ALL" }},        // counters_mask = 252
 
     // -------------------------------------------------------------------------
     // ARM Stall
@@ -49,8 +50,8 @@ static const event_alias profile_events[] = {
     // { "arm_stall.frontend",                      { "ARM_STALL_FRONTEND" }},
     // { "arm_stall.backend",                       { "ARM_STALL_BACKEND" }},
     // { "arm_stall_slot",                          { "ARM_STALL_SLOT" }},
-    // { "arm_stall_slot.frontend",                 { "ARM_STALL_SLOT_FRONTEND" }},
-    // { "arm_stall_slot.backend",                  { "ARM_STALL_SLOT_BACKEND" }},
+    { "arm_stall_slot.frontend",                 { "ARM_STALL_SLOT_FRONTEND" }},
+    { "arm_stall_slot.backend",                  { "ARM_STALL_SLOT_BACKEND" }},
     // { "map_idle",                                { "MAP_DISPATCH_BUBBLE" }},
     // { "map_stall_cycles",                        { "MAP_STALL" }},
     // { "map_stalls.dispatch",                     { "MAP_STALL_DISPATCH" }},
@@ -65,7 +66,6 @@ static const event_alias profile_events[] = {
     // -------------------------------------------------------------------------
     // Instructions 
     // -------------------------------------------------------------------------
-    //  { "insts_retired",                      { "INST_ALL" }},        // counters_mask = 252
     // { "uops_retired",                       { "RETIRE_UOP" }},      // counters_mask = 128
     // { "branches.retired",                   { "INST_BRANCH" }},     // counters_mask = 252
     // { "int_alu_insts.retired",              { "INST_INT_ALU" }},             // counters_mask = 128
@@ -110,8 +110,8 @@ static const event_alias profile_events[] = {
     // { "fetch_restart_exclude_branch_prediction", { "FETCH_RESTART" }},
     { "l1i_cache_demand_misses",                 { "L1I_CACHE_MISS_DEMAND" }},
     { "l1i_tlb_refills",                         { "L1I_TLB_FILL" }},
-    { "l1i_tlb_demand_misses",                   { "L1I_TLB_MISS_DEMAND" }},
-    { "l2_tlb_misses_inst",                      { "L2_TLB_MISS_INSTRUCTION" }},
+    // { "l1i_tlb_demand_misses",                   { "L1I_TLB_MISS_DEMAND" }},
+    // { "l2_tlb_misses_inst",                      { "L2_TLB_MISS_INSTRUCTION" }},
     // { "page_table_walk_inst",                    { "MMU_TABLE_WALK_INSTRUCTION" }},
 
     // -------------------------------------------------------------------------
@@ -122,7 +122,7 @@ static const event_alias profile_events[] = {
     // { "arm_l1d_cache_refill",                    { "ARM_L1D_CACHE_REFILL" }},
     // { "arm_l1d_cache_lmiss.rd",                  { "ARM_L1D_CACHE_LMISS_RD" }},
     // { "l1d_load_misses.retired",                 { "L1D_CACHE_MISS_LD_NONSPEC" }},   // counters_mask = 252
-    // { "l1d_load_misses",                         { "L1D_CACHE_MISS_LD" }},
+    { "l1d_load_misses",                         { "L1D_CACHE_MISS_LD" }},
     // { "l1d_store_misses.retired",                { "L1D_CACHE_MISS_ST_NONSPEC" }},   // counters_mask = 252
     // { "l1d_store_misses",                        { "L1D_CACHE_MISS_ST" }},
     // { "l1d_writeback",                           { "L1D_CACHE_WRITEBACK" }},
