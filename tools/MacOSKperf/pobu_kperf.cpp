@@ -85,8 +85,8 @@ static const event_alias profile_events[] = {
     // -------------------------------------------------------------------------
     // Speculation
     // -------------------------------------------------------------------------
-    // { "arm_br_pred",                        { "ARM_BR_PRED" }},
-    // { "arm_br_mis_pred",                    { "ARM_BR_MIS_PRED" }},
+    { "arm_br_pred",                        { "ARM_BR_PRED" }},
+    { "arm_br_mis_pred",                    { "ARM_BR_MIS_PRED" }},
     // { "branches_mispredicted.retired",      { "BRANCH_MISPRED_NONSPEC" }},
     // { "uops_issued",                        { "MAP_UOP" }},
     // { "map_rewinding_cycles",               { "MAP_REWIND" }},
@@ -122,7 +122,7 @@ static const event_alias profile_events[] = {
     // { "arm_l1d_cache_refill",                    { "ARM_L1D_CACHE_REFILL" }},
     // { "arm_l1d_cache_lmiss.rd",                  { "ARM_L1D_CACHE_LMISS_RD" }},
     // { "l1d_load_misses.retired",                 { "L1D_CACHE_MISS_LD_NONSPEC" }},   // counters_mask = 252
-    { "l1d_load_misses",                         { "L1D_CACHE_MISS_LD" }},
+    // { "l1d_load_misses",                         { "L1D_CACHE_MISS_LD" }},
     // { "l1d_store_misses.retired",                { "L1D_CACHE_MISS_ST_NONSPEC" }},   // counters_mask = 252
     // { "l1d_store_misses",                        { "L1D_CACHE_MISS_ST" }},
     // { "l1d_writeback",                           { "L1D_CACHE_WRITEBACK" }},
