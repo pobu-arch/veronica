@@ -1,11 +1,49 @@
 #!/usr/bin/env python3
 import os
 import re
+import sys
 import glob
 import platform
 import ctypes
-import ctypes.util
 import subprocess
+import ctypes.util
+
+def detect_jemalloc_linux():
+    # 1) ldconfig
+    try:
+        out = subprocess.check_output(["ldconfig", "-p"], text=True, stderr=subprocess.DEVNULL)
+        for line in out.splitlines():
+            if "libjemalloc.so.2" in line or re.search(r"\blibjemalloc\.so\b", line):
+                m = re.search(r"=>\s+(\S+)", line)
+                if m and os.path.exists(m.group(1)):
+                    return m.group(1)
+    except Exception:
+        pass
+
+    # 2) find_library 兜底
+    name = ctypes.util.find_library("jemalloc")
+    if name:
+        return name
+    return None
+
+def ensure_preload_once():
+    if not sys.platform.startswith("linux"):
+        return
+    if os.environ.get("_JEMALLOC_REEXECED") == "1":
+        return
+    if os.environ.get("LD_PRELOAD"):
+        return
+
+    lib = detect_jemalloc_linux()
+    if not lib:
+        return
+
+    env = os.environ.copy()
+    env["LD_PRELOAD"] = lib + (":" + env["LD_PRELOAD"] if env.get("LD_PRELOAD") else "")
+    env["_JEMALLOC_REEXECED"] = "1"
+    os.execvpe(sys.executable, [sys.executable] + sys.argv, env)
+
+ensure_preload_once()
 
 system = platform.system().lower()
 arch = platform.machine().lower()
