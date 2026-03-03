@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # 用法（仅 MHz）：
-#   ./core_freq.sh                # 默认 3450 (MHz)
-#   ./core_freq.sh 2000           # 指定频率 (MHz)
-#   F_MHZ=2000 ./core_freq.sh     # 也支持环境变量
-F_MHZ="${1:-${F_MHZ:-3450}}"
+#   ./core_freq.sh             # 默认 3450 (MHz)
+#   ./core_freq.sh 2000        # 指定频率 (MHz)
+#   F=2000 ./core_freq.sh      # 环境变量输入（MHz）
+F_MHZ="${1:-${F:-3450}}"
 
 if ! [[ "$F_MHZ" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
   echo "[!] Invalid MHz value: $F_MHZ"
