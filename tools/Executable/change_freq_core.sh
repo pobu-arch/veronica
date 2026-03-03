@@ -1,20 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 用法：
-#   ./core_freq.sh                # 默认 2930000 (kHz)
-#   ./core_freq.sh 2000000        # 指定频率 (kHz)
-#   F=2000000 ./core_freq.sh      # 也支持环境变量
-F="${1:-${F:-3450000}}"
+# 用法（仅 MHz）：
+#   ./core_freq.sh                # 默认 3450 (MHz)
+#   ./core_freq.sh 2000           # 指定频率 (MHz)
+#   F_MHZ=2000 ./core_freq.sh     # 也支持环境变量
+F_MHZ="${1:-${F_MHZ:-3450}}"
+
+if ! [[ "$F_MHZ" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+  echo "[!] Invalid MHz value: $F_MHZ"
+  exit 1
+fi
+
+# MHz -> kHz（写 sysfs 用）
+F_KHZ="$(awk -v mhz="$F_MHZ" 'BEGIN { printf "%.0f", mhz*1000.0 }')"
+if ! [[ "$F_KHZ" =~ ^[0-9]+$ ]] || (( F_KHZ <= 0 )); then
+  echo "[!] Invalid converted kHz value: $F_KHZ"
+  exit 1
+fi
 
 # 自动提权
 if [[ "${EUID}" -ne 0 ]]; then
   exec sudo -E bash "$0" "$@"
 fi
 
-fmt_khz_to_ghz() {
+fmt_khz_to_mhz() {
   # 输入: kHz（整数）
-  awk -v khz="$1" 'BEGIN { printf "%.3f", khz/1000000.0 }'
+  awk -v khz="$1" 'BEGIN { printf "%.0f", khz/1000.0 }'
 }
 
 readf() { # readf <path> <default>
@@ -71,7 +83,30 @@ clamp_to_cpuinfo_range() { # clamp_to_cpuinfo_range <policy_path> <khz>
   echo "$khz"
 }
 
-echo "[+] Target frequency request: ${F} kHz ($(fmt_khz_to_ghz "$F") GHz)"
+lock_policy_freq() { # lock_policy_freq <policy_path> <req_khz>
+  local p="$1" req="$2"
+  local cur_min cur_max
+  cur_min="$(readf "$p/scaling_min_freq" "")"
+  cur_max="$(readf "$p/scaling_max_freq" "")"
+
+  # 目标是把 min/max 都锁到 req，同时避免触发 min<=max 约束错误
+  if [[ "$cur_min" =~ ^[0-9]+$ && "$cur_max" =~ ^[0-9]+$ ]]; then
+    if (( req >= cur_min )); then
+      writef "$p/scaling_max_freq" "$req" "$p" || return 1
+      writef "$p/scaling_min_freq" "$req" "$p" || return 1
+    else
+      writef "$p/scaling_min_freq" "$req" "$p" || return 1
+      writef "$p/scaling_max_freq" "$req" "$p" || return 1
+    fi
+  else
+    # 读不到当前值时，双序兜底
+    ( writef "$p/scaling_max_freq" "$req" "$p" && writef "$p/scaling_min_freq" "$req" "$p" ) \
+      || ( writef "$p/scaling_min_freq" "$req" "$p" && writef "$p/scaling_max_freq" "$req" "$p" ) \
+      || return 1
+  fi
+}
+
+echo "[+] Target frequency request: ${F_MHZ} MHz (${F_KHZ} kHz, $(fmt_khz_to_mhz "$F_KHZ") MHz)"
 echo
 
 policies=(/sys/devices/system/cpu/cpufreq/policy*)
@@ -87,7 +122,7 @@ errs=0
 for p in "${policies[@]}"; do
   [[ -d "$p" ]] || continue
 
-  req="$F"
+  req="$F_KHZ"
   req="$(clamp_to_cpuinfo_range "$p" "$req")"
   req="$(nearest_supported_freq "$p" "$req")"
   req="$(clamp_to_cpuinfo_range "$p" "$req")"
@@ -104,12 +139,10 @@ for p in "${policies[@]}"; do
     writef "$p/scaling_setspeed" "$req" "$p" || { errs=$((errs+1)); continue; }
   else
     # 降级：锁 min/max（通常更通用）
-    # governor 不强制改；若能切 userspace 就切一下，不能就忽略
     if [[ $has_userspace -eq 1 ]]; then
       writef "$p/scaling_governor" "userspace" "$p" || true
     fi
-    writef "$p/scaling_min_freq" "$req" "$p" || { errs=$((errs+1)); continue; }
-    writef "$p/scaling_max_freq" "$req" "$p" || { errs=$((errs+1)); continue; }
+    lock_policy_freq "$p" "$req" || { errs=$((errs+1)); continue; }
   fi
 done
 
@@ -140,13 +173,13 @@ for p in "${policies[@]}"; do
 
   acpus="$(readf "$p/affected_cpus" "?")"
 
-  printf "%s  drv=%s  gov=%s  min=%s(%sGHz)  max=%s(%sGHz)  cur=%s(%sGHz)  cpus=[%s]\n" \
+  printf "%s  drv=%s  gov=%s  min=%s(%sMHz)  max=%s(%sMHz)  cur=%s(%sMHz)  cpus=[%s]\n" \
     "$(basename "$p")" \
     "$drv" \
     "$gov" \
-    "$minf" "$( [[ "$minf" =~ ^[0-9]+$ ]] && fmt_khz_to_ghz "$minf" || echo "n/a" )" \
-    "$maxf" "$( [[ "$maxf" =~ ^[0-9]+$ ]] && fmt_khz_to_ghz "$maxf" || echo "n/a" )" \
-    "$curf" "$( [[ "$curf" =~ ^[0-9]+$ ]] && fmt_khz_to_ghz "$curf" || echo "n/a" )" \
+    "$minf" "$( [[ "$minf" =~ ^[0-9]+$ ]] && fmt_khz_to_mhz "$minf" || echo "n/a" )" \
+    "$maxf" "$( [[ "$maxf" =~ ^[0-9]+$ ]] && fmt_khz_to_mhz "$maxf" || echo "n/a" )" \
+    "$curf" "$( [[ "$curf" =~ ^[0-9]+$ ]] && fmt_khz_to_mhz "$curf" || echo "n/a" )" \
     "$acpus"
 done
 
@@ -164,7 +197,7 @@ for cpu in /sys/devices/system/cpu/cpu[0-9]*; do
   fi
 
   if [[ "$cur" =~ ^[0-9]+$ ]]; then
-    printf "cpu%-4s  %8s kHz  (%s GHz)\n" "$id" "$cur" "$(fmt_khz_to_ghz "$cur")"
+    printf "cpu%-4s  %8s kHz  (%s MHz)\n" "$id" "$cur" "$(fmt_khz_to_mhz "$cur")"
   else
     printf "cpu%-4s  %s\n" "$id" "$cur"
   fi
