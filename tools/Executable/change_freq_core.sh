@@ -14,9 +14,9 @@ if [[ "${EUID}" -ne 0 ]]; then
   exec sudo -E bash "$0" "$@"
 fi
 
-fmt_khz_to_ghz() {
+fmt_khz_to_mhz() {
   # 输入: kHz（整数）
-  awk -v khz="$1" 'BEGIN { printf "%.3f", khz/1000000.0 }'
+  awk -v khz="$1" 'BEGIN { printf "%.0f", khz/1000.0 }'
 }
 
 normalize_target_khz() { # normalize_target_khz <input>
@@ -280,7 +280,7 @@ for cpu in /sys/devices/system/cpu/cpu[0-9]*; do
   fi
 
   if [[ "$cur" =~ ^[0-9]+$ ]]; then
-    printf "cpu%-4s  %8s kHz  (%s GHz)\n" "$id" "$cur" "$(fmt_khz_to_ghz "$cur")"
+    printf "cpu%-4s  %8s kHz  (%s MHz)\n" "$id" "$cur" "$(fmt_khz_to_mhz "$cur")"
   else
     printf "cpu%-4s  %s\n" "$id" "$cur"
   fi

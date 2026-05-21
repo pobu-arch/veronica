@@ -7,6 +7,7 @@ from collections import Counter
 
 HEX_RE = re.compile(r"^(?:0x)?[0-9a-fA-F]+$")
 
+
 def parse_hex_token(tok: str):
     tok = tok.strip()
     if not tok:
@@ -19,6 +20,7 @@ def parse_hex_token(tok: str):
         return int(tok, 16)
     except ValueError:
         return None
+
 
 def extract_ip_auto(line: str):
     """
@@ -36,25 +38,68 @@ def extract_ip_auto(line: str):
         return parse_hex_token(parts[0])
 
     # Heuristics: find the first "pure hex token" after the time field.
-    # Example:
-    #   test_uarch 2772930/2772930 83109.602123: aaaac1501784 skid_loop(...) (./test_uarch)
-    # tokens[2] is time with '.' and endswith ':', tokens[3] is ip.
     for i, tok in enumerate(parts):
         if "/" in tok:
             continue
         if "." in tok and tok.endswith(":"):
-            # next token is very likely ip
             if i + 1 < len(parts):
                 ip = parse_hex_token(parts[i + 1])
                 if ip is not None:
                     return ip
-        # fallback: any standalone hex token (avoid matching comm)
         ip = parse_hex_token(tok)
-        if ip is not None:
-            # avoid matching tiny integers (unlikely to be real code addresses)
-            if ip >= 0x1000:
-                return ip
+        if ip is not None and ip >= 0x1000:
+            return ip
     return None
+
+
+def _bucket_nonneg(v: float):
+    """Map non-negative value to [0,2), [2,4), [4,8), ..."""
+    if v < 2.0:
+        return (0.0, 2.0)
+    lo = 2.0
+    hi = 4.0
+    while v >= hi:
+        lo = hi
+        hi *= 2.0
+    return (lo, hi)
+
+
+def print_aggregated(hist: Counter, total: int, unit_name: str, scale: float):
+    """
+    Aggregate histogram by power-of-two ranges in 'unit':
+      positive: [0,2), [2,4), [4,8), ...
+      negative: [-2,0), [-4,-2), [-8,-4), ...
+    scale:
+      delta_unit = delta_bytes / scale
+      (instructions: scale=bytes_per_inst; bytes: scale=1)
+    """
+    pos = Counter()
+    neg = Counter()
+
+    for delta_bytes, cnt in hist.items():
+        v = float(delta_bytes) / scale
+        if v >= 0:
+            b = _bucket_nonneg(v)
+            pos[b] += cnt
+        else:
+            b = _bucket_nonneg(-v)
+            neg[b] += cnt
+
+    print(f"\naggregated_distribution(unit={unit_name})")
+
+    print("positive_ranges:")
+    for (lo, hi) in sorted(pos.keys(), key=lambda x: x[0]):
+        c = pos[(lo, hi)]
+        pct = c * 100.0 / total
+        print(f"[{lo:g},{hi:g})  count={c:9d}  pct={pct:7.3f}")
+
+    print("negative_ranges:")
+    # neg bucket (lo,hi) means real range [-hi,-lo)
+    for (lo, hi) in sorted(neg.keys(), key=lambda x: x[0]):
+        c = neg[(lo, hi)]
+        pct = c * 100.0 / total
+        print(f"[-{hi:g},-{lo:g})  count={c:9d}  pct={pct:7.3f}")
+
 
 def main():
     ap = argparse.ArgumentParser(
@@ -74,14 +119,14 @@ def main():
     ap.add_argument(
         "--top",
         type=int,
-        default=5000000000,
-        help="Print top-N most common deltas (default: 50).",
+        default=50,
+        help="Print top-N most common raw deltas (default: 50). Use 0 to disable raw list.",
     )
     ap.add_argument(
         "--bytes-per-inst",
         type=int,
         default=0,
-        help="If non-zero, also print delta in 'instructions' as delta_bytes/bytes_per_inst (use 4 for AArch64/RV64).",
+        help="If non-zero, print instruction-scaled values (use 4 for AArch64/RV64).",
     )
     args = ap.parse_args()
 
@@ -125,20 +170,28 @@ def main():
         return 1
 
     print(f"target={hex(target)} total_samples={total} unparsed_lines={bad}")
-
     if args.bytes_per_inst:
-        bpi = args.bytes_per_inst
-        print(f"bytes_per_inst={bpi}")
+        print(f"bytes_per_inst={args.bytes_per_inst}")
 
-    for delta, cnt in hist.most_common(args.top):
-        pct = cnt * 100.0 / total
-        if args.bytes_per_inst:
-            inst = delta / float(args.bytes_per_inst)
-            print(f"delta_bytes={delta:8d}  delta_inst={inst:9.2f}  count={cnt:9d}  pct={pct:7.3f}")
-        else:
-            print(f"delta_bytes={delta:8d}  count={cnt:9d}  pct={pct:7.3f}")
+    # New: aggregated distribution
+    if args.bytes_per_inst:
+        print_aggregated(hist, total, unit_name="inst", scale=float(args.bytes_per_inst))
+    else:
+        print_aggregated(hist, total, unit_name="bytes", scale=1.0)
+
+    # Raw (old behavior), optional
+    if args.top > 0:
+        print("\nraw_top_deltas:")
+        for delta, cnt in hist.most_common(args.top):
+            pct = cnt * 100.0 / total
+            if args.bytes_per_inst:
+                inst = delta / float(args.bytes_per_inst)
+                print(f"delta_bytes={delta:8d}  delta_inst={inst:9.2f}  count={cnt:9d}  pct={pct:7.3f}")
+            else:
+                print(f"delta_bytes={delta:8d}  count={cnt:9d}  pct={pct:7.3f}")
 
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

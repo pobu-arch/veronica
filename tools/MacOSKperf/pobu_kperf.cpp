@@ -50,8 +50,8 @@ static const event_alias profile_events[] = {
     // { "arm_stall.frontend",                      { "ARM_STALL_FRONTEND" }},
     // { "arm_stall.backend",                       { "ARM_STALL_BACKEND" }},
     // { "arm_stall_slot",                          { "ARM_STALL_SLOT" }},
-    { "arm_stall_slot.frontend",                 { "ARM_STALL_SLOT_FRONTEND" }},
-    { "arm_stall_slot.backend",                  { "ARM_STALL_SLOT_BACKEND" }},
+    // { "arm_stall_slot.frontend",                 { "ARM_STALL_SLOT_FRONTEND" }},
+    // { "arm_stall_slot.backend",                  { "ARM_STALL_SLOT_BACKEND" }},
     // { "map_idle",                                { "MAP_DISPATCH_BUBBLE" }},
     // { "map_stall_cycles",                        { "MAP_STALL" }},
     // { "map_stalls.dispatch",                     { "MAP_STALL_DISPATCH" }},
@@ -69,7 +69,7 @@ static const event_alias profile_events[] = {
     // { "uops_retired",                       { "RETIRE_UOP" }},      // counters_mask = 128
     // { "branches.retired",                   { "INST_BRANCH" }},     // counters_mask = 252
     // { "int_alu_insts.retired",              { "INST_INT_ALU" }},             // counters_mask = 128
-    // { "int_load_insts.retired",             { "INST_INT_LD" }},              // counters_mask = 252
+     { "int_load_insts.retired",             { "INST_INT_LD" }},              // counters_mask = 252
     // { "int_store_insts.retired",            { "INST_INT_ST" }},              // counters_mask = 128
     // { "load_store_insts.retired",           { "INST_LDST" }},                // counters_mask = 128
     // { "simd_alu_insts.retired",             { "INST_SIMD_ALU" }},            // counters_mask = 128
@@ -85,8 +85,8 @@ static const event_alias profile_events[] = {
     // -------------------------------------------------------------------------
     // Speculation
     // -------------------------------------------------------------------------
-    { "arm_br_pred",                        { "ARM_BR_PRED" }},
-    { "arm_br_mis_pred",                    { "ARM_BR_MIS_PRED" }},
+    // { "arm_br_pred",                        { "ARM_BR_PRED" }},
+    // { "arm_br_mis_pred",                    { "ARM_BR_MIS_PRED" }},
     // { "branches_mispredicted.retired",      { "BRANCH_MISPRED_NONSPEC" }},
     // { "uops_issued",                        { "MAP_UOP" }},
     // { "map_rewinding_cycles",               { "MAP_REWIND" }},
@@ -101,15 +101,15 @@ static const event_alias profile_events[] = {
     // { "mispred.indir",                      { "BRANCH_INDIR_MISPRED_NONSPEC" }},      // counters_mask = 252
     // { "map_int_uops.speculative",           { "MAP_INT_UOP" }},
     // { "map_load_store_uops.speculative",    { "MAP_LDST_UOP" }},
-    // { "load_uops.speculative",              { "LD_UNIT_UOP" }},
+     { "load_uops.speculative",              { "LD_UNIT_UOP" }},
     // { "store_uops.speculative",             { "ST_UNIT_UOP" }},
 
     // -------------------------------------------------------------------------
     // Frontend
     // -------------------------------------------------------------------------
     // { "fetch_restart_exclude_branch_prediction", { "FETCH_RESTART" }},
-    { "l1i_cache_demand_misses",                 { "L1I_CACHE_MISS_DEMAND" }},
-    { "l1i_tlb_refills",                         { "L1I_TLB_FILL" }},
+    // { "l1i_cache_demand_misses",                 { "L1I_CACHE_MISS_DEMAND" }},
+    // { "l1i_tlb_refills",                         { "L1I_TLB_FILL" }},
     // { "l1i_tlb_demand_misses",                   { "L1I_TLB_MISS_DEMAND" }},
     // { "l2_tlb_misses_inst",                      { "L2_TLB_MISS_INSTRUCTION" }},
     // { "page_table_walk_inst",                    { "MMU_TABLE_WALK_INSTRUCTION" }},
@@ -121,8 +121,8 @@ static const event_alias profile_events[] = {
     // { "arm_l1d_cache.rd",                        { "ARM_L1D_CACHE_RD" }},
     // { "arm_l1d_cache_refill",                    { "ARM_L1D_CACHE_REFILL" }},
     // { "arm_l1d_cache_lmiss.rd",                  { "ARM_L1D_CACHE_LMISS_RD" }},
-    // { "l1d_load_misses.retired",                 { "L1D_CACHE_MISS_LD_NONSPEC" }},   // counters_mask = 252
-    // { "l1d_load_misses",                         { "L1D_CACHE_MISS_LD" }},
+    { "l1d_load_misses.retired",                 { "L1D_CACHE_MISS_LD_NONSPEC" }},   // counters_mask = 252
+    { "l1d_load_misses",                         { "L1D_CACHE_MISS_LD" }},
     // { "l1d_store_misses.retired",                { "L1D_CACHE_MISS_ST_NONSPEC" }},   // counters_mask = 252
     // { "l1d_store_misses",                        { "L1D_CACHE_MISS_ST" }},
     // { "l1d_writeback",                           { "L1D_CACHE_WRITEBACK" }},
