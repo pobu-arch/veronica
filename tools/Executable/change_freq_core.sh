@@ -32,6 +32,19 @@ normalize_target_khz() { # normalize_target_khz <input>
   return 1
 }
 
+normalize_target_khz() { # normalize_target_khz <input>
+  local raw="$1"
+  local in="$raw"
+
+  # 仅允许纯数字 MHz（可含小数），禁止任何单位后缀。
+  if [[ "$in" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    awk -v mhz="$in" 'BEGIN { printf "%.0f\n", mhz*1000 }'
+    return 0
+  fi
+
+  return 1
+}
+
 readf() { # readf <path> <default>
   local path="$1" def="${2:-n/a}"
   cat "$path" 2>/dev/null || echo "$def"
