@@ -1,0 +1,7 @@
+interface:
+  display_name: "Codex Reset Credits"
+  short_description: "Check Codex reset card count and expiry"
+  default_prompt: "Use $codex_reset_credits to check my Codex reset card count and expiration times."
+policy:
+  allow_implicit_invocation: true
+
